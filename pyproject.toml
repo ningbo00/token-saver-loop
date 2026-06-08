@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gpt2whatever"
+version = "0.1.0"
+description = "Portable Kimi-Codex workflow kit for any project"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+gpt2whatever = "gpt2whatever.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

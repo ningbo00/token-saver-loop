@@ -1,0 +1,40 @@
+{
+  "verdict": "pass",
+  "current_tier": "T2",
+  "next_tier": "T2",
+  "reasons": [
+    "89 tests passed locally",
+    "-NoRun now uses _validate instead of allocating a real round_NNN directory",
+    "tests.txt is included in runner-generated state.md Latest artifacts",
+    "accidental round_011 was safely reused for real round artifacts",
+    "no installer behavior was added"
+  ],
+  "findings": [
+    {
+      "severity": "low",
+      "file": "tools/ai-kimi-run.ps1",
+      "line": 245,
+      "issue": "Trusted-input comment indentation is awkward.",
+      "required_fix": "Optional cosmetic cleanup in a future script hardening pass."
+    }
+  ],
+  "kimi_reliability": {
+    "followed_scope": true,
+    "tests_verified": true,
+    "report_matches_reviewed_files": true,
+    "needs_downgrade": false
+  },
+  "verification": {
+    "tests": "python -m unittest discover -s tests -v -> 89 tests OK",
+    "norun_behavior": "PowerShell -NoRun validation used _validate and did not create round_012",
+    "script_scope": "No installer behavior added"
+  },
+  "batch_decision": {
+    "next_batch_size": "medium_plus",
+    "reason": "Round 011 fixed the issue cleanly; increase moderately but avoid large batch because Round 010 exposed workflow artifact risk."
+  },
+  "token_usage": {
+    "source": "unavailable",
+    "reason": "No latest Kimi token_count was provided for Round 011."
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "status": "done",
+  "tier": "T2",
+  "summary": "完成 token usage tracking MVP：安全 JSONL 解析器、汇总生成器、round 记录构建器、CLI 预览标志、测试、README/REPO_MAP 更新、以及 Kimi worker skill 补丁。51 个测试全部通过。",
+  "files_read": [
+    {"path": ".kimi-code/skills/kimi-codex-worker/SKILL.md", "reason": "Skill compliance and patch base"},
+    {"path": "docs/KIMI_TOKEN_USAGE_RESEARCH.md", "reason": "Research findings to implement"},
+    {"path": ".ai/active_task/state.md", "reason": "Confirm phase and tier"},
+    {"path": ".ai/active_task/rounds/round_004/codex_review.md", "reason": "Codex decisions for parser design"},
+    {"path": ".ai/active_task/rounds/round_004/verdict.json", "reason": "Confirm T2"},
+    {"path": ".ai/retros/retro_004_micro.md", "reason": "Retro recommendations"},
+    {"path": "README.md", "reason": "Prepare update"},
+    {"path": "docs/REPO_MAP.md", "reason": "Prepare update"},
+    {"path": "src/gpt2whatever/core.py", "reason": "Add token usage helpers"},
+    {"path": "src/gpt2whatever/cli.py", "reason": "Add CLI flags"},
+    {"path": "tests/test_core.py", "reason": "Add token usage tests"},
+    {"path": "tests/test_cli.py", "reason": "Add CLI token usage tests"}
+  ],
+  "files_changed": [
+    {"path": "src/gpt2whatever/core.py", "change_type": "modify", "summary": "Add parse_kimi_usage_counts_from_jsonl, summarize_kimi_usage_counts, build_round_token_usage_record", "risk": "low"},
+    {"path": "src/gpt2whatever/cli.py", "change_type": "modify", "summary": "Add --parse-kimi-usage-jsonl, --round-name, --tier", "risk": "low"},
+    {"path": "tests/test_core.py", "change_type": "modify", "summary": "10 new token usage unit tests", "risk": "low"},
+    {"path": "tests/test_cli.py", "change_type": "modify", "summary": "3 new token usage CLI tests", "risk": "low"},
+    {"path": "README.md", "change_type": "modify", "summary": "Token Usage Preview section with example and privacy note", "risk": "low"},
+    {"path": "docs/REPO_MAP.md", "change_type": "modify", "summary": "Mention token usage helpers and CLI flags", "risk": "low"},
+    {"path": ".kimi-code/skills/kimi-codex-worker/SKILL.md", "change_type": "modify", "summary": "Add Token Usage Logging, Privacy Boundary, Product Metadata Consistency sections", "risk": "low"},
+    {"path": ".ai/active_task/rounds/round_005/kimi_log.md", "change_type": "add", "summary": "T2 round execution log", "risk": "low"},
+    {"path": ".ai/active_task/rounds/round_005/kimi_report.json", "change_type": "add", "summary": "T2 structured review report", "risk": "low"}
+  ],
+  "commands_run": [
+    {"command": "mkdir -p .ai/active_task/rounds/round_005", "result": "passed", "notes": "Created log directory"},
+    {"command": "python -m unittest discover -s tests -v", "result": "passed", "notes": "51 tests, 0 failures"}
+  ],
+  "acceptance": [
+    {"item": "Safe JSONL parser implemented", "status": "passed", "evidence": "parse_kimi_usage_counts_from_jsonl only inspects role==_usage, ignores invalid JSON, non-dict, non-numeric"},
+    {"item": "No conversation content returned", "status": "passed", "evidence": "Parser only appends token_count ints"},
+    {"item": "Summary empty behavior", "status": "passed", "evidence": "summarize_kimi_usage_counts returns None fields when counts empty"},
+    {"item": "Summary non-empty behavior", "status": "passed", "evidence": "Returns start/end/delta/peak/entries; delta floors at 0"},
+    {"item": "Round record fields correct", "status": "passed", "evidence": "build_round_token_usage_record includes all required fields"},
+    {"item": "measurement_mode correct", "status": "passed", "evidence": "actual_total_only vs unavailable"},
+    {"item": "CLI parse flag works", "status": "passed", "evidence": "test_parse_kimi_usage_jsonl_prints_record"},
+    {"item": "CLI missing file returns 1", "status": "passed", "evidence": "test_parse_kimi_usage_jsonl_missing_file"},
+    {"item": "CLI empty file returns unavailable", "status": "passed", "evidence": "test_parse_kimi_usage_jsonl_empty_file"},
+    {"item": "Tests pass", "status": "passed", "evidence": "51/51 OK"},
+    {"item": "README updated", "status": "passed", "evidence": "Token Usage Preview section"},
+    {"item": "REPO_MAP updated", "status": "passed", "evidence": "Token usage helpers mentioned"},
+    {"item": "Skill updated", "status": "passed", "evidence": "Three new sections added"},
+    {"item": "No dependency install", "status": "passed", "evidence": "Stdlib only"},
+    {"item": "No real ~/.kimi modification", "status": "passed", "evidence": "Tests use tempfile"},
+    {"item": "No network", "status": "passed", "evidence": "All local"}
+  ],
+  "risks": [
+    {
+      "level": "low",
+      "area": "Kimi CLI _usage format stability",
+      "description": "If Kimi CLI changes _usage entry shape, parser will silently skip them",
+      "recommended_review": "Codex should decide if parser should warn when zero usage lines are found"
+    },
+    {
+      "level": "low",
+      "area": "pyproject.toml description",
+      "description": "Still stale from old LLM converter direction; metadata consistency reminder added to skill",
+      "recommended_review": "Codex should schedule a cleanup round to update pyproject.toml description"
+    }
+  ],
+  "deviations": [],
+  "open_questions": [
+    "Should the parser warn when zero _usage lines are found (possible format mismatch)?",
+    "Should the next round implement automatic session-to-project mapping from kimi.json?",
+    "When should pyproject.toml description be updated to match workflow kit direction?"
+  ],
+  "next_action": "codex_review"
+}

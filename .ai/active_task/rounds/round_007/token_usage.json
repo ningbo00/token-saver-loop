@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "round": "round_007",
+  "tier": "T2",
+  "actor": "kimi",
+  "source": "manual_start_plus_latest_kimi_context_jsonl_end",
+  "measurement_mode": "actual_total_only_delta",
+  "start_token_count": 162223,
+  "end_token_count": 195228,
+  "delta_token_count": 33005,
+  "peak_token_count": 195228,
+  "prompt_tokens": null,
+  "completion_tokens": null,
+  "start_captured_by": "user_powershell_snapshot",
+  "end_captured_by": "codex_safe_usage_line_read",
+  "notes": "Kimi CLI exposes total token_count only; delta is end-start for this round."
+}

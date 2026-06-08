@@ -1,0 +1,72 @@
+{
+  "status": "done",
+  "tier": "T2",
+  "summary": "完成 metrics aggregation MVP：添加 JSONL 解析器、Codex usage snapshot 构建器、混合记录汇总器；CLI 支持 --record-codex-usage 和 --summarize-token-usage-jsonl；更新测试、README、REPO_MAP。75 个测试全部通过。",
+  "files_read": [
+    {"path": ".kimi-code/skills/kimi-codex-worker/SKILL.md", "reason": "Skill compliance"},
+    {"path": ".ai/active_task/state.md", "reason": "Confirm phase and tier"},
+    {"path": ".ai/active_task/rounds/round_006/codex_review.md", "reason": "Previous review"},
+    {"path": ".ai/active_task/rounds/round_006/verdict.json", "reason": "Confirm T2"},
+    {"path": ".ai/active_task/rounds/round_006/token_usage.json", "reason": "Inspect existing record format"},
+    {"path": ".ai/metrics/token_usage.jsonl", "reason": "Inspect metrics format"},
+    {"path": "README.md", "reason": "Prepare update"},
+    {"path": "docs/REPO_MAP.md", "reason": "Prepare update"},
+    {"path": "src/gpt2whatever/core.py", "reason": "Add metrics helpers"},
+    {"path": "src/gpt2whatever/cli.py", "reason": "Add CLI flags"},
+    {"path": "tests/test_core.py", "reason": "Add tests"},
+    {"path": "tests/test_cli.py", "reason": "Add CLI tests"}
+  ],
+  "files_changed": [
+    {"path": "src/gpt2whatever/core.py", "change_type": "modify", "summary": "Add parse_jsonl_records, build_codex_usage_snapshot, summarize_token_usage_records; add actor=kimi to build_round_token_usage_record", "risk": "low"},
+    {"path": "src/gpt2whatever/cli.py", "change_type": "modify", "summary": "Add --record-codex-usage, --codex-* flags, --summarize-token-usage-jsonl", "risk": "low"},
+    {"path": "tests/test_core.py", "change_type": "modify", "summary": "16 new metrics tests + actor assertion update", "risk": "low"},
+    {"path": "tests/test_cli.py", "change_type": "modify", "summary": "5 new metrics CLI tests", "risk": "low"},
+    {"path": "README.md", "change_type": "modify", "summary": "Manual Codex Usage Snapshot and Summarize Token Usage sections", "risk": "low"},
+    {"path": "docs/REPO_MAP.md", "change_type": "modify", "summary": "Mention metrics aggregation helpers and CLI flags", "risk": "low"},
+    {"path": ".ai/active_task/rounds/round_007/kimi_log.md", "change_type": "add", "summary": "T2 round execution log", "risk": "low"},
+    {"path": ".ai/active_task/rounds/round_007/kimi_report.json", "change_type": "add", "summary": "T2 structured review report", "risk": "low"}
+  ],
+  "commands_run": [
+    {"command": "mkdir -p .ai/active_task/rounds/round_007", "result": "passed", "notes": "Created log directory"},
+    {"command": "python -m unittest discover -s tests -v", "result": "passed", "notes": "75 tests, 0 failures"}
+  ],
+  "acceptance": [
+    {"item": "parse_jsonl_records implemented", "status": "passed", "evidence": "Parses valid dicts, ignores invalid JSON and non-dict values"},
+    {"item": "build_codex_usage_snapshot implemented", "status": "passed", "evidence": "Returns dict with actor=codex, validates non-negative ints"},
+    {"item": "summarize_token_usage_records implemented", "status": "passed", "evidence": "Sums Kimi deltas, uses latest Codex totals, backward compatible"},
+    {"item": "build_round_token_usage_record includes actor", "status": "passed", "evidence": "actor=kimi added"},
+    {"item": "CLI --record-codex-usage works", "status": "passed", "evidence": "Prints JSON snapshot when all fields provided"},
+    {"item": "CLI --record-codex-usage missing fields returns 1", "status": "passed", "evidence": "Lists missing fields in stderr"},
+    {"item": "CLI --record-codex-usage rejects negative", "status": "passed", "evidence": "ValueError caught, stderr, exit 1"},
+    {"item": "CLI --summarize-token-usage-jsonl works", "status": "passed", "evidence": "Prints summary with kimi_delta and codex_latest"},
+    {"item": "CLI missing summary file returns 1", "status": "passed", "evidence": "Clear error to stderr"},
+    {"item": "Tests pass", "status": "passed", "evidence": "75/75 OK"},
+    {"item": "README updated", "status": "passed", "evidence": "New sections with examples"},
+    {"item": "REPO_MAP updated", "status": "passed", "evidence": "Metrics helpers mentioned"},
+    {"item": "No dependency install", "status": "passed", "evidence": "Stdlib only"},
+    {"item": "No real ~/.kimi access", "status": "passed", "evidence": "Tests use tempfile"},
+    {"item": "No network", "status": "passed", "evidence": "All local"},
+    {"item": "No installer writes", "status": "passed", "evidence": "Only print JSON"}
+  ],
+  "risks": [
+    {
+      "level": "low",
+      "area": "Metrics JSONL memory usage",
+      "description": "summarize uses read_text() for metrics JSONL; acceptable for user-managed files",
+      "recommended_review": "Codex should confirm if streaming metrics JSONL is needed later"
+    },
+    {
+      "level": "low",
+      "area": "Backward compat inference",
+      "description": "Records without actor but with delta_token_count are inferred as Kimi",
+      "recommended_review": "Codex should confirm if explicit actor should be required going forward"
+    }
+  ],
+  "deviations": [],
+  "open_questions": [
+    "Should future rounds implement automatic metrics JSONL file writes (append mode)?",
+    "Should we add a retro engine or keep manual retros?",
+    "Is the project ready for installer file writes in the next round?"
+  ],
+  "next_action": "codex_review"
+}

@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "actor": "kimi",
+  "round": "round_008",
+  "tier": "T2",
+  "source": "manual_user_session_path_plus_safe_usage_parser",
+  "measurement_mode": "actual_total_only",
+  "start_token_count": 24048,
+  "end_token_count": 54598,
+  "delta_token_count": 30550,
+  "peak_token_count": 54598,
+  "usage_entries": 33,
+  "prompt_tokens": null,
+  "completion_tokens": null,
+  "notes": "User provided Kimi session path and last token_count 54598; Codex verified via safe _usage-only parser.",
+  "start_captured_by": "codex_safe_usage_line_read",
+  "end_captured_by": "user_provided_last_token_count_verified_by_parser"
+}

@@ -1,0 +1,42 @@
+{
+  "status": "done",
+  "tier": "T2",
+  "summary": "Narrow same-tier fix for Round 010 workflow artifact issues: -NoRun now uses _validate directory instead of allocating real round dirs; tests.txt added to state.md Latest artifacts; trusted-input comment added for Invoke-Expression; accidental round_011 left intact with real artifacts written alongside.",
+  "files_read": [
+    {"path": ".kimi-code/skills/kimi-codex-worker/SKILL.md", "reason": "Confirm skill rules"},
+    {"path": ".ai/active_task/gpt_command.md", "reason": "Current GPT task command"},
+    {"path": ".ai/active_task/state.md", "reason": "Check current state"},
+    {"path": ".ai/active_task/codex_plan.md", "reason": "Round 011 Codex plan"},
+    {"path": ".ai/active_task/rounds/round_010/codex_review.md", "reason": "Latest Codex review"},
+    {"path": ".ai/active_task/rounds/round_010/verdict.json", "reason": "Latest verdict"},
+    {"path": "tools/ai-kimi-run.ps1", "reason": "Fix target"},
+    {"path": ".ai/active_task/rounds/round_011/", "reason": "Inspect accidental artifact contents"}
+  ],
+  "files_changed": [
+    {"path": "tools/ai-kimi-run.ps1", "change_type": "modify", "summary": "-NoRun uses _validate dir; tests.txt in state.md Latest artifacts; trusted-input comment for Invoke-Expression", "risk": "low"},
+    {"path": ".ai/active_task/rounds/round_011/kimi_log.md", "change_type": "add", "summary": "Round 011 Kimi log", "risk": "low"},
+    {"path": ".ai/active_task/rounds/round_011/kimi_report.json", "change_type": "add", "summary": "Round 011 JSON report", "risk": "low"}
+  ],
+  "commands_run": [
+    {"command": "python -m unittest discover -s tests -v", "result": "passed", "notes": "89 tests passed, 0 failures"},
+    {"command": "powershell -ExecutionPolicy Bypass -File tools/ai-kimi-run.ps1 -NoRun", "result": "passed", "notes": "Used _validate directory, no new round_NNN created"},
+    {"command": "ls .ai/active_task/rounds/", "result": "passed", "notes": "Confirmed no round_012+ created by validation"}
+  ],
+  "acceptance": [
+    {"item": "-NoRun no longer allocates real round dirs", "status": "passed", "evidence": "Validation used _validate; no round_012 appeared"},
+    {"item": "_validate dir cleans prior artifacts safely", "status": "passed", "evidence": "Only files inside _validate removed; real round dirs untouched"},
+    {"item": "tests.txt included in state.md Latest artifacts", "status": "passed", "evidence": "Added - $roundRel/tests.txt to state template"},
+    {"item": "Trusted-input comment added", "status": "passed", "evidence": "Comment block above Invoke-Expression"},
+    {"item": "Accidental round_011 handled safely", "status": "passed", "evidence": "Left existing files intact; wrote real artifacts into same dir"},
+    {"item": "Tests pass", "status": "passed", "evidence": "89 tests OK"},
+    {"item": "File limit respected", "status": "passed", "evidence": "3 files changed/added (limit 4)"},
+    {"item": "PowerShell validation does not create new round", "status": "passed", "evidence": "-NoRun output path is _validate\\kimi_prompt.md"},
+    {"item": "Round 011 log and JSON report created", "status": "passed", "evidence": "kimi_log.md and kimi_report.json exist in round_011/"}
+  ],
+  "risks": [
+    {"level": "low", "area": "Next real round numbering", "description": "Get-NextRoundDir will create round_012 next because round_011 already exists. This is correct behavior since round_011 now contains real artifacts, but may be unexpected if the user expected round_011 to be skipped.", "recommended_review": "Consider whether round_011 should be treated as occupied now that it has real round artifacts."}
+  ],
+  "deviations": [],
+  "open_questions": [],
+  "next_action": "codex_review"
+}

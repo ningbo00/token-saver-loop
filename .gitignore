@@ -1,0 +1,9 @@
+.ai/active_task/rounds/*/kimi_stdout.txt
+.ai/active_task/rounds/*/kimi_stderr.txt
+.ai/active_task/rounds/*/diff.patch
+.ai/active_task/rounds/*/tests.txt
+node_modules/
+dist/
+build/
+__pycache__/
+.env

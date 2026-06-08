@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "actor": "kimi",
+  "round": "round_009",
+  "tier": "T2",
+  "source": "previous_round_end_plus_safe_usage_parser_latest",
+  "measurement_mode": "actual_total_only_delta",
+  "start_token_count": 54598,
+  "end_token_count": 62294,
+  "delta_token_count": 7696,
+  "peak_token_count": 62294,
+  "usage_entries": 53,
+  "prompt_tokens": null,
+  "completion_tokens": null,
+  "start_captured_by": "round_008_recorded_end_token_count",
+  "end_captured_by": "codex_safe_usage_line_read",
+  "notes": "Round 009 appears to continue the same Kimi session; delta uses Round 008 end token_count as start and latest safe _usage token_count as end."
+}

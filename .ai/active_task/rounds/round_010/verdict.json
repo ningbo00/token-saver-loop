@@ -1,0 +1,46 @@
+{
+  "verdict": "same-tier-fix",
+  "current_tier": "T2",
+  "next_tier": "T2",
+  "reasons": [
+    "89 tests passed locally",
+    "PowerShell syntax is valid",
+    "Round 010 improved artifact capture and drafted dry-run criteria",
+    "but the -NoRun validation created an unintended round_011 artifact and polluted latest-round detection"
+  ],
+  "findings": [
+    {
+      "severity": "medium",
+      "file": "tools/ai-kimi-run.ps1",
+      "line": null,
+      "issue": "-NoRun creates a persistent next round directory, so validation polluted .ai/active_task/rounds with round_011.",
+      "required_fix": "Change validation/dry-run behavior so safe checks do not allocate a real round by default, or add a separate validation mode/path."
+    },
+    {
+      "severity": "low",
+      "file": "tools/ai-kimi-run.ps1",
+      "line": 258,
+      "issue": "state.md Latest artifacts omits tests.txt despite new capture behavior.",
+      "required_fix": "Include tests.txt in Latest artifacts when it is captured."
+    },
+    {
+      "severity": "low",
+      "file": "tools/ai-kimi-run.ps1",
+      "line": 235,
+      "issue": "Invoke-Expression is used for workflow test commands.",
+      "required_fix": "Clarify trusted-input assumption or constrain execution in a future hardening pass."
+    }
+  ],
+  "kimi_reliability": {
+    "followed_scope": true,
+    "tests_verified": true,
+    "report_matches_reviewed_files": true,
+    "needs_downgrade": false
+  },
+  "verification": {
+    "tests": "python -m unittest discover -s tests -v -> 89 tests OK",
+    "powershell_syntax": "[scriptblock]::Create((Get-Content -Raw tools/ai-kimi-run.ps1)) -> OK",
+    "unintended_artifact": ".ai/active_task/rounds/round_011 contains only git_status_before.txt, kimi_prompt.md, tier.md"
+  },
+  "next_prompt": "Narrow T2 fix for ai-kimi-run.ps1 artifact behavior; no installer implementation."
+}

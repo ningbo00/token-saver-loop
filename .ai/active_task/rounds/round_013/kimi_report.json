@@ -1,0 +1,61 @@
+{
+  "status": "done",
+  "tier": "T2",
+  "summary": "Hardened installer dry-run safety: added validate_project_name core helper with regex validation, wired it into CLI installer handler, added comprehensive tests, updated docs and criteria, and added Decision Trace guidance to the worker skill. 118 tests passed.",
+  "files_read": [
+    {"path": ".ai/active_task/gpt_command.md", "reason": "Current GPT task command"},
+    {"path": ".ai/active_task/state.md", "reason": "Check current state"},
+    {"path": ".ai/active_task/codex_plan.md", "reason": "Round 013 Codex plan"},
+    {"path": ".ai/active_task/rounds/round_012/codex_review.md", "reason": "Latest Codex review"},
+    {"path": ".ai/active_task/rounds/round_012/verdict.json", "reason": "Latest verdict"},
+    {"path": "docs/INSTALL_DRY_RUN_CRITERIA.md", "reason": "Update criteria"},
+    {"path": "src/gpt2whatever/core.py", "reason": "Add validate_project_name"},
+    {"path": "src/gpt2whatever/cli.py", "reason": "Wire validation into installer handler"},
+    {"path": "tests/test_core.py", "reason": "Add core tests"},
+    {"path": "tests/test_cli.py", "reason": "Add CLI tests"},
+    {"path": "README.md", "reason": "Update docs"},
+    {"path": "docs/AGENT_CONTEXT.md", "reason": "Update handoff context"},
+    {"path": ".kimi-code/skills/kimi-codex-worker/SKILL.md", "reason": "Add Decision Trace guidance"}
+  ],
+  "files_changed": [
+    {"path": "src/gpt2whatever/core.py", "change_type": "modify", "summary": "Added validate_project_name helper with regex validation; integrated into build_install_dry_run_plan", "risk": "low"},
+    {"path": "src/gpt2whatever/cli.py", "change_type": "modify", "summary": "Added validate_project_name import and validation in installer handler; changed empty-name check to is None", "risk": "low"},
+    {"path": "tests/test_core.py", "change_type": "modify", "summary": "Added TestValidateProjectName with 10 tests", "risk": "low"},
+    {"path": "tests/test_cli.py", "change_type": "modify", "summary": "Added 4 CLI validation tests", "risk": "low"},
+    {"path": "README.md", "change_type": "modify", "summary": "Added project-name validation note to options", "risk": "low"},
+    {"path": "docs/INSTALL_DRY_RUN_CRITERIA.md", "change_type": "modify", "summary": "Added criterion 7 for project name validation", "risk": "low"},
+    {"path": "docs/AGENT_CONTEXT.md", "change_type": "modify", "summary": "Updated current goal to reflect dry-run hardening", "risk": "low"},
+    {"path": ".kimi-code/skills/kimi-codex-worker/SKILL.md", "change_type": "modify", "summary": "Added Decision Trace Guidance section", "risk": "low"},
+    {"path": ".ai/active_task/rounds/round_013/kimi_log.md", "change_type": "add", "summary": "Round 013 Kimi log", "risk": "low"},
+    {"path": ".ai/active_task/rounds/round_013/kimi_report.json", "change_type": "add", "summary": "Round 013 JSON report", "risk": "low"}
+  ],
+  "commands_run": [
+    {"command": "git status --short", "result": "passed", "notes": "Clean working tree (untracked only)"},
+    {"command": "python -m unittest discover -s tests -v", "result": "passed", "notes": "118 tests passed, 0 failures"}
+  ],
+  "acceptance": [
+    {"item": "validate_project_name rejects empty string", "status": "passed", "evidence": "test_rejects_empty_string"},
+    {"item": "validate_project_name rejects whitespace-only", "status": "passed", "evidence": "test_rejects_whitespace_only"},
+    {"item": "validate_project_name rejects leading/trailing whitespace", "status": "passed", "evidence": "test_rejects_leading_whitespace, test_rejects_trailing_whitespace"},
+    {"item": "validate_project_name rejects path separators", "status": "passed", "evidence": "test_rejects_path_separator_slash, test_rejects_path_separator_backslash"},
+    {"item": "validate_project_name rejects traversal (..)", "status": "passed", "evidence": "test_rejects_dotdot"},
+    {"item": "validate_project_name rejects non-string", "status": "passed", "evidence": "test_rejects_non_string"},
+    {"item": "validate_project_name accepts valid names", "status": "passed", "evidence": "test_valid_name, test_valid_name_with_hyphen, test_valid_name_with_underscore"},
+    {"item": "CLI dry-run rejects unsafe names", "status": "passed", "evidence": "3 CLI rejection tests"},
+    {"item": "CLI dry-run accepts valid names", "status": "passed", "evidence": "test_install_dry_run_accepts_valid_name"},
+    {"item": "Legacy --dry-run still works", "status": "passed", "evidence": "test_legacy_dry_run_still_works"},
+    {"item": "Tests pass", "status": "passed", "evidence": "118 tests OK"},
+    {"item": "README updated", "status": "passed", "evidence": "Added validation note"},
+    {"item": "Criteria doc updated", "status": "passed", "evidence": "Added criterion 7"},
+    {"item": "AGENT_CONTEXT updated", "status": "passed", "evidence": "Updated goal"},
+    {"item": "Decision Trace guidance added", "status": "passed", "evidence": "New section in SKILL.md"},
+    {"item": "File limit respected", "status": "passed", "evidence": "8 changed files (limit 10)"},
+    {"item": "Round 013 log and JSON report created", "status": "passed", "evidence": "kimi_log.md and kimi_report.json exist"}
+  ],
+  "risks": [
+    {"level": "low", "area": "Project name regex restrictiveness", "description": "The regex ^[a-zA-Z0-9_-]+$ rejects dots, spaces, and unicode. This is safe but may be too restrictive for some real project names.", "recommended_review": "Consider whether to allow dots or unicode with additional sanitization instead of rejection."}
+  ],
+  "deviations": [],
+  "open_questions": [],
+  "next_action": "codex_review"
+}
