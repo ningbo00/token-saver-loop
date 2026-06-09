@@ -528,8 +528,7 @@ class TestCLIInstallerDryRun(unittest.TestCase):
             code = main(["--install", "--project-name", "MyApp"])
             self.assertEqual(code, 1)
             err = mock_stderr.getvalue()
-            self.assertIn("not implemented yet", err)
-            self.assertIn("--dry-run", err)
+            self.assertIn("requires --yes or --dry-run", err)
 
     def test_install_dry_run_flags_existing_files_as_conflicts(self) -> None:
         with tempfile.NamedTemporaryFile(
@@ -621,12 +620,108 @@ class TestCLIInstallerDryRun(unittest.TestCase):
             self.assertEqual(plan["test_command"], "pytest -q")
 
     def test_install_with_dry_run_and_project_name_only_rejects_real_writes(self) -> None:
-        # Sanity gate: even with all valid args, --install alone (no --dry-run) is rejected
+        # Sanity gate: even with all valid args, --install alone (no --dry-run, no --yes) is rejected
         with patch.object(sys, "stderr", new_callable=io.StringIO) as mock_stderr:
             code = main(["--install", "--project-name", "MyApp", "--test-command", "pytest"])
             self.assertEqual(code, 1)
             err = mock_stderr.getvalue()
-            self.assertIn("not implemented yet", err)
+            self.assertIn("requires --yes or --dry-run", err)
+
+    def test_install_yes_creates_expected_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            original_cwd = os.getcwd()
+            os.chdir(tmpdir)
+            try:
+                with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
+                    code = main(["--install", "--yes", "--project-name", "MyApp"])
+                    self.assertEqual(code, 0)
+                    output = mock_stdout.getvalue()
+                    result = json.loads(output)
+                    self.assertTrue(result["installed"])
+                    self.assertEqual(result["project_name"], "MyApp")
+                    self.assertIn("actions", result)
+                self.assertTrue(
+                    os.path.exists(os.path.join(tmpdir, ".ai", "active_task", "state.md"))
+                )
+                self.assertTrue(
+                    os.path.exists(os.path.join(tmpdir, "docs", "AGENT_CONTEXT.md"))
+                )
+                self.assertTrue(
+                    os.path.exists(
+                        os.path.join(
+                            tmpdir,
+                            ".kimi-code",
+                            "skills",
+                            "MyApp-kimi-codex-worker",
+                            "SKILL.md",
+                        )
+                    )
+                )
+            finally:
+                os.chdir(original_cwd)
+
+    def test_install_yes_fails_all_or_nothing_if_target_exists(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Pre-create one target file to trigger a conflict
+            target = os.path.join(tmpdir, ".ai", "active_task", "state.md")
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+            with open(target, "w", encoding="utf-8") as f:
+                f.write("existing")
+            original_cwd = os.getcwd()
+            os.chdir(tmpdir)
+            try:
+                with patch.object(sys, "stderr", new_callable=io.StringIO) as mock_stderr:
+                    code = main(["--install", "--yes", "--project-name", "MyApp"])
+                    self.assertEqual(code, 1)
+                    err = mock_stderr.getvalue()
+                    self.assertIn("safety check", err)
+                # No files should have been created (all-or-nothing)
+                self.assertFalse(
+                    os.path.exists(os.path.join(tmpdir, "docs", "AGENT_CONTEXT.md"))
+                )
+            finally:
+                os.chdir(original_cwd)
+
+    def test_install_dry_run_writes_nothing_even_with_yes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            original_cwd = os.getcwd()
+            os.chdir(tmpdir)
+            try:
+                with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
+                    code = main(
+                        ["--install", "--dry-run", "--yes", "--project-name", "MyApp"]
+                    )
+                    self.assertEqual(code, 0)
+                # Verify nothing was written despite --yes
+                self.assertFalse(
+                    os.path.exists(os.path.join(tmpdir, ".ai", "active_task", "state.md"))
+                )
+            finally:
+                os.chdir(original_cwd)
+
+    def test_install_yes_scripts_contain_real_content(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            original_cwd = os.getcwd()
+            os.chdir(tmpdir)
+            try:
+                with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
+                    code = main(["--install", "--yes", "--project-name", "MyApp"])
+                    self.assertEqual(code, 0)
+
+                init_path = os.path.join(tmpdir, "tools", "ai-kimi-init.ps1")
+                self.assertTrue(os.path.exists(init_path))
+                content = Path(init_path).read_text(encoding="utf-8")
+                self.assertNotIn("Placeholder", content)
+                self.assertIn("param(", content)
+                self.assertIn("Initialized .ai/active_task", content)
+
+                run_path = os.path.join(tmpdir, "tools", "ai-kimi-run.ps1")
+                self.assertTrue(os.path.exists(run_path))
+                run_content = Path(run_path).read_text(encoding="utf-8")
+                self.assertIn("param(", run_content)
+                self.assertIn("Get-NextRoundDir", run_content)
+            finally:
+                os.chdir(original_cwd)
 
 
 if __name__ == "__main__":

@@ -1,47 +1,27 @@
 # State
 
-Status: round_018_passed
-Current phase: preview_1_0_ready_for_commit
+Status: round_023_passed
+Current phase: commit_ready
 Current tier: T2
-Latest round: .ai/active_task/rounds/round_018
+Latest round: .ai/active_task/rounds/round_023
 Latest retro: .ai/retros/retro_008_micro.md
 
-Codex review:
-- Round 017 implemented two gated checkpoints.
-- Checkpoint A: Fixed duplicate target detection in `apply_install_plan` preflight using resolved `Path` objects in a `seen` set. Added `isinstance(actions, list)` guard.
-- Checkpoint A tests: `test_duplicate_target_aborts_all`, `test_duplicate_target_via_alias_aborts_all` prove no partial writes.
-- Checkpoint B: Added `docs/RELEASE_1_0_CHECKLIST.md` defining 10 functional, 5 safety, 3 non-functional gates for preview-only release.
-- Checkpoint B tests: Added 2 CLI tests for `--test-command` inclusion and real-write rejection sanity gate; 2 core tests for non-list input and empty list edge cases.
-- Verified locally: python -m unittest discover -s tests -v -> 143 tests OK.
-- 4 project files changed (within 7-file limit).
-- Required Kimi artifacts `kimi_log.md` and `kimi_report.json` produced for round_017.
-- Codex review verdict: pass.
-- Codex added process-rotation rules to Kimi skill, generated worker skill template, and workflow docs.
-- Verified locally after Codex updates: python -m unittest discover -s tests -v -> 144 tests OK.
+Codex review summary:
+- Round 020 passed: real installer writes are gated by `--yes`, all-or-nothing checks pass, and installed PowerShell scripts match the source workflow scripts.
+- Round 021 created `portable/kimi-codex-kit/` but needed a same-tier fix for Windows PowerShell `Join-Path` compatibility.
+- Round 022 passed: portable scripts work in a temp parent project, kit state stays under `kimi-codex-kit/.ai/`, and parent `.ai/` is not created.
+- Round 023 passed: root `README.md` is now GitHub-first and portable-first.
+- Codex made small README review corrections to avoid overpromising dependencies/parent cleanliness and to keep README ASCII-only for Windows console friendliness.
+- Codex updated stale handoff/release docs so they no longer claim real installer writes are intentionally disabled.
 
-Codex release-finalization update:
-- Set Python package version to `1.0.0` for the preview-only workflow kit in `pyproject.toml` and `src/gpt2whatever/__init__.py`.
-- Added `readme` and `keywords` package metadata.
-- Added CLI `--version` flag and regression test.
-- Updated README, release checklist, agent context, and repo map to document the 1.0 preview-only version strategy.
-- Kept JSON output schema versions at `version: 1`.
-- Kept real `--install` writes disabled; use T1 only if exposing real installer writes.
-- Verified locally: python -m unittest discover -s tests -v -> 146 tests OK.
-- Verified locally with `PYTHONPATH=src`: python -m gpt2whatever.cli --version -> gpt2whatever 1.0.0.
-- Verified `pyproject.toml` parses via `tomllib`.
-- Verified `git diff --check` has no whitespace errors.
-
-Round 018 Codex review:
-- Kimi ran an independent preview-only 1.0 release-readiness audit and found no release blockers.
-- Required Kimi artifacts `kimi_log.md` and `kimi_report.json` produced for round_018.
-- Codex review verdict: pass.
-- Codex added testing responsibility and git archive responsibility rules to `KIMI_CODEX_LOOP.md`, `CODEX_CONTINUE.md`, the local Kimi worker skill, and the generated worker skill template.
-- Rule summary: Kimi may run tests and collect git evidence; Codex/user own final acceptance and git history unless explicitly delegated.
-- Verified locally after Codex updates: python -m unittest discover -s tests -v -> 147 tests OK.
-- Verified locally after Codex updates: git diff --check -> no whitespace errors.
-- Verified locally after Codex updates with `PYTHONPATH=src`: python -m gpt2whatever.cli --version -> gpt2whatever 1.0.0.
+Verified locally:
+- `python -m unittest discover -s tests -v` -> 151 tests OK.
+- `git diff --check` -> no whitespace errors; LF-to-CRLF warnings only.
+- README sanity check -> required phrases present and non-ASCII count is 0.
+- Final temp portable smoke -> init and `ai-kimi-run.ps1 -NoRun` pass; kit-local state/prompt exist; parent `.ai/` absent.
 
 Next action:
-- Review and commit the preview-only 1.0 finalization plus workflow-rule diff.
-- After commit, use a fresh Codex thread before the final 1.0 release decision.
-- Use T1 only if exposing real installer writes.
+- Do not start another Kimi round yet.
+- User/Codex should review final git status/diff and commit this batch.
+- Suggested commit message: `Add portable kit and GitHub-first README`.
+- After commit, start a fresh Codex thread before release packaging or GitHub polish work.

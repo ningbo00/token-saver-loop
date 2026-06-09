@@ -1,18 +1,19 @@
-# 1.0 Preview-Only Release Readiness Checklist
+# 1.0 Workflow Kit Release Readiness Checklist
 
 ## Release Definition
 
-The 1.0 preview-only release is a **read-only / dry-run capable** workflow kit:
+The 1.0 release is a portable-first Kimi-Codex workflow kit:
+- The primary user path is copying `portable/kimi-codex-kit/` into a project.
 - All preview, config, skill, token, and metrics commands work.
 - `--install --dry-run` generates a versioned plan with a safety report.
+- Real `--install` writes are available only with explicit `--yes` and all-or-nothing safety checks.
 - Python package version is `1.0.0`; JSON output schemas remain separately versioned as `version: 1`.
-- **Real `--install` writes are intentionally disabled.**
 
 ## Version Strategy
 
-- Package release version: `1.0.0` for the preview-only workflow kit.
+- Package release version: `1.0.0` for the workflow kit.
 - Output schema versions: keep existing `version: 1` values for token, metrics, and installer-plan JSON records.
-- Future real installer writes should be a separate T1 scope and may use a later package version.
+- Future installer improvements should preserve `--yes` confirmation and all-or-nothing safety behavior.
 
 ## Functional Gates
 
@@ -25,7 +26,7 @@ The 1.0 preview-only release is a **read-only / dry-run capable** workflow kit:
 | 5 | Installer dry-run (`--install --dry-run`) produces versioned JSON plan | OK | `TestCLIInstallerDryRun` |
 | 6 | Installer dry-run reports safety check (`safe`, `concerns`, `blocked_actions`) | OK | `test_install_dry_run_succeeds_with_project_name` |
 | 7 | Installer rejects unsafe project names (empty, separators, `..`) | OK | `TestCLIInstallerDryRun` rejection tests |
-| 8 | Installer real writes blocked: `--install` without `--dry-run` returns error | OK | `test_install_without_dry_run_rejected` |
+| 8 | Installer real writes require `--yes`: `--install` without `--dry-run` or `--yes` returns error | OK | `test_install_without_dry_run_rejected` |
 | 9 | Core write helpers (`apply_install_action`, `apply_install_plan`) exist and are tested | OK | `TestApplyInstallAction`, `TestApplyInstallPlan` |
 | 10 | Core write helpers enforce root containment, no-overwrite, all-or-nothing, no duplicates | OK | `TestApplyInstallPlan` |
 
@@ -33,7 +34,7 @@ The 1.0 preview-only release is a **read-only / dry-run capable** workflow kit:
 
 | # | Gate | Status | Evidence |
 |---|---|---|---|
-| 1 | No CLI path exposes real installer writes to the repo root | OK | CLI returns "not implemented yet" |
+| 1 | No CLI path exposes real installer writes to the repo root without `--yes` | OK | CLI requires `--yes` for real install |
 | 2 | `validate_project_name` blocks traversal and path separators | OK | `TestValidateProjectName` |
 | 3 | `check_install_safety` blocks generated/binary areas and absolute paths | OK | `TestCheckInstallSafety` |
 | 4 | `apply_install_plan` detects duplicate resolved targets before writing | OK | `test_duplicate_target_aborts_all` |
@@ -48,6 +49,8 @@ The 1.0 preview-only release is a **read-only / dry-run capable** workflow kit:
 | 3 | Package metadata declares preview 1.0 version and README | OK | `pyproject.toml`, `--version` |
 | 4 | No committed secrets or session content | OK | `.gitignore`, privacy boundary rules |
 
-## Intentionally Deferred Post-1.0
+## Post-1.0 Candidates
 
-- Real `--install` apply with user confirmation or `--force` flag.
+- Doctor command for checking kit health and common setup issues.
+- Packaged release paths such as PyPI and standalone zip.
+- Example projects showing T1/T2/T3 rounds.

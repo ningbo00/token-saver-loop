@@ -1,0 +1,51 @@
+{
+  "status": "done",
+  "tier": "T2",
+  "summary": "Fixed 5 multi-argument Join-Path calls in 4 portable PS1 scripts by replacing them with nested two-argument calls. Smoke-tested in a temp parent project: init and run scripts succeed, kit state stays inside kimi-codex-kit/.ai/, parent root remains clean.",
+  "files_read": [
+    {"path": "portable/kimi-codex-kit/tools/ai-kimi-init.ps1", "reason": "Join-Path audit"},
+    {"path": "portable/kimi-codex-kit/tools/ai-kimi-run.ps1", "reason": "Join-Path audit"},
+    {"path": "portable/kimi-codex-kit/tools/ai-kimi-review-pack.ps1", "reason": "Join-Path audit"},
+    {"path": "portable/kimi-codex-kit/tools/ai-kimi-verdict.ps1", "reason": "Join-Path audit"}
+  ],
+  "files_changed": [
+    {"path": "portable/kimi-codex-kit/tools/ai-kimi-init.ps1", "change_type": "modify", "summary": "Replace 2 multi-arg Join-Path with nested calls", "risk": "low"},
+    {"path": "portable/kimi-codex-kit/tools/ai-kimi-run.ps1", "change_type": "modify", "summary": "Replace 1 multi-arg Join-Path with nested call", "risk": "low"},
+    {"path": "portable/kimi-codex-kit/tools/ai-kimi-review-pack.ps1", "change_type": "modify", "summary": "Replace 1 multi-arg Join-Path with nested call", "risk": "low"},
+    {"path": "portable/kimi-codex-kit/tools/ai-kimi-verdict.ps1", "change_type": "modify", "summary": "Replace 1 multi-arg Join-Path with nested call", "risk": "low"}
+  ],
+  "commands_run": [
+    {"command": "PYTHONPATH=src python -m unittest discover -s tests -v", "result": "passed", "notes": "151 tests OK"},
+    {"command": "git diff --check", "result": "passed", "notes": "no whitespace errors"},
+    {"command": "pwsh ai-kimi-init.ps1 -Task \"Smoke task\" -Tier T2", "result": "passed", "notes": "Initialized .ai/active_task"},
+    {"command": "pwsh ai-kimi-run.ps1 -NoRun", "result": "passed", "notes": "Prepared Kimi prompt only: ..._validate\\kimi_prompt.md"},
+    {"command": "verify kit state.md exists", "result": "passed", "notes": "kimi-codex-kit/.ai/active_task/state.md exists"},
+    {"command": "validate kimi_prompt.md exists", "result": "passed", "notes": "kimi-codex-kit/.ai/active_task/rounds/_validate/kimi_prompt.md exists"},
+    {"command": "verify parent .ai/ does not exist", "result": "passed", "notes": "No such file or directory"}
+  ],
+  "acceptance": [
+    {"item": "Multi-argument Join-Path removed from all portable scripts", "status": "passed", "evidence": "grep shows only nested two-arg calls remain"},
+    {"item": "ai-kimi-init.ps1 runs without error in temp parent project", "status": "passed", "evidence": "smoke test succeeded"},
+    {"item": "ai-kimi-run.ps1 -NoRun runs without error", "status": "passed", "evidence": "smoke test succeeded"},
+    {"item": "Kit state stays inside kimi-codex-kit/.ai/", "status": "passed", "evidence": "state.md and _validate/kimi_prompt.md both inside kit"},
+    {"item": "Parent project root does not get .ai/", "status": "passed", "evidence": "parent .ai/ does not exist after smoke"},
+    {"item": "Standard Python tests still pass", "status": "passed", "evidence": "151 tests OK"},
+    {"item": "git diff --check clean", "status": "passed", "evidence": "no whitespace errors"},
+    {"item": "File limit respected", "status": "passed", "evidence": "4 files changed (limit 4)"},
+    {"item": "Root tools not modified", "status": "passed", "evidence": "root tools/*.ps1 unchanged"},
+    {"item": "Root README not modified", "status": "passed", "evidence": "root README unchanged"}
+  ],
+  "risks": [
+    {
+      "level": "low",
+      "area": "regression",
+      "description": "Future changes could reintroduce multi-argument Join-Path.",
+      "recommended_review": "Consider adding a PS script lint or CI step to catch multi-arg Join-Path."
+    }
+  ],
+  "deviations": [],
+  "open_questions": [
+    "Should a CI step be added to prevent multi-arg Join-Path regressions in portable scripts?"
+  ],
+  "next_action": "codex_review"
+}

@@ -1,219 +1,171 @@
-# Gpt2Whatever
+# Kimi-Codex Workflow Kit
 
-A portable **Kimi-Codex workflow kit** for applying adaptive Kimi execution + Codex review to any coding project.
+> **Kimi does the work. Codex reviews the evidence.**
 
-Turn any repository into a Kimi-Codex managed project by generating the required directory structure, state files, tool scripts, and local worker skills.
+A no-install, drop-in workflow kit that turns any coding project into a Kimi-Codex managed project. Kimi executes in bounded rounds, Codex reviews the evidence, and everything is tracked through files - not long chat threads.
 
-## Status
+---
 
-This project is pivoting from its earlier "LLM-to-structured-output converter" direction into a reusable workflow installer.
+## The Problem
 
-Package version: **1.0.0** preview-only workflow kit. JSON output schemas remain independently versioned as `version: 1`.
+Stop copy-pasting long chats between Kimi and Codex.
 
-Current capabilities:
-- Print package version (`--version`)
-- Preview project configuration (`--show-config`)
-- Preview generated worker skill (`--show-project-skill`)
-- List planned install paths (`--list-install-paths`)
-- Parse Kimi session JSONL for token usage totals (`--parse-kimi-usage-jsonl`)
-- Record manual Codex usage snapshot (`--record-codex-usage`)
-- Summarize mixed token usage JSONL (`--summarize-token-usage-jsonl`)
-- Append metrics records to a JSONL file (`--append-metrics`, `--append-default-metrics`)
-- Show summary after appending (`--summary-after-append`)
-- Preview installer dry-run (`--install --dry-run`)
+Most AI-assisted workflows either:
+- Dump everything into one chat window and lose context, or
+- Require you to manually copy code back and forth.
 
-**Real file-system installation is not yet implemented.** Use preview flags to inspect what would be installed.
+This kit replaces that with **file-based handoffs**:
+- Codex writes the plan into `KIMI_NEXT_TASK.md`.
+- Kimi reads it, executes, and writes evidence into round reports.
+- Codex reviews the evidence, records a verdict, and writes the next task.
 
-## Quick Start
+Every decision is traceable. Every round leaves artifacts. Nothing lives only in chat memory.
 
-```bash
-# Preview the config for a new project
-gpt2whatever --project-name MyApp --test-command "pytest" --show-config
+---
 
-# Preview the generated worker skill
-gpt2whatever --project-name MyApp --test-command "npm test" --show-project-skill
+## How It Works
 
-# List paths that a future installer would create
-gpt2whatever --list-install-paths
+```mermaid
+flowchart LR
+    A[Codex writes plan] --> B[KIMI_NEXT_TASK.md]
+    B --> C[Kimi executes round]
+    C --> D[Round artifacts<br/>logs / reports / diffs]
+    D --> E[Codex reviews evidence]
+    E --> F{Verdict}
+    F -->|pass| G[Next plan]
+    F -->|fix| H[Same task, retry]
+    F -->|downgrade| I[Lower tier, retry]
+    F -->|stop| J[User decides]
+    G --> B
+    H --> B
+    I --> B
 ```
 
-## Token Usage Preview
+---
 
-Kimi Code for VS Code does **not** display token usage in the UI. However, local Kimi session files may contain `_usage` records with total token counts.
+## 60-Second Quickstart
 
-You can preview token usage for a round by pointing the CLI at a Kimi `context.jsonl` file:
+No package install. No Python required for the portable path. PowerShell is recommended for the optional helper scripts.
 
-```bash
-gpt2whatever \
-  --parse-kimi-usage-jsonl ~/.kimi/sessions/<session>/<uuid>/context.jsonl \
-  --round-name round_005 \
-  --tier T2
-```
+Follow this 60-second quickstart to get started:
 
-This prints a JSON record with `start_token_count`, `end_token_count`, `delta_token_count`, and `peak_token_count`.
+1. **Copy** `portable/kimi-codex-kit/` into your project root.
+2. **Tell Codex**:
+   ```text
+   Read kimi-codex-kit/START_HERE.md and help me create the first Kimi task.
+   ```
+3. **Tell Kimi**:
+   ```text
+   Read kimi-codex-kit/KIMI_NEXT_TASK.md and execute it against this project.
+   ```
+4. **Return to Codex**:
+   ```text
+   Kimi is done. Review the result.
+   ```
 
-> **Privacy note:** The parser only extracts lines where `role == "_usage"`. It does not return or store conversation content.
+Prefer scripts? Initialize a task and generate a Kimi prompt with:
 
-## Manual Codex Usage Snapshot
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-init.ps1 -Task "Refactor auth module" -Tier T2
+   powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-run.ps1 -NoRun
+   ```
 
-Codex token usage cannot be read automatically yet. You can record a manual snapshot from your Codex Profile page:
+After Codex reviews the result, you can record a verdict:
 
-```bash
-gpt2whatever \
-  --record-codex-usage \
-  --codex-input-tokens 2300000 \
-  --codex-output-tokens 44000 \
-  --codex-total-tokens 2344000 \
-  --codex-requests 71
-```
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-verdict.ps1 -Verdict pass
+   ```
 
-This prints a JSON snapshot you can append to your metrics JSONL file.
+That's it. The scripts handle round numbering, artifact collection, and state tracking when you choose to use them.
 
-## Summarize Token Usage
+---
 
-If you have a JSONL file with mixed Kimi and Codex usage records, you can summarize it:
+## What the Kit Contains
 
-```bash
-gpt2whatever --summarize-token-usage-jsonl path/to/token_usage.jsonl
-```
+| Path | Purpose |
+|---|---|
+| `START_HERE.md` | Overview for Codex and Kimi. |
+| `README.md` | Kit-local quickstart and concepts. |
+| `KIMI_CODEX_LOOP.md` | Full workflow documentation. |
+| `CODEX_CONTINUE.md` | Bootstrap for fresh Codex threads. |
+| `KIMI_NEXT_TASK.md` | Current task for Kimi to execute. |
+| `tools/ai-kimi-init.ps1` | Initialize a new task and create handoff files. |
+| `tools/ai-kimi-run.ps1` | Create a numbered round, run Kimi, capture artifacts. |
+| `tools/ai-kimi-review-pack.ps1` | Print the latest compact review pack. |
+| `tools/ai-kimi-verdict.ps1` | Record a Codex review verdict. |
+| `skills/kimi-codex-worker.md` | Kimi worker skill reference. |
+| `.ai/active_task/` | Workflow state, progress board, and round history. |
 
-This prints aggregated totals: Kimi delta sum and latest Codex totals.
+Workflow state lives inside the kit. Your parent project is only changed by the actual work you ask Kimi/Codex to perform.
 
-## Appending Metrics
+---
 
-When you generate a token usage record, you can append it directly to a metrics JSONL file instead of copying it manually.
+## How Is This Different from Just Copying Skills?
 
-Append a Codex snapshot to the default metrics file:
+Copying a skill into your repo gives Kimi rules. This kit gives you a **process**:
 
-```bash
-gpt2whatever \
-  --record-codex-usage \
-  --codex-input-tokens 2300000 \
-  --codex-output-tokens 44000 \
-  --codex-total-tokens 2344000 \
-  --codex-requests 71 \
-  --append-default-metrics
-```
+| Just a skill | This kit |
+|---|---|
+| Kimi has guidelines | Kimi has guidelines **and** a bounded task |
+| No round tracking | Every round is numbered, logged, and reviewed |
+| Codex has to plan from scratch | Codex resumes from handoff files |
+| No evidence standard | Tests, diffs, and logs are required evidence |
+| Chat memory is the source of truth | Files are the source of truth |
 
-Append a Kimi record and print a summary of the whole metrics file:
+---
 
-```bash
-gpt2whatever \
-  --parse-kimi-usage-jsonl path/to/context.jsonl \
-  --round-name round_008 \
-  --tier T2 \
-  --append-default-metrics \
-  --summary-after-append
-```
+## When to Use / When Not to Use
 
-The default metrics path is `.ai/metrics/token_usage.jsonl`. You can also use `--append-metrics <path>` to target a custom file. The two append flags are mutually exclusive.
+**Use this when:**
+- You want structured AI-assisted development with review gates.
+- You work in rounds (features, refactors, bug fixes) that need oversight.
+- You want evidence-based handoffs instead of chat-based context.
 
-## Installation (dev)
+**Do not use this when:**
+- You need a one-shot answer (just ask Kimi directly).
+- Your project is tiny and does not benefit from round tracking.
+- You do not have access to both Kimi and Codex.
 
-Requires Python 3.10+.
+---
+
+## Optional: Python CLI
+
+If you prefer a Python-based installer, this repo also provides `gpt2whatever`, a CLI that can install the workflow kit into the current project.
 
 ```bash
 pip install -e .
+gpt2whatever --install --yes --project-name MyApp --test-command "pytest"
 ```
 
-## Usage
+This is the same kit, just installed through a Python package instead of copied manually. The portable folder method is recommended for most users.
 
-```
-gpt2whatever [--project-name NAME] [--test-command CMD]
-             [--version]
-             [--show-config] [--show-project-skill] [--list-install-paths]
-             [--parse-kimi-usage-jsonl PATH] [--round-name NAME] [--tier TIER]
-             [--record-codex-usage]
-             [--codex-input-tokens N] [--codex-output-tokens N]
-             [--codex-total-tokens N] [--codex-requests N] [--codex-notes TEXT]
-             [--summarize-token-usage-jsonl PATH]
-             [--append-metrics PATH] [--append-default-metrics]
-             [--summary-after-append]
-             [--install] [--dry-run]
-```
+---
 
-### Options
+## Safety Model
 
-- `--project-name` — Target project name used in config and skill generation
-- `--test-command` — Default test command to embed in the project worker skill
-- `--version` — Print package version and exit
-- `--show-config` — Print the default project config JSON and exit
-- `--show-project-skill` — Print the generated worker SKILL.md content and exit
-- `--list-install-paths` — List planned installation paths and exit
-- `--parse-kimi-usage-jsonl` — Parse a Kimi context.jsonl for `_usage` token counts
-- `--round-name` — Round label for the token usage record (default: `unknown`)
-- `--tier` — Tier label for the token usage record (default: `unknown`)
-- `--record-codex-usage` — Print a Codex usage snapshot JSON
-- `--codex-input-tokens` — Input tokens for the Codex snapshot
-- `--codex-output-tokens` — Output tokens for the Codex snapshot
-- `--codex-total-tokens` — Total tokens for the Codex snapshot
-- `--codex-requests` — Request count for the Codex snapshot
-- `--codex-notes` — Optional notes for the Codex snapshot
-- `--summarize-token-usage-jsonl` — Summarize a token usage JSONL file
-- `--append-metrics` — Append the generated record to a custom JSONL file
-- `--append-default-metrics` — Append the generated record to `.ai/metrics/token_usage.jsonl`
-- `--summary-after-append` — After appending, print `{"appended": ..., "summary": ...}`
-- `--install` — Install the Kimi-Codex workflow kit (requires `--dry-run` for now)
-- `--project-name` — Must contain only letters, digits, underscores, and hyphens when used with `--install`
+- **Kimi executes. Codex reviews.** Kimi does not have final say; Codex owns quality.
+- **Kimi does not commit by default.** Git history remains under user/Codex control.
+- **Reports, tests, and diffs are evidence.** Every claim must be backed by files, not narration.
+- **Tiered execution:** T3 free / T2 bounded / T1 precise / T0 inspect-only.
+- **All-or-nothing safety:** The installer aborts if any target already exists or any path is unsafe.
 
-## Installer Safety
+---
 
-The `--install --dry-run` preview includes a `safety_check` field that flags:
-- Existing files (conflict / no overwrite by default)
-- Paths escaping the repo root (`..`, absolute paths)
-- Writes to generated/binary areas (`.git/`, `node_modules/`, `__pycache__/`, `dist/`, `build/`)
+## Current Status & Roadmap
 
-Real installation writes are not implemented yet. When they are, the above safety rules will be enforced by default.
+| Feature | Status |
+|---|---|
+| Portable no-install kit | Available in `portable/kimi-codex-kit/` |
+| Python CLI installer | Available via `pip install -e .` |
+| Token usage tracking | JSONL parsing and metrics helpers |
+| Round artifacts (logs, reports, diffs) | Generated by helper scripts per round |
+| Codex verdict recording | Pass / same-tier-fix / downgrade / stop |
+| Future: doctor command | Planned: check kit health and common issues |
+| Future: packaged release | Planned: PyPI and standalone zip |
+| Future: example projects | Planned: sample repos showing T1/T2/T3 rounds |
 
-## Examples
+---
 
-```bash
-# Preview config for a Python project
-gpt2whatever --project-name MyBackend --test-command "python -m pytest" --show-config
+## License
 
-# Preview skill for a Node project
-gpt2whatever --project-name MyFrontend --test-command "npm test" --show-project-skill
-
-# See all paths the installer would touch
-gpt2whatever --list-install-paths
-
-# Preview token usage from a Kimi session JSONL
-gpt2whatever \
-  --parse-kimi-usage-jsonl path/to/context.jsonl \
-  --round-name round_005 \
-  --tier T2
-
-# Record a manual Codex snapshot
-gpt2whatever \
-  --record-codex-usage \
-  --codex-input-tokens 2300000 \
-  --codex-output-tokens 44000 \
-  --codex-total-tokens 2344000 \
-  --codex-requests 71
-
-# Summarize mixed usage JSONL
-gpt2whatever --summarize-token-usage-jsonl path/to/token_usage.jsonl
-
-# Append Codex snapshot to default metrics path
-gpt2whatever \
-  --record-codex-usage \
-  --codex-input-tokens 2300000 \
-  --codex-output-tokens 44000 \
-  --codex-total-tokens 2344000 \
-  --codex-requests 71 \
-  --append-default-metrics
-
-# Append Kimi record with summary
-gpt2whatever \
-  --parse-kimi-usage-jsonl path/to/context.jsonl \
-  --round-name round_008 \
-  --tier T2 \
-  --append-default-metrics \
-  --summary-after-append
-
-# Preview installer dry-run
-gpt2whatever \
-  --install --dry-run \
-  --project-name MyApp \
-  --test-command "pytest"
-```
+MIT

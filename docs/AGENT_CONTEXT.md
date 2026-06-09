@@ -3,15 +3,15 @@
 Project: Gpt2Whatever
 
 Status:
-- Portable Kimi-Codex workflow kit in active development.
-- Package version is `1.0.0` for the preview-only workflow kit; JSON schemas remain `version: 1`.
-- CLI supports project config preview, worker skill preview, planned install paths, Kimi token usage parsing, manual Codex usage snapshots, metrics summarization, and metrics append/write.
-- Real file-system installer writes are intentionally not implemented yet.
+- Portable Kimi-Codex workflow kit is the primary product path.
+- Package version is `1.0.0`; JSON schemas remain `version: 1`.
+- CLI supports project config preview, worker skill preview, planned install paths, Kimi token usage parsing, manual Codex usage snapshots, metrics summarization, metrics append/write, installer dry-run, and real install gated by `--yes`.
+- Real installer writes use all-or-nothing safety checks and install the real PowerShell workflow scripts.
 - Codex plans/reviews; KimiCode executes bounded rounds.
 
 Current Goal:
-- Finalize preview-only 1.0 docs/metadata while keeping CLI real installer writes disabled.
-- Harden installer dry-run safety before any real file writes.
+- Finalize portable kit, real installer, and GitHub-first README for a commit-ready 1.0 workflow kit.
+- Keep portable/no-install usage as the README first path; Python CLI install remains optional/advanced.
 
 Rules:
 - Keep tasks small.

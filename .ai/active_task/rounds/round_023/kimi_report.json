@@ -1,0 +1,48 @@
+{
+  "status": "done",
+  "tier": "T2",
+  "summary": "Rewrote root README.md from a 227-line CLI-focused doc into a ~150-line GitHub-first landing page. Portable kit is the primary entry; Python CLI is documented as optional. Includes Mermaid diagram, 60-second quickstart, safety model, and roadmap.",
+  "files_read": [
+    {"path": "README.md", "reason": "Target file to rewrite"},
+    {"path": "portable/kimi-codex-kit/README.md", "reason": "Reference for portable quickstart wording"},
+    {"path": "portable/kimi-codex-kit/START_HERE.md", "reason": "Reference for kit concepts"},
+    {"path": "KIMI_CODEX_LOOP.md", "reason": "Reference for workflow details"}
+  ],
+  "files_changed": [
+    {"path": "README.md", "change_type": "modify", "summary": "Complete rewrite to GitHub landing page", "risk": "low"}
+  ],
+  "commands_run": [
+    {"command": "PYTHONPATH=src python -m unittest discover -s tests -v", "result": "passed", "notes": "151 tests OK"},
+    {"command": "git diff --check", "result": "passed", "notes": "no whitespace errors"},
+    {"command": "README sanity check", "result": "passed", "notes": "all 5 required phrases present"}
+  ],
+  "acceptance": [
+    {"item": "Project title and one-line value proposition", "status": "passed", "evidence": "Kimi does the work. Codex reviews the evidence."},
+    {"item": "Short problem statement", "status": "passed", "evidence": "Stop copy-pasting long chats section"},
+    {"item": "Mermaid workflow diagram", "status": "passed", "evidence": "How It Works contains mermaid flowchart"},
+    {"item": "60-second quickstart, portable-first", "status": "passed", "evidence": "60-Second Quickstart with portable/kimi-codex-kit steps"},
+    {"item": "What gets created / what the kit contains", "status": "passed", "evidence": "table with all kit files"},
+    {"item": "How this differs from just copying skills", "status": "passed", "evidence": "comparison table"},
+    {"item": "When to use / when not to use", "status": "passed", "evidence": "explicit use/do-not-use lists"},
+    {"item": "Optional Python CLI section", "status": "passed", "evidence": "Optional: Python CLI with install command"},
+    {"item": "Safety model", "status": "passed", "evidence": "Kimi executes, Codex reviews plus tier notes"},
+    {"item": "Current status / roadmap", "status": "passed", "evidence": "status table with checkmarks and future items"},
+    {"item": "README sanity phrases all present", "status": "passed", "evidence": "all 5 phrases confirmed by script"},
+    {"item": "No source code modified", "status": "passed", "evidence": "only README.md changed"},
+    {"item": "File limit respected", "status": "passed", "evidence": "1 non-artifact file changed (limit 2)"},
+    {"item": "English only, no Chinese", "status": "passed", "evidence": "README is English only"}
+  ],
+  "risks": [
+    {
+      "level": "low",
+      "area": "doc drift",
+      "description": "README claims must match actual kit behavior. If kit changes, README may drift.",
+      "recommended_review": "Keep README in mind during future kit changes."
+    }
+  ],
+  "deviations": [],
+  "open_questions": [
+    "Should a future round add screenshots or GIFs to the README for visual appeal?"
+  ],
+  "next_action": "codex_review"
+}

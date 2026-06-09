@@ -1,0 +1,58 @@
+{
+  "status": "done",
+  "tier": "T1",
+  "summary": "Implemented --yes-gated real installer path. CLI now requires --yes for real file writes; dry-run remains unchanged. Added temp-dir tests for creation, rejection, and all-or-nothing conflict behavior.",
+  "files_read": [
+    {"path": "src/gpt2whatever/cli.py", "reason": "Installer handler and argument parser"},
+    {"path": "src/gpt2whatever/core.py", "reason": "apply_install_plan, check_install_safety, build_install_dry_run_plan"},
+    {"path": "tests/test_cli.py", "reason": "Existing installer tests to update"},
+    {"path": "tests/test_core.py", "reason": "apply_install_plan preflight behavior"},
+    {"path": "README.md", "reason": "User-facing docs update"},
+    {"path": "docs/RELEASE_1_0_CHECKLIST.md", "reason": "Release gates update"}
+  ],
+  "files_changed": [
+    {"path": "src/gpt2whatever/cli.py", "change_type": "modify", "summary": "Add --yes arg, content helpers, and real install handler", "risk": "medium"},
+    {"path": "tests/test_cli.py", "change_type": "modify", "summary": "Update rejection tests; add 3 new tests for --yes behavior", "risk": "low"},
+    {"path": "README.md", "change_type": "modify", "summary": "Document --yes flag and real install example", "risk": "low"},
+    {"path": "docs/RELEASE_1_0_CHECKLIST.md", "change_type": "modify", "summary": "Update gates to reflect --yes requirement", "risk": "low"}
+  ],
+  "commands_run": [
+    {"command": "PYTHONPATH=src python -m unittest discover -s tests -v", "result": "passed", "notes": "150 tests OK"},
+    {"command": "git diff --check", "result": "passed", "notes": "no whitespace errors"}
+  ],
+  "acceptance": [
+    {"item": "--install --dry-run still writes nothing", "status": "passed", "evidence": "existing dry-run tests pass"},
+    {"item": "--install without --yes rejects with clear error", "status": "passed", "evidence": "test_install_without_dry_run_rejected"},
+    {"item": "--install --yes creates files in temp cwd", "status": "passed", "evidence": "test_install_yes_creates_expected_files"},
+    {"item": "--install --yes fails all-or-nothing if target exists", "status": "passed", "evidence": "test_install_yes_fails_all_or_nothing_if_target_exists"},
+    {"item": "--install --dry-run --yes still writes nothing", "status": "passed", "evidence": "test_install_dry_run_writes_nothing_even_with_yes"},
+    {"item": "Safety check blocks unsafe plans before writing", "status": "passed", "evidence": "check_install_safety + apply_install_plan double protection"},
+    {"item": "No real repo writes during tests", "status": "passed", "evidence": "all real-install tests use tempfile.TemporaryDirectory"},
+    {"item": "File limit respected", "status": "passed", "evidence": "4 non-artifact files changed"}
+  ],
+  "risks": [
+    {
+      "level": "low",
+      "area": "content completeness",
+      "description": "Non-skill install files receive placeholder content rather than full PowerShell scripts.",
+      "recommended_review": "Decide whether placeholder content is acceptable or if full script content should be embedded."
+    },
+    {
+      "level": "low",
+      "area": "race condition",
+      "description": "Tiny window between check_install_safety and apply_install_plan where a file could appear.",
+      "recommended_review": "apply_install_plan preflight already provides second-layer protection; acceptable for CLI tool."
+    }
+  ],
+  "deviations": [
+    {
+      "planned": "Possibly modify core.py",
+      "actual": "Only modified cli.py",
+      "reason": "Content generation fit cleanly in CLI layer without touching core.py"
+    }
+  ],
+  "open_questions": [
+    "Should non-skill install files (PowerShell scripts, docs) get full embedded content or remain placeholders?"
+  ],
+  "next_action": "codex_review"
+}
