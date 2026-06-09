@@ -42,6 +42,21 @@ File system:     durable memory instead of long chat context
 
 So the saving is not magic. You stop paying the strongest model to grind through the whole execution loop. You pay it mainly for the decisions that actually need it.
 
+The loop saves the most when the worker can do a lot of execution and the
+reviewer can inspect a compact result:
+
+| High-savings shape | Why it saves expensive tokens |
+|---|---|
+| Repo exploration | The worker searches many files; the reviewer reads the conclusion and a few relevant files. |
+| Repetitive edits | The worker applies the pattern; the reviewer checks the diff shape and risky samples. |
+| Test/debug loops | The worker absorbs failed attempts; the reviewer reads the final result and remaining failures. |
+| Bulk document drafts | The worker generates volume; the reviewer checks structure, terminology, and high-risk claims. |
+| Multi-step implementation | The worker handles mechanics; the reviewer controls scope and acceptance between rounds. |
+
+The project can also make this automatic: before assigning work, estimate the
+shape of the task. If execution is large and review can stay compact, send it to
+the worker. If the real value is mostly judgment, keep it with the reviewer.
+
 ## 2. Why The Loop Is Reliable
 
 The loop is reliable because the worker is allowed to execute, but not allowed to decide.
@@ -86,6 +101,25 @@ In short:
 The model does not need to magically remember more.
 The project learns how to use models better.
 ```
+
+The loop self-optimizes by updating how future rounds are shaped:
+
+```text
+observe a round -> identify friction -> update task shape, limits, or review checklist -> run the next round better
+```
+
+For example, if a multilingual docs round makes the reviewer read too much, the
+next docs task should ask the worker for a compact review pack: changed files,
+term choices, uncertain translations, high-risk sections, and a short self-check.
+That keeps the next reviewer pass smaller than the last one.
+
+Over time, the loop learns practical routing rules:
+
+- send execution-heavy work to the worker
+- keep judgment-heavy work with the reviewer
+- ask the worker for review-friendly summaries
+- raise batch size only when review stays compact
+- reduce freedom when review becomes expensive or noisy
 
 ## New Here?
 

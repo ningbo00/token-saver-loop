@@ -26,7 +26,7 @@ This file is the stable bootstrap for a fresh Codex thread.
 5. Continue from the `Next action` section in `.ai/active_task/state.md`.
 6. Use `progress.md` only as navigation; do not decide pass, release readiness, or bug correctness from it.
 7. Trust tests, diff, latest reports, and files over chat history, `progress.md`, or model claims.
-8. Apply Token Saver Loop to this repo too: batch low-risk docs/i18n generation for Kimi, but keep code/security/installer changes small.
+8. Apply Token Saver Loop to this repo too: delegate only when Kimi can absorb large execution/search/bulk-generation work and Codex can review a compact result.
 9. If handing work to Kimi, update `KIMI_NEXT_TASK.md` with a bounded round, required test evidence, and git archive limits.
 10. If reviewing Kimi work, verify diff/tests/logs; rerun key tests for T1, release, commit, installer/security/data work, or suspicious reports.
 
