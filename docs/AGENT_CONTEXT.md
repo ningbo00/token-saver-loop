@@ -18,3 +18,6 @@ Rules:
 - Kimi must write round logs under `.ai/active_task/rounds/`.
 - Batch size is dynamic: increase after clean Kimi passes, reduce after failures or drift.
 - Larger batches must still be executed as multiple small checkpointed steps, not one large leap.
+- Codex thread rotation: suggest a fresh Codex thread after commits, phase boundaries, release decisions, or 2-3 clean Kimi passes; not after every same-tier fix.
+- Kimi process rotation: prefer a fresh Kimi conversation per round when handoff files are current; Kimi should follow repo handoff, not chat memory.
+- Fresh Codex threads can start by reading root `CODEX_CONTINUE.md`.

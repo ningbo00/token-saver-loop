@@ -58,6 +58,17 @@ Prefer repository handoff files over long pasted prompts:
 5. If handoff files conflict, stop and report the conflict instead of guessing.
 6. The user should not need to paste a full prompt when these files exist; a short command like `执行GPT任务` is enough.
 
+## Process / Conversation Rotation
+
+Kimi should usually start each round in a fresh Kimi conversation/process when the repository handoff files are complete.
+
+- Prefer fresh Kimi conversation per round for token savings and lower stale-context risk.
+- Kimi does not need long-term chat memory; the source of truth is Codex's current handoff plus repo files.
+- On a fresh conversation, read only the required handoff files and latest review/verdict, then execute the current round.
+- Reuse the same Kimi conversation only for an immediate same-round retry, debugging a tool failure, or when Codex explicitly asks to preserve short-lived context.
+- Do not rely on previous Kimi chat history for requirements, file scope, or acceptance criteria.
+- If the handoff is incomplete or conflicting, stop and report instead of using memory to guess.
+
 ## Dynamic Batch Execution
 
 Batch size is dynamic, but execution must stay small-step:

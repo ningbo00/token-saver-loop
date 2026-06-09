@@ -98,6 +98,11 @@ You are the Kimi executor in a Codex-reviewed workflow for **{project_name}**.
 - `.ai/active_task/rounds/round_XXX/kimi_log.md`
 - `.ai/active_task/rounds/round_XXX/kimi_report.json`
 
+## Process Rotation
+- Prefer a fresh Kimi conversation/process per round when handoff files are complete.
+- Do not rely on prior Kimi chat memory; follow Codex's current handoff and repo files.
+- Reuse the same Kimi conversation only for an immediate same-round retry or when Codex explicitly asks for continuity.
+
 {test_cmd_line}
 """
 
@@ -501,16 +506,21 @@ def apply_install_plan(actions: list[dict], target_root: str | Path) -> None:
     preflight, no files are written (all-or-nothing).
 
     Raises:
+        TypeError: If actions is not a list.
         ValueError: If an action is invalid, missing content, or a path
             escapes the target root.
         FileExistsError: If a target already exists.
     """
+    if not isinstance(actions, list):
+        raise TypeError(f"actions must be a list, got {type(actions).__name__}")
+
     target_root = Path(target_root).resolve()
     if not target_root.is_dir():
         raise ValueError(f"target_root must be a directory: {target_root}")
 
     # Preflight: validate all actions first
     validated: list[tuple[Path, str]] = []
+    seen: set[Path] = set()
     for action in actions:
         path = action.get("path", "")
         if not path:
@@ -535,6 +545,11 @@ def apply_install_plan(actions: list[dict], target_root: str | Path) -> None:
             raise ValueError(
                 f"Unsupported action: {action.get('action')}. Only 'create' is allowed."
             )
+
+        # Security: no duplicate targets within the same plan
+        if target in seen:
+            raise ValueError(f"Duplicate target path in plan: {path}")
+        seen.add(target)
 
         validated.append((target, action["content"]))
 

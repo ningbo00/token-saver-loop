@@ -54,3 +54,13 @@ Use dynamic batch rounds to reduce Codex review overhead:
 - Reduce batch size and communicate more often after unclear failures, missing tests, report mismatch, scope drift, or safety concerns.
 - Larger batches must still be small-step execution: checkpoint, validate, log, then continue.
 - Do not turn a batch into one large leap. Prefer 3-5 related subtasks with per-subtask acceptance checks.
+
+## Conversation / Process Rotation
+
+Use rotation to reduce token bloat without losing source-of-truth context:
+
+- Codex: start a fresh Codex thread after a git commit, phase boundary, release decision, or 2-3 clean Kimi passes.
+- Codex: do not start a fresh thread for every small same-tier fix; restart overhead can exceed savings.
+- Kimi: prefer a fresh Kimi conversation/process per round when `KIMI_NEXT_TASK.md` or `.ai/active_task/*` handoff files are current.
+- Kimi: reuse the same conversation only for immediate same-round retries or tool debugging.
+- Source of truth: repo files, latest round artifacts, tests, and Codex handoff. Do not rely on chat memory for requirements.

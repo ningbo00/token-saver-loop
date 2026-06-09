@@ -8,7 +8,9 @@ Current structure:
   - `PRODUCT_BRIEF.md`: product direction (portable Kimi-Codex workflow kit).
   - `IMPLEMENTATION_OPTIONS.md`: technical options and trade-offs.
   - `KIMI_TOKEN_USAGE_RESEARCH.md`: token usage availability research.
+  - `RELEASE_1_0_CHECKLIST.md`: preview-only 1.0 release gates and deferred real-write scope.
 - `KIMI_CODEX_LOOP.md`: human-readable workflow notes.
+- `CODEX_CONTINUE.md`: stable fresh-thread bootstrap prompt and low-token continuation protocol.
 - `README.md`: project overview, quick-start, token usage preview, and metrics examples.
 - `pyproject.toml`: Python package metadata and console script entry point.
 - `src/gpt2whatever/`: Python source package.

@@ -164,6 +164,11 @@ class TestRenderProjectWorkerSkill(unittest.TestCase):
         self.assertIn("kimi_log.md", text)
         self.assertIn("kimi_report.json", text)
 
+    def test_generated_worker_skill_includes_process_rotation_rules(self) -> None:
+        text = render_project_worker_skill("MyApp")
+        self.assertIn("fresh Kimi conversation/process per round", text)
+        self.assertIn("Do not rely on prior Kimi chat memory", text)
+
     def test_includes_test_command_when_provided(self) -> None:
         text = render_project_worker_skill("MyApp", test_command="pytest")
         self.assertIn("pytest", text)
@@ -753,6 +758,40 @@ class TestApplyInstallPlan(unittest.TestCase):
             actions = [{"path": "empty.md", "action": "create", "content": ""}]
             apply_install_plan(actions, tmpdir)
             self.assertEqual((Path(tmpdir) / "empty.md").read_text(encoding="utf-8"), "")
+
+    def test_duplicate_target_aborts_all(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            actions = [
+                {"path": "a.md", "action": "create", "content": "first"},
+                {"path": "a.md", "action": "create", "content": "second"},
+            ]
+            with self.assertRaises(ValueError) as ctx:
+                apply_install_plan(actions, tmpdir)
+            self.assertIn("Duplicate target", str(ctx.exception))
+            self.assertFalse((Path(tmpdir) / "a.md").exists())
+
+    def test_duplicate_target_via_alias_aborts_all(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            actions = [
+                {"path": "sub/x.md", "action": "create", "content": "first"},
+                {"path": "sub/../sub/x.md", "action": "create", "content": "second"},
+            ]
+            with self.assertRaises(ValueError) as ctx:
+                apply_install_plan(actions, tmpdir)
+            self.assertIn("Duplicate target", str(ctx.exception))
+            self.assertFalse((Path(tmpdir) / "sub" / "x.md").exists())
+
+    def test_rejects_non_list_actions(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with self.assertRaises(TypeError) as ctx:
+                apply_install_plan("not-a-list", tmpdir)  # type: ignore[arg-type]
+            self.assertIn("list", str(ctx.exception))
+
+    def test_empty_actions_list_succeeds(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            apply_install_plan([], tmpdir)
+            # No files should be created
+            self.assertEqual(list(Path(tmpdir).iterdir()), [])
 
 
 class TestCheckInstallSafety(unittest.TestCase):

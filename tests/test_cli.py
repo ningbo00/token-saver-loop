@@ -603,6 +603,25 @@ class TestCLIInstallerDryRun(unittest.TestCase):
             plan = json.loads(mock_stdout.getvalue())
             self.assertEqual(plan["project_name"], "MyApp_123")
 
+    def test_install_dry_run_includes_test_command(self) -> None:
+        with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
+            code = main([
+                "--install", "--dry-run",
+                "--project-name", "MyApp",
+                "--test-command", "pytest -q",
+            ])
+            self.assertEqual(code, 0)
+            plan = json.loads(mock_stdout.getvalue())
+            self.assertEqual(plan["test_command"], "pytest -q")
+
+    def test_install_with_dry_run_and_project_name_only_rejects_real_writes(self) -> None:
+        # Sanity gate: even with all valid args, --install alone (no --dry-run) is rejected
+        with patch.object(sys, "stderr", new_callable=io.StringIO) as mock_stderr:
+            code = main(["--install", "--project-name", "MyApp", "--test-command", "pytest"])
+            self.assertEqual(code, 1)
+            err = mock_stderr.getvalue()
+            self.assertIn("not implemented yet", err)
+
 
 if __name__ == "__main__":
     unittest.main()
