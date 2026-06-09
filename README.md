@@ -2,6 +2,8 @@
 
 > Move search, execution, retries, and memory out of the expensive model loop. Keep planning and final review in the expensive model's hands.
 
+Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
+
 Token Saver Loop is a portable workflow for using two AI roles on one coding project:
 
 ```text
@@ -98,6 +100,7 @@ That guide walks through the simplest path: copy the kit, ask Codex for a safe f
 ## The Basic Loop
 
 ```mermaid
+%%{init: {"theme": "base", "themeVariables": {"background": "transparent", "primaryColor": "#1f6feb", "primaryTextColor": "#ffffff", "primaryBorderColor": "#58a6ff", "lineColor": "#8b949e", "secondaryColor": "#238636", "tertiaryColor": "#30363d"}}}%%
 flowchart TD
     A[Reviewer model<br/>plans one small task]
     B[Task handoff file]
@@ -115,6 +118,17 @@ flowchart TD
     F --> H --> B
     F --> I --> B
     F --> J
+
+    classDef reviewer fill:#1f6feb,stroke:#58a6ff,color:#ffffff
+    classDef worker fill:#238636,stroke:#3fb950,color:#ffffff
+    classDef file fill:#6e40c9,stroke:#a371f7,color:#ffffff
+    classDef verdict fill:#d29922,stroke:#f2cc60,color:#000000
+    classDef outcome fill:#30363d,stroke:#8b949e,color:#ffffff
+    class A,E reviewer
+    class C worker
+    class B,D file
+    class F verdict
+    class G,H,I,J outcome
 ```
 
 ## 60-Second Quickstart

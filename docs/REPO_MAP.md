@@ -13,6 +13,7 @@ Current structure:
 - `KIMI_CODEX_LOOP.md`: human-readable workflow notes.
 - `CODEX_CONTINUE.md`: stable fresh-thread bootstrap prompt and low-token continuation protocol.
 - `README.md`: GitHub-first, portable-first landing page for the Token Saver Loop.
+- `README.zh-CN.md`, `README.ja.md`, `README.ko.md`: localized README files linked from the English README.
 - `LICENSE`: MIT license for GitHub license detection.
 - `examples/minimal-task.md`: inspect-only starter example for first-time users.
 - `pyproject.toml`: Python package metadata (`1.0.0` preview-only) and console script entry point.

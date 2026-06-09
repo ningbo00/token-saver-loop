@@ -18,6 +18,8 @@ Current Goal:
 
 Rules:
 - Keep tasks small.
+- Apply Token Saver Loop to this repo's own work: batch low-risk document generation for Kimi, reserve Codex for concentrated review and decisions.
+- Split by risk, not by habit: high-risk code/security/installer changes stay small; low-risk docs/i18n/bulk text can be one bounded batch.
 - Trust diff, files, and tests over model claims.
 - Kimi must write round logs under `.ai/active_task/rounds/`.
 - Batch size is dynamic: increase after clean Kimi passes, reduce after failures or drift.
