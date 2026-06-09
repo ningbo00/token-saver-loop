@@ -150,6 +150,15 @@ gpt2whatever [--project-name NAME] [--test-command CMD]
 - `--install` — Install the Kimi-Codex workflow kit (requires `--dry-run` for now)
 - `--project-name` — Must contain only letters, digits, underscores, and hyphens when used with `--install`
 
+## Installer Safety
+
+The `--install --dry-run` preview includes a `safety_check` field that flags:
+- Existing files (conflict / no overwrite by default)
+- Paths escaping the repo root (`..`, absolute paths)
+- Writes to generated/binary areas (`.git/`, `node_modules/`, `__pycache__/`, `dist/`, `build/`)
+
+Real installation writes are not implemented yet. When they are, the above safety rules will be enforced by default.
+
 ## Examples
 
 ```bash

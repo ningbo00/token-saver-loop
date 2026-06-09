@@ -504,6 +504,9 @@ class TestCLIInstallerDryRun(unittest.TestCase):
             self.assertEqual(plan["version"], 1)
             self.assertEqual(plan["project_name"], "MyApp")
             self.assertIn("actions", plan)
+            self.assertIn("safety_check", plan)
+            self.assertIn("safe", plan["safety_check"])
+            self.assertIn("concerns", plan["safety_check"])
             paths = {a["path"] for a in plan["actions"]}
             self.assertIn(".ai/active_task/state.md", paths)
             self.assertIn(".kimi-code/skills/MyApp-kimi-codex-worker/SKILL.md", paths)
@@ -542,6 +545,9 @@ class TestCLIInstallerDryRun(unittest.TestCase):
                     action = next(a for a in plan["actions"] if a["path"] == tmp_path)
                     self.assertEqual(action["action"], "modify")
                     self.assertEqual(action["conflict"], "existing")
+                    # Safety check should flag the conflict
+                    self.assertFalse(plan["safety_check"]["safe"])
+                    self.assertEqual(len(plan["safety_check"]["blocked_actions"]), 1)
         finally:
             os.unlink(tmp_path)
 

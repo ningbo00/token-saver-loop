@@ -8,72 +8,80 @@ Do **not** inspect `gpt2whatever --help` unless the task explicitly asks for it.
 
 ## Task
 
-Run Round 014 as a medium T2 batch: prepare real installer write safety without implementing real writes.
+Run Round 017 as an accelerated but gated pressure test for a preview-only 1.0 release candidate.
 
 ## Read First
 
 - `.kimi-code/skills/kimi-codex-worker/SKILL.md`
-- `.ai/active_task/gpt_command.md`
 - `.ai/active_task/state.md`
 - `.ai/active_task/codex_plan.md`
-- `.ai/active_task/rounds/round_013/codex_review.md`
-- `.ai/active_task/rounds/round_013/verdict.json`
-- `docs/INSTALL_DRY_RUN_CRITERIA.md`
+- `.ai/active_task/rounds/round_016/codex_review.md`
+- `.ai/active_task/rounds/round_016/verdict.json`
 
 ## Critical Context
 
-- Round 013 passed.
-- The next real round should be `.ai/active_task/rounds/round_014/`.
-- Kimi has several clean passes, but real installer writes are safety-sensitive.
-- This is a medium batch, not large. Execution must remain small-step with checkpoints.
+- Round 016 did not pass Codex review.
+- Existing tests pass, but Codex manually reproduced an all-or-nothing bug.
+- First fix the P1 duplicate-target bug. If that fix or its tests fail, stop immediately.
+- If and only if Checkpoint A passes, continue to Checkpoint B release-gate preparation.
+- Real user-facing CLI installer writes remain disabled for this round.
 
 ## Goal
 
-Prepare real installer write safety. This must not perform real installation writes.
+Do roughly 2x the previous safe batch by completing two small checkpoints in order:
+
+1. Fix the known `apply_install_plan` duplicate-target all-or-nothing bug.
+2. Prepare objective 1.0 release readiness gates for the current preview-only product.
 
 ## Required Work
 
-1. Draft/write installer write-safety policy in docs:
-   - conflict fail by default
-   - no overwrite by default
-   - no deletion
-   - no writes outside repo root
-   - no generated/binary writes unless explicitly allowed
-   - preview before write
-2. Add or update tests/helper structure for future conflict/no-overwrite behavior if practical, but keep all tests passing.
-3. Add preview-only install action/helper structure only if it does not write files.
-4. Keep `--install` without `--dry-run` rejected.
-5. Update README, `docs/AGENT_CONTEXT.md`, and `docs/REPO_MAP.md` if needed.
-6. Do not implement real file writes.
+### Checkpoint A - Mandatory Bug Fix
 
-## Checkpoints
+1. Add duplicate target detection during `apply_install_plan` preflight.
+2. Compare resolved targets under `target_root`, not raw strings only.
+3. If duplicate targets exist, raise before writing any file.
+4. Add a temp-dir test proving duplicate targets fail and no file is written.
+5. Run `python -m unittest discover -s tests -v`.
+6. Stop if Checkpoint A does not pass.
 
-1. Read required files and inspect current install helper/tests.
-2. Draft safety policy and decide whether helper/test scaffolding is useful.
-3. Add small helper/test scaffolding only if it stays preview-only and passing.
-4. Update docs after policy/helper work is stable.
-5. Run full validation.
+### Checkpoint B - 1.0 Release Gate Prep
+
+Only start this after Checkpoint A passes.
+
+1. Add or update a concise release readiness document, for example `docs/RELEASE_1_0_CHECKLIST.md`.
+2. Define what "1.0 preview-only release" means:
+   - workflow preview/config/skill commands work
+   - token/metrics helpers work
+   - `--install --dry-run` works and reports safety
+   - real `--install` writes are intentionally disabled
+3. Add CLI/core tests for any release-gate behavior that is currently undocumented or weakly covered, but do not invent large new features.
+4. Do not bump package version unless every release gate is already satisfied and the rationale is written in the report.
+5. Run `python -m unittest discover -s tests -v` again after Checkpoint B.
 
 ## Validation
 
-- Run `python -m unittest discover -s tests -v`.
+- Required after Checkpoint A: `python -m unittest discover -s tests -v`.
+- Required after Checkpoint B: `python -m unittest discover -s tests -v`.
 
 ## Limits
 
-- Tier: T2.
-- Max changed files: 8.
-- Do not implement installer behavior.
-- Do not write install target files.
-- Do not overwrite user files.
+- Tier: T1.
+- Pressure-test batch size: medium-small, two gated checkpoints.
+- Max changed files: 7, including report artifacts.
+- Normal source/test/docs/artifact edits are allowed.
+- Do not use installer helpers to install into the current repo.
+- Do not expose CLI real writes.
+- Do not overwrite/delete user files.
 - Do not add dependencies.
 - Do not commit.
-- Do not delete user data.
+- Do not perform broad refactors.
+- Do not weaken or delete tests.
 
 ## Required Reports
 
-- `.ai/active_task/rounds/round_014/kimi_log.md`
-- `.ai/active_task/rounds/round_014/kimi_report.json`
+- `.ai/active_task/rounds/round_017/kimi_log.md`
+- `.ai/active_task/rounds/round_017/kimi_report.json`
 
 ## Final Self-Assessment
 
-In the report, recommend whether the next batch should be larger, same size, or smaller.
+Report each checkpoint separately and recommend whether the next batch should stay accelerated, shrink, or expand.

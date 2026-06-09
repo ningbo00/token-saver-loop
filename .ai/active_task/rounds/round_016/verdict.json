@@ -1,0 +1,44 @@
+{
+  "verdict": "same-tier-fix",
+  "current_tier": "T1",
+  "next_tier": "T1",
+  "reasons": [
+    "apply_install_plan allows duplicate target paths in one plan",
+    "duplicate actions overwrite within the same apply operation",
+    "required kimi_log.md and kimi_report.json are missing for round_016",
+    "CLI real writes remain disabled and existing tests pass, so a narrow fix is appropriate"
+  ],
+  "findings": [
+    {
+      "severity": "high",
+      "file": "src/gpt2whatever/core.py",
+      "line": 497,
+      "issue": "Duplicate target paths in the same plan are not detected during preflight, allowing the second write to overwrite the first.",
+      "required_fix": "Track resolved targets during preflight and reject duplicates before any file is written."
+    },
+    {
+      "severity": "medium",
+      "file": ".ai/active_task/rounds/round_016",
+      "line": null,
+      "issue": "Required Kimi artifacts kimi_log.md and kimi_report.json are missing.",
+      "required_fix": "Round 017 must produce the standard log/report artifacts."
+    }
+  ],
+  "kimi_reliability": {
+    "followed_scope": true,
+    "tests_verified": true,
+    "report_matches_reviewed_files": false,
+    "needs_downgrade": false
+  },
+  "verification": {
+    "tests_artifact": ".ai/active_task/rounds/round_016/tests.txt -> 137 tests OK",
+    "manual_repro": "Two create actions for dup.md result in dup.md containing the second content instead of failing preflight.",
+    "cli_exposure": "No user-facing real install write behavior exposed"
+  },
+  "batch_decision": {
+    "risk_class": "high",
+    "next_batch_size": "small",
+    "next_tier": "T1",
+    "reason": "Write helper bug requires a narrow same-tier fix before any further installer work."
+  }
+}

@@ -53,6 +53,33 @@ A future `--install --dry-run` flag should simulate what the installer would wri
 - Existing files are flagged as conflicts in the preview.
 - No files are created on disk during dry-run tests.
 
+## Installer Write Safety Policy (Preview-Only)
+
+These rules govern any future real installer writes. They are enforced in the dry-run safety checker today.
+
+1. **Conflict fail by default**
+   - If a target path already exists, the installer must fail unless the user explicitly requests overwrite.
+   - No silent overwrites.
+
+2. **No overwrite by default**
+   - Existing files are never replaced unless a dedicated `--force` or similar flag is provided.
+   - Dry-run marks them as `blocked_actions`.
+
+3. **No deletion**
+   - The installer never deletes existing files or directories.
+   - Only creates missing files or modifies files that the installer itself owns.
+
+4. **No writes outside repo root**
+   - Paths starting with `..`, `/`, or containing traversal sequences are blocked.
+   - All writes are restricted to the current repository.
+
+5. **No writes to generated/binary areas**
+   - `dist/`, `build/`, `.git/`, `node_modules/`, `__pycache__/` and similar areas are off-limits.
+
+6. **Preview before write**
+   - `--install --dry-run` must always be available and accurate before any real write.
+   - The safety checker runs on the dry-run plan and reports `safe`, `concerns`, and `blocked_actions`.
+
 ## Out of Scope (for dry-run)
 
 - Real file-system writes.

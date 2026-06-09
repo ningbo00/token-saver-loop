@@ -17,8 +17,11 @@ from unittest.mock import patch
 
 from gpt2whatever.core import (
     append_jsonl_record,
+    apply_install_action,
+    apply_install_plan,
     build_codex_usage_snapshot,
     build_install_dry_run_plan,
+    check_install_safety,
     build_messages,
     build_round_token_usage_record,
     default_metrics_path,
@@ -617,6 +620,215 @@ class TestBuildInstallDryRunPlan(unittest.TestCase):
             action = next(a for a in plan["actions"] if a["path"] == fake_path)
             self.assertEqual(action["action"], "create")
             self.assertIsNone(action["conflict"])
+
+
+class TestApplyInstallAction(unittest.TestCase):
+    def test_creates_file_under_target_root(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            action = {
+                "path": "docs/README.md",
+                "action": "create",
+                "content": "# Hello",
+            }
+            apply_install_action(action, tmpdir)
+            p = Path(tmpdir) / "docs" / "README.md"
+            self.assertTrue(p.exists())
+            self.assertEqual(p.read_text(encoding="utf-8"), "# Hello")
+
+    def test_rejects_outside_root_traversal(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            action = {
+                "path": "../escape.md",
+                "action": "create",
+                "content": "x",
+            }
+            with self.assertRaises(ValueError) as ctx:
+                apply_install_action(action, tmpdir)
+            self.assertIn("escapes", str(ctx.exception))
+
+    def test_rejects_existing_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target = Path(tmpdir) / "existing.md"
+            target.write_text("old", encoding="utf-8")
+            action = {
+                "path": "existing.md",
+                "action": "create",
+                "content": "new",
+            }
+            with self.assertRaises(FileExistsError) as ctx:
+                apply_install_action(action, tmpdir)
+            self.assertIn("already exists", str(ctx.exception))
+
+    def test_rejects_non_create_action(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            action = {
+                "path": "x.md",
+                "action": "modify",
+                "content": "x",
+            }
+            with self.assertRaises(ValueError) as ctx:
+                apply_install_action(action, tmpdir)
+            self.assertIn("create", str(ctx.exception))
+
+    def test_rejects_missing_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            action = {"action": "create", "content": "x"}
+            with self.assertRaises(ValueError) as ctx:
+                apply_install_action(action, tmpdir)
+            self.assertIn("missing", str(ctx.exception))
+
+    def test_no_writes_to_current_repo(self) -> None:
+        # The helper requires an explicit target_root argument.
+        # Calling it without target_root raises TypeError, preventing
+        # accidental writes to the current working directory.
+        with self.assertRaises(TypeError):
+            apply_install_action({"path": "x", "action": "create"})
+
+    def test_rejects_non_directory_target_root(self) -> None:
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            tmp_path = f.name
+        try:
+            action = {"path": "x.md", "action": "create", "content": "x"}
+            with self.assertRaises(ValueError) as ctx:
+                apply_install_action(action, tmp_path)
+            self.assertIn("directory", str(ctx.exception))
+        finally:
+            os.unlink(tmp_path)
+
+
+class TestApplyInstallPlan(unittest.TestCase):
+    def test_creates_multiple_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            actions = [
+                {"path": "a.md", "action": "create", "content": "A"},
+                {"path": "b/c.md", "action": "create", "content": "C"},
+            ]
+            apply_install_plan(actions, tmpdir)
+            self.assertEqual((Path(tmpdir) / "a.md").read_text(encoding="utf-8"), "A")
+            self.assertEqual((Path(tmpdir) / "b" / "c.md").read_text(encoding="utf-8"), "C")
+
+    def test_conflict_aborts_all(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            (Path(tmpdir) / "existing.md").write_text("old", encoding="utf-8")
+            actions = [
+                {"path": "new.md", "action": "create", "content": "new"},
+                {"path": "existing.md", "action": "create", "content": "overwrite"},
+            ]
+            with self.assertRaises(FileExistsError):
+                apply_install_plan(actions, tmpdir)
+            self.assertFalse((Path(tmpdir) / "new.md").exists())
+
+    def test_traversal_aborts_all(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            actions = [
+                {"path": "a.md", "action": "create", "content": "A"},
+                {"path": "../escape.md", "action": "create", "content": "E"},
+            ]
+            with self.assertRaises(ValueError):
+                apply_install_plan(actions, tmpdir)
+            self.assertFalse((Path(tmpdir) / "a.md").exists())
+
+    def test_missing_content_aborts_all(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            actions = [
+                {"path": "a.md", "action": "create", "content": "A"},
+                {"path": "b.md", "action": "create"},
+            ]
+            with self.assertRaises(ValueError):
+                apply_install_plan(actions, tmpdir)
+            self.assertFalse((Path(tmpdir) / "a.md").exists())
+
+    def test_non_create_action_aborts_all(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            actions = [
+                {"path": "a.md", "action": "create", "content": "A"},
+                {"path": "b.md", "action": "modify", "content": "B"},
+            ]
+            with self.assertRaises(ValueError):
+                apply_install_plan(actions, tmpdir)
+            self.assertFalse((Path(tmpdir) / "a.md").exists())
+
+    def test_empty_content_allowed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            actions = [{"path": "empty.md", "action": "create", "content": ""}]
+            apply_install_plan(actions, tmpdir)
+            self.assertEqual((Path(tmpdir) / "empty.md").read_text(encoding="utf-8"), "")
+
+
+class TestCheckInstallSafety(unittest.TestCase):
+    def test_safe_plan(self) -> None:
+        plan = build_install_dry_run_plan("MyApp")
+        report = check_install_safety(plan)
+        self.assertIsInstance(report["safe"], bool)
+        self.assertIsInstance(report["concerns"], list)
+        self.assertIsInstance(report["blocked_actions"], list)
+
+    def test_blocks_existing_files(self) -> None:
+        with tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", delete=False
+        ) as f:
+            f.write("existing")
+            tmp_path = f.name
+        try:
+            plan = {
+                "actions": [
+                    {
+                        "path": tmp_path,
+                        "action": "modify",
+                        "reason": "test",
+                        "conflict": "existing",
+                    }
+                ]
+            }
+            report = check_install_safety(plan)
+            self.assertFalse(report["safe"])
+            self.assertEqual(len(report["concerns"]), 1)
+            self.assertIn("already exists", report["concerns"][0])
+            self.assertEqual(len(report["blocked_actions"]), 1)
+        finally:
+            os.unlink(tmp_path)
+
+    def test_blocks_path_traversal(self) -> None:
+        plan = {
+            "actions": [
+                {"path": "../escape", "action": "create", "reason": "test"}
+            ]
+        }
+        report = check_install_safety(plan)
+        self.assertFalse(report["safe"])
+        self.assertIn("escapes repo root", report["concerns"][0])
+
+    def test_blocks_absolute_path(self) -> None:
+        plan = {
+            "actions": [
+                {"path": "/etc/passwd", "action": "create", "reason": "test"}
+            ]
+        }
+        report = check_install_safety(plan)
+        self.assertFalse(report["safe"])
+        self.assertIn("escapes repo root", report["concerns"][0])
+
+    def test_blocks_generated_areas(self) -> None:
+        for forbidden in (".git/config", "node_modules/x", "__pycache__/x", "dist/x", "build/x"):
+            plan = {
+                "actions": [
+                    {"path": forbidden, "action": "create", "reason": "test"}
+                ]
+            }
+            report = check_install_safety(plan)
+            self.assertFalse(report["safe"], f"Expected {forbidden} to be blocked")
+            self.assertIn("generated/binary", report["concerns"][0])
+
+    def test_allows_normal_paths(self) -> None:
+        plan = {
+            "actions": [
+                {"path": "docs/README.md", "action": "create", "reason": "test"}
+            ]
+        }
+        report = check_install_safety(plan)
+        self.assertTrue(report["safe"])
+        self.assertEqual(report["concerns"], [])
+        self.assertEqual(report["blocked_actions"], [])
 
 
 class TestDefaultMetricsPath(unittest.TestCase):

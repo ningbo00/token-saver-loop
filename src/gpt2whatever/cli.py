@@ -9,6 +9,7 @@ from gpt2whatever.core import (
     append_jsonl_record,
     build_codex_usage_snapshot,
     build_install_dry_run_plan,
+    check_install_safety,
     build_messages,
     build_round_token_usage_record,
     default_metrics_path,
@@ -326,7 +327,15 @@ def main(args: list[str] | None = None) -> int:
             project_name=parsed.project_name,
             test_command=parsed.test_command,
         )
-        print(json.dumps(plan, indent=2, ensure_ascii=False))
+        safety = check_install_safety(plan)
+        output = {
+            "version": plan["version"],
+            "project_name": plan["project_name"],
+            "test_command": plan["test_command"],
+            "safety_check": safety,
+            "actions": plan["actions"],
+        }
+        print(json.dumps(output, indent=2, ensure_ascii=False))
         return 0
 
     # Legacy LLM-converter handlers

@@ -5,6 +5,7 @@ are retained for backward compatibility. New workflow-kit helpers are below.
 """
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -328,8 +329,6 @@ def summarize_token_usage_records(records: list[dict]) -> dict:
 # ---------- Installer dry-run helpers ----------
 
 
-import re
-
 _PROJECT_NAME_RE = re.compile(r"^[a-zA-Z0-9_-]+$")
 
 
@@ -396,6 +395,153 @@ def build_install_dry_run_plan(
         "test_command": test_command,
         "actions": actions,
     }
+
+
+def check_install_safety(plan: dict) -> dict:
+    """Check a dry-run install plan for safety concerns.
+
+    Returns a safety report dict without writing any files:
+    - ``safe`` (bool): whether the plan can proceed without concerns.
+    - ``concerns`` (list[str]): human-readable safety concern messages.
+    - ``blocked_actions`` (list[dict]): actions that would be blocked.
+
+    Safety rules (preview-only, no writes):
+    - Conflict fail by default (existing files are blocked).
+    - No writes outside the repo root.
+    - No writes to generated/binary areas.
+    """
+    concerns: list[str] = []
+    blocked: list[dict] = []
+
+    for action in plan.get("actions", []):
+        path = action.get("path", "")
+
+        # No writes outside repo root
+        if path.startswith("..") or path.startswith("/") or ".." in path:
+            concerns.append(f"Path escapes repo root: {path}")
+            blocked.append(action)
+            continue
+
+        # No writes to generated/binary areas
+        forbidden_prefixes = (
+            "dist/",
+            "build/",
+            ".git/",
+            "node_modules/",
+            "__pycache__/",
+        )
+        if any(path.startswith(fp) for fp in forbidden_prefixes):
+            concerns.append(f"Path touches generated/binary area: {path}")
+            blocked.append(action)
+            continue
+
+        # Conflict fail by default
+        if action.get("conflict") == "existing":
+            concerns.append(f"Conflict: {path} already exists")
+            blocked.append(action)
+            continue
+
+    return {
+        "safe": len(concerns) == 0,
+        "concerns": concerns,
+        "blocked_actions": blocked,
+    }
+
+
+def apply_install_action(action: dict, target_root: str | Path) -> None:
+    """Apply a single install action under an explicit target root.
+
+    Creates the file and its parent directories if needed. Rejects
+    outside-root paths, existing files, and non-create actions.
+
+    Raises:
+        ValueError: If the path is missing, escapes the target root,
+            the action type is unsupported, or target_root is not a directory.
+        FileExistsError: If the target already exists.
+    """
+    target_root = Path(target_root).resolve()
+    if not target_root.is_dir():
+        raise ValueError(f"target_root must be a directory: {target_root}")
+
+    path = action.get("path", "")
+    if not path:
+        raise ValueError("Action missing path")
+
+    # Resolve against target root
+    target = (target_root / path).resolve()
+
+    # Security: must be under target_root
+    try:
+        target.relative_to(target_root)
+    except ValueError:
+        raise ValueError(f"Path escapes target root: {path}")
+
+    # Security: no overwrite
+    if target.exists():
+        raise FileExistsError(f"Target already exists: {path}")
+
+    # Security: only create actions
+    if action.get("action") != "create":
+        raise ValueError(
+            f"Unsupported action: {action.get('action')}. Only 'create' is allowed."
+        )
+
+    # Create parent directories
+    target.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write content
+    content = action.get("content", "")
+    target.write_text(content, encoding="utf-8")
+
+
+def apply_install_plan(actions: list[dict], target_root: str | Path) -> None:
+    """Apply a list of install actions under an explicit target root.
+
+    Preflights every action before writing any files. If any action fails
+    preflight, no files are written (all-or-nothing).
+
+    Raises:
+        ValueError: If an action is invalid, missing content, or a path
+            escapes the target root.
+        FileExistsError: If a target already exists.
+    """
+    target_root = Path(target_root).resolve()
+    if not target_root.is_dir():
+        raise ValueError(f"target_root must be a directory: {target_root}")
+
+    # Preflight: validate all actions first
+    validated: list[tuple[Path, str]] = []
+    for action in actions:
+        path = action.get("path", "")
+        if not path:
+            raise ValueError("Action missing path")
+        if "content" not in action:
+            raise ValueError(f"Action missing content: {path}")
+
+        target = (target_root / path).resolve()
+
+        # Security: must be under target_root
+        try:
+            target.relative_to(target_root)
+        except ValueError:
+            raise ValueError(f"Path escapes target root: {path}")
+
+        # Security: no overwrite
+        if target.exists():
+            raise FileExistsError(f"Target already exists: {path}")
+
+        # Security: only create actions
+        if action.get("action") != "create":
+            raise ValueError(
+                f"Unsupported action: {action.get('action')}. Only 'create' is allowed."
+            )
+
+        validated.append((target, action["content"]))
+
+    # Apply: write all files
+    for target, content in validated:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content, encoding="utf-8")
 
 
 # ---------- Metrics file I/O helpers ----------
