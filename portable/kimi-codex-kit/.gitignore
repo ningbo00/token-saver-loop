@@ -1,0 +1,5 @@
+# Keep starter state files, but avoid committing per-project round output.
+.ai/archive/
+.ai/metrics/
+.ai/active_task/rounds/*
+!.ai/active_task/rounds/.gitkeep

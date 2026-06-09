@@ -5,7 +5,7 @@ This file is the stable bootstrap for a fresh Codex thread.
 ## Copy/Paste Prompt
 
 ```text
-继续 G:\AI\BaiduSyncdisk\Gpt2Whatever 项目。请读取仓库根目录的 CODEX_CONTINUE.md 并照做，保持低 token，不要读取完整历史聊天。
+继续 G:\AI\BaiduSyncdisk\Gpt2Whatever 项目（发布名 Token Saver Loop）。请读取仓库根目录的 CODEX_CONTINUE.md 并照做，保持低 token，不要读取完整历史聊天。
 ```
 
 ## Fresh Thread Protocol
@@ -36,3 +36,4 @@ This file is the stable bootstrap for a fresh Codex thread.
 - Prefer a fresh Kimi conversation/process per round when handoff files are current.
 - Kimi should follow repo handoff files, not long-term chat memory.
 - Kimi may collect test and git evidence, but Codex/user own final acceptance and git history unless explicitly delegated.
+

@@ -4,13 +4,13 @@
 
 ## Overview
 
-A future `--install --dry-run` flag should simulate what the installer would write without touching the file system. This lets users preview the effect of `gpt2whatever --install` before committing to it.
+A future `--install --dry-run` flag should simulate what the installer would write without touching the file system. This lets users preview the effect of `token-saver-loop --install` before committing to it.
 
 ## Functional Criteria
 
 1. **Command exists and is recognized**
-   - `gpt2whatever --install --dry-run` parses successfully.
-   - `gpt2whatever --install` without `--dry-run` prints a clear message that real installation is not yet implemented.
+   - `token-saver-loop --install --dry-run` parses successfully.
+   - `token-saver-loop --install` without `--dry-run` prints a clear message that real installation is not yet implemented.
 
 2. **Dry-run produces a deterministic preview**
    - The CLI prints a JSON or structured text listing every file that would be created or modified.
@@ -85,3 +85,5 @@ These rules govern any future real installer writes. They are enforced in the dr
 - Real file-system writes.
 - Overwrite prompts or backup logic.
 - Post-install verification (e.g., running tests after install).
+
+

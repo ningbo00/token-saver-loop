@@ -1,9 +1,9 @@
-"""Tests for gpt2whatever CLI."""
+"""Tests for Token Saver Loop CLI."""
 
 import sys
 from pathlib import Path
 
-# Allow importing gpt2whatever from src/ without installing.
+# Allow importing Token Saver Loop from src/ without installing.
 _PROJECT_ROOT = Path(__file__).parent.parent
 if str(_PROJECT_ROOT / "src") not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT / "src"))
@@ -15,7 +15,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from gpt2whatever.cli import main
+from token_saver_loop.cli import main
 
 
 # ---------- Legacy tests ----------
@@ -26,7 +26,7 @@ class TestCLILegacy(unittest.TestCase):
         with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
             code = main(["--version"])
             self.assertEqual(code, 0)
-            self.assertEqual(mock_stdout.getvalue().strip(), "gpt2whatever 1.0.0")
+            self.assertEqual(mock_stdout.getvalue().strip(), "token-saver-loop 1.0.0")
 
     def test_list_formats(self) -> None:
         with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
@@ -539,7 +539,7 @@ class TestCLIInstallerDryRun(unittest.TestCase):
         try:
             from unittest.mock import patch as mock_patch
             with mock_patch(
-                "gpt2whatever.core.planned_install_paths", return_value=[tmp_path]
+                "token_saver_loop.core.planned_install_paths", return_value=[tmp_path]
             ):
                 with patch.object(
                     sys, "stdout", new_callable=io.StringIO
@@ -561,7 +561,7 @@ class TestCLIInstallerDryRun(unittest.TestCase):
             fake_path = os.path.join(tmpdir, "should_not_be_created")
             from unittest.mock import patch as mock_patch
             with mock_patch(
-                "gpt2whatever.core.planned_install_paths",
+                "token_saver_loop.core.planned_install_paths",
                 return_value=[fake_path],
             ):
                 with patch.object(
@@ -726,3 +726,6 @@ class TestCLIInstallerDryRun(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+

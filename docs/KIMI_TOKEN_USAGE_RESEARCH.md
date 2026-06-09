@@ -117,7 +117,7 @@ Caveats:
 ```json
 {
   "version": 1,
-  "project_name": "Gpt2Whatever",
+  "project_name": "Token Saver Loop",
   "entries": [
     {
       "round": "004",
@@ -177,3 +177,4 @@ If automatic reading fails, record:
 - Did **not** access the network.
 - Did **not** modify source code.
 - Inspected only non-sensitive metadata: extension manifest, README, CLI help, public config files, and session context traces.
+

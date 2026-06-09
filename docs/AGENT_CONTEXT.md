@@ -1,17 +1,20 @@
 # AGENT_CONTEXT
 
-Project: Gpt2Whatever
+Project: Token Saver Loop
 
 Status:
-- Portable Kimi-Codex workflow kit is the primary product path.
+- Token Saver Loop is the primary product path; portable kit defaults to Kimi worker + Codex reviewer labels.
+- README is GitHub-facing; `docs/BEGINNER_GUIDE.md` is the beginner path for users new to the workflow.
 - Package version is `1.0.0`; JSON schemas remain `version: 1`.
 - CLI supports project config preview, worker skill preview, planned install paths, Kimi token usage parsing, manual Codex usage snapshots, metrics summarization, metrics append/write, installer dry-run, and real install gated by `--yes`.
 - Real installer writes use all-or-nothing safety checks and install the real PowerShell workflow scripts.
 - Codex plans/reviews; KimiCode executes bounded rounds.
+- GitHub packaging pass added root MIT LICENSE, a minimal example, and portable kit-local `.gitignore`; root `.ai/` and `.kimi-code/` should stay local-only.
 
 Current Goal:
 - Finalize portable kit, real installer, and GitHub-first README for a commit-ready 1.0 workflow kit.
 - Keep portable/no-install usage as the README first path; Python CLI install remains optional/advanced.
+- After creating the GitHub repo, optionally add real `project.urls` metadata to `pyproject.toml`.
 
 Rules:
 - Keep tasks small.
@@ -23,3 +26,4 @@ Rules:
 - Kimi process rotation: prefer a fresh Kimi conversation per round when handoff files are current; Kimi should follow repo handoff, not chat memory.
 - Fresh Codex threads can start by reading root `CODEX_CONTINUE.md`.
 - Kimi should update `.ai/active_task/progress.md` at the end of each round as a user-facing rough progress board; Codex may use it for navigation only, not verification.
+

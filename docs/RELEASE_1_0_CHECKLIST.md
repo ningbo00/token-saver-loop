@@ -2,7 +2,7 @@
 
 ## Release Definition
 
-The 1.0 release is a portable-first Kimi-Codex workflow kit:
+The 1.0 release is a portable-first Token Saver Loop:
 - The primary user path is copying `portable/kimi-codex-kit/` into a project.
 - All preview, config, skill, token, and metrics commands work.
 - `--install --dry-run` generates a versioned plan with a safety report.
@@ -45,7 +45,7 @@ The 1.0 release is a portable-first Kimi-Codex workflow kit:
 | # | Gate | Status | Evidence |
 |---|---|---|---|
 | 1 | Zero external test dependencies (stdlib `unittest` only) | OK | `tests/` imports |
-| 2 | Console script entry point defined in `pyproject.toml` | OK | `gpt2whatever = gpt2whatever.cli:main` |
+| 2 | Console script entry point defined in `pyproject.toml` | OK | `token-saver-loop = token_saver_loop.cli:main` |
 | 3 | Package metadata declares preview 1.0 version and README | OK | `pyproject.toml`, `--version` |
 | 4 | No committed secrets or session content | OK | `.gitignore`, privacy boundary rules |
 
@@ -54,3 +54,5 @@ The 1.0 release is a portable-first Kimi-Codex workflow kit:
 - Doctor command for checking kit health and common setup issues.
 - Packaged release paths such as PyPI and standalone zip.
 - Example projects showing T1/T2/T3 rounds.
+
+

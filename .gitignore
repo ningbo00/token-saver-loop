@@ -1,3 +1,5 @@
+/.ai/
+/.kimi-code/
 .ai/active_task/rounds/*/kimi_stdout.txt
 .ai/active_task/rounds/*/kimi_stderr.txt
 .ai/active_task/rounds/*/diff.patch
@@ -6,4 +8,5 @@ node_modules/
 dist/
 build/
 __pycache__/
+*.egg-info/
 .env

@@ -1,4 +1,4 @@
-# Implementation Options — Gpt2Whatever
+# Implementation Options — Token Saver Loop
 
 > 本项目已从 "LLM 输出转换器" pivot 为 "可移植 Kimi-Codex 工作流套件"。以下方案围绕新方向展开。
 
@@ -22,7 +22,7 @@
 ## 方案 B：Python CLI Installer（推荐）
 
 **描述**
-基于当前 Python CLI 骨架，提供参数化配置生成和（未来）一键安装能力。用户通过 `gpt2whatever --project-name X` 生成并预览项目工作流文件，确认后执行安装。配置和模板内嵌在 Python 包中，可版本化。
+基于当前 Python CLI 骨架，提供参数化配置生成和（未来）一键安装能力。用户通过 `token-saver-loop --project-name X` 生成并预览项目工作流文件，确认后执行安装。配置和模板内嵌在 Python 包中，可版本化。
 
 | 维度 | 评估 |
 |---|---|
@@ -54,3 +54,5 @@
 1. **Round 3~4（MVP）**：以 **方案 B** 为核心，完成 CLI 的参数化配置生成和预览能力。保留 **方案 A** 的静态文件副本（tools/ 下的脚本）作为兜底。
 2. **Round 5+（验证需求后）**：加入 `--install` 标志执行真实文件系统写入，将方案 A 的静态文件内嵌到 Python 包中作为安装源。
 3. **远期**：若需要多工作流支持，再评估是否向方案 C 演进。
+
+

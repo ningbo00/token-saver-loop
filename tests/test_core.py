@@ -1,9 +1,9 @@
-"""Tests for gpt2whatever core functions."""
+"""Tests for Token Saver Loop core functions."""
 
 import sys
 from pathlib import Path
 
-# Allow importing gpt2whatever from src/ without installing.
+# Allow importing Token Saver Loop from src/ without installing.
 _PROJECT_ROOT = Path(__file__).parent.parent
 if str(_PROJECT_ROOT / "src") not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT / "src"))
@@ -15,7 +15,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from gpt2whatever.core import (
+from token_saver_loop.core import (
     append_jsonl_record,
     apply_install_action,
     apply_install_plan,
@@ -38,7 +38,7 @@ from gpt2whatever.core import (
     summarize_token_usage_records,
     validate_project_name,
 )
-from gpt2whatever.templates import get_template, list_templates
+from token_saver_loop.templates import get_template, list_templates
 
 
 # ---------- Legacy tests ----------
@@ -617,7 +617,7 @@ class TestBuildInstallDryRunPlan(unittest.TestCase):
             # Temporarily patch planned_install_paths to include our temp file
             from unittest.mock import patch
             with patch(
-                "gpt2whatever.core.planned_install_paths", return_value=[tmp_path]
+                "token_saver_loop.core.planned_install_paths", return_value=[tmp_path]
             ):
                 plan = build_install_dry_run_plan("MyApp")
                 action = next(a for a in plan["actions"] if a["path"] == tmp_path)
@@ -631,7 +631,7 @@ class TestBuildInstallDryRunPlan(unittest.TestCase):
         # Use a path that is very unlikely to exist
         fake_path = ".this_should_not_exist_99999"
         with patch(
-            "gpt2whatever.core.planned_install_paths", return_value=[fake_path]
+            "token_saver_loop.core.planned_install_paths", return_value=[fake_path]
         ):
             plan = build_install_dry_run_plan("MyApp")
             action = next(a for a in plan["actions"] if a["path"] == fake_path)
@@ -951,3 +951,5 @@ class TestLoadJsonlRecordsFromFile(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
