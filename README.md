@@ -98,23 +98,23 @@ That guide walks through the simplest path: copy the kit, ask Codex for a safe f
 ## The Basic Loop
 
 ```mermaid
-flowchart LR
-    A[Reviewer model
-plans a small task] --> B[Task handoff file]
-    B --> C[Worker model
-executes one round]
-    C --> D[Evidence
-logs, tests, diffs, report]
-    D --> E[Reviewer model
-checks evidence]
-    E --> F{Verdict}
-    F -->|pass| G[Next task]
-    F -->|fix| H[Retry with same limits]
-    F -->|downgrade| I[Retry with stricter limits]
-    F -->|stop| J[Human decides]
-    G --> B
-    H --> B
-    I --> B
+flowchart TD
+    A[Reviewer model<br/>plans one small task]
+    B[Task handoff file]
+    C[Worker model<br/>executes one bounded round]
+    D[Evidence package<br/>report + diff + logs + tests]
+    E[Reviewer model<br/>checks the outcome]
+    F{Verdict}
+    G[Pass<br/>start next task]
+    H[Fix<br/>retry with same limits]
+    I[Downgrade<br/>retry with stricter limits]
+    J[Stop<br/>human decides]
+
+    A --> B --> C --> D --> E --> F
+    F --> G --> A
+    F --> H --> B
+    F --> I --> B
+    F --> J
 ```
 
 ## 60-Second Quickstart
