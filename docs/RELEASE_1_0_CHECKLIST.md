@@ -5,7 +5,14 @@
 The 1.0 preview-only release is a **read-only / dry-run capable** workflow kit:
 - All preview, config, skill, token, and metrics commands work.
 - `--install --dry-run` generates a versioned plan with a safety report.
+- Python package version is `1.0.0`; JSON output schemas remain separately versioned as `version: 1`.
 - **Real `--install` writes are intentionally disabled.**
+
+## Version Strategy
+
+- Package release version: `1.0.0` for the preview-only workflow kit.
+- Output schema versions: keep existing `version: 1` values for token, metrics, and installer-plan JSON records.
+- Future real installer writes should be a separate T1 scope and may use a later package version.
 
 ## Functional Gates
 
@@ -38,9 +45,9 @@ The 1.0 preview-only release is a **read-only / dry-run capable** workflow kit:
 |---|---|---|---|
 | 1 | Zero external test dependencies (stdlib `unittest` only) | OK | `tests/` imports |
 | 2 | Console script entry point defined in `pyproject.toml` | OK | `gpt2whatever = gpt2whatever.cli:main` |
-| 3 | No committed secrets or session content | OK | `.gitignore`, privacy boundary rules |
+| 3 | Package metadata declares preview 1.0 version and README | OK | `pyproject.toml`, `--version` |
+| 4 | No committed secrets or session content | OK | `.gitignore`, privacy boundary rules |
 
 ## Intentionally Deferred Post-1.0
 
 - Real `--install` apply with user confirmation or `--force` flag.
-- Package version bump (deferred until all gates above are satisfied and Codex approves).

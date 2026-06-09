@@ -8,80 +8,76 @@ Do **not** inspect `gpt2whatever --help` unless the task explicitly asks for it.
 
 ## Task
 
-Run Round 017 as an accelerated but gated pressure test for a preview-only 1.0 release candidate.
+Run Round 018 as an independent preview-only 1.0 release-readiness audit.
 
 ## Read First
 
 - `.kimi-code/skills/kimi-codex-worker/SKILL.md`
 - `.ai/active_task/state.md`
-- `.ai/active_task/codex_plan.md`
-- `.ai/active_task/rounds/round_016/codex_review.md`
-- `.ai/active_task/rounds/round_016/verdict.json`
+- `.ai/active_task/progress.md`
+- `docs/AGENT_CONTEXT.md`
+- `docs/REPO_MAP.md`
+- `docs/RELEASE_1_0_CHECKLIST.md`
 
 ## Critical Context
 
-- Round 016 did not pass Codex review.
-- Existing tests pass, but Codex manually reproduced an all-or-nothing bug.
-- First fix the P1 duplicate-target bug. If that fix or its tests fail, stop immediately.
-- If and only if Checkpoint A passes, continue to Checkpoint B release-gate preparation.
-- Real user-facing CLI installer writes remain disabled for this round.
+- Round 017 passed Codex review.
+- Codex then made a small release-finalization update:
+  - package version set to `1.0.0`
+  - `--version` CLI flag added
+  - README and release checklist updated
+  - JSON output schemas remain `version: 1`
+- Real user-facing CLI installer writes must remain disabled.
+- This round is an audit/review round, not a feature round.
 
 ## Goal
 
-Do roughly 2x the previous safe batch by completing two small checkpoints in order:
-
-1. Fix the known `apply_install_plan` duplicate-target all-or-nothing bug.
-2. Prepare objective 1.0 release readiness gates for the current preview-only product.
+Verify whether the current uncommitted preview-only 1.0 finalization diff is ready for Codex review and commit.
 
 ## Required Work
 
-### Checkpoint A - Mandatory Bug Fix
-
-1. Add duplicate target detection during `apply_install_plan` preflight.
-2. Compare resolved targets under `target_root`, not raw strings only.
-3. If duplicate targets exist, raise before writing any file.
-4. Add a temp-dir test proving duplicate targets fail and no file is written.
-5. Run `python -m unittest discover -s tests -v`.
-6. Stop if Checkpoint A does not pass.
-
-### Checkpoint B - 1.0 Release Gate Prep
-
-Only start this after Checkpoint A passes.
-
-1. Add or update a concise release readiness document, for example `docs/RELEASE_1_0_CHECKLIST.md`.
-2. Define what "1.0 preview-only release" means:
-   - workflow preview/config/skill commands work
-   - token/metrics helpers work
-   - `--install --dry-run` works and reports safety
-   - real `--install` writes are intentionally disabled
-3. Add CLI/core tests for any release-gate behavior that is currently undocumented or weakly covered, but do not invent large new features.
-4. Do not bump package version unless every release gate is already satisfied and the rationale is written in the report.
-5. Run `python -m unittest discover -s tests -v` again after Checkpoint B.
-
-## Validation
-
-- Required after Checkpoint A: `python -m unittest discover -s tests -v`.
-- Required after Checkpoint B: `python -m unittest discover -s tests -v`.
+1. Inspect the current diff with targeted commands:
+   - `git status --short`
+   - `git diff --stat HEAD`
+   - targeted `git diff` for changed source/test/docs files
+2. Verify version consistency:
+   - `pyproject.toml` package version is `1.0.0`
+   - `src/gpt2whatever/__init__.py` `__version__` is `1.0.0`
+   - `gpt2whatever --version` behavior is covered by tests
+   - JSON output schema versions are not accidentally bumped from `version: 1`
+3. Verify installer safety posture:
+   - CLI real `--install` writes remain rejected without `--dry-run`
+   - `--install --dry-run` remains preview-only
+   - no new code path applies install actions to the current repo
+4. Run validation:
+   - `python -m unittest discover -s tests -v`
+   - `git diff --check`
+5. Update `.ai/active_task/progress.md` at the end with a concise user-facing status board.
 
 ## Limits
 
-- Tier: T1.
-- Pressure-test batch size: medium-small, two gated checkpoints.
-- Max changed files: 7, including report artifacts.
-- Normal source/test/docs/artifact edits are allowed.
-- Do not use installer helpers to install into the current repo.
+- Tier: T2.
+- Audit only unless a clear release-blocking typo/test failure is found.
+- If you find a release blocker, make the smallest possible fix and explain it.
+- Max changed files: 3, excluding required round report artifacts.
 - Do not expose CLI real writes.
-- Do not overwrite/delete user files.
 - Do not add dependencies.
 - Do not commit.
 - Do not perform broad refactors.
-- Do not weaken or delete tests.
+- Do not overwrite/delete user files.
+- Do not rewrite existing docs for style only.
+- Do not decide final release approval; Codex makes the final verdict after review.
 
 ## Required Reports
 
-- `.ai/active_task/rounds/round_017/kimi_log.md`
-- `.ai/active_task/rounds/round_017/kimi_report.json`
+- `.ai/active_task/rounds/round_018/kimi_log.md`
+- `.ai/active_task/rounds/round_018/kimi_report.json`
 
 ## Final Self-Assessment
 
-Report each checkpoint separately and recommend whether the next batch should stay accelerated, shrink, or expand.
+Report:
+- pass/fail recommendation for Codex review
+- exact commands run and results
+- any files changed
+- whether real installer writes stayed disabled
+- whether package version and JSON schema version strategy are consistent

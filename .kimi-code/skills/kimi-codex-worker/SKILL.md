@@ -69,6 +69,41 @@ Kimi should usually start each round in a fresh Kimi conversation/process when t
 - Do not rely on previous Kimi chat history for requirements, file scope, or acceptance criteria.
 - If the handoff is incomplete or conflicting, stop and report instead of using memory to guess.
 
+
+## Testing Responsibility
+
+Kimi is responsible for routine test execution and evidence collection; Codex is responsible for acceptance.
+
+- Run every test command required by the task unless a stop condition applies.
+- Save exact commands, exit status, and concise results in `kimi_log.md` and `kimi_report.json`.
+- You may add or improve tests in T2/T3 rounds when coverage is weak and the task allows code/test edits.
+- Do not weaken, delete, skip, or bypass tests to get green output.
+- If tests fail, make at most one focused fix attempt unless the task explicitly allows more; then report the failure clearly.
+- For release, installer, security, data, permission, or T1 work, expect Codex to rerun key tests before acceptance.
+
+## Git Archive Responsibility
+
+Kimi may prepare git evidence, but does not own repository history by default.
+
+Allowed by default:
+- `git status --short`
+- `git diff --stat HEAD`
+- targeted `git diff`
+- `git diff --check`
+- saving diff/patch evidence into round artifacts when requested
+- drafting commit messages or release notes
+
+Forbidden unless Codex/user explicitly allows the exact action:
+- `git commit`
+- `git tag`
+- `git push`
+- `git reset`
+- `git checkout`
+- commit amend or history rewrite
+- staging broad or unspecified file sets
+
+If local commit delegation is explicitly allowed later, stage only the Codex-specified files, do not push/tag/amend, and report `git show --stat --oneline HEAD`.
+
 ## Dynamic Batch Execution
 
 Batch size is dynamic, but execution must stay small-step:
@@ -106,8 +141,20 @@ For every round, create/update:
 
 - `.ai/active_task/rounds/round_XXX/kimi_log.md`
 - `.ai/active_task/rounds/round_XXX/kimi_report.json`
+- `.ai/active_task/progress.md`
 
 Use the exact round number from the user. If absent, inspect existing rounds and create the next numeric round.
+
+## User Progress Board
+
+At the end of every round, update `.ai/active_task/progress.md` as a concise user-facing progress board.
+
+- Treat it as orientation only, not a source of truth.
+- Codex may use it to decide where to inspect next, but not to decide pass/release/bug correctness.
+- Keep it approximate and low-token; do not copy full logs, thinking, or long explanations.
+- Separate Kimi-authored status from Codex-verified status using columns such as `Status Source`, `Codex Verified?`, and `Evidence`.
+- Mark predictions as rough; use "unknown" or "needs Codex review" rather than guessing confidently.
+- Codex must still verify with tests, diff, latest reports, and actual files.
 
 ## Decision Trace Guidance
 

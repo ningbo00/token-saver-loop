@@ -5,6 +5,7 @@ import json
 import sys
 from pathlib import Path
 
+from gpt2whatever import __version__
 from gpt2whatever.core import (
     append_jsonl_record,
     build_codex_usage_snapshot,
@@ -48,6 +49,11 @@ def create_parser() -> argparse.ArgumentParser:
         "--list-formats",
         action="store_true",
         help="List available formats and exit",
+    )
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="Print package version and exit",
     )
     parser.add_argument(
         "--dry-run",
@@ -194,6 +200,10 @@ def _maybe_append_and_print(record: dict, append_path: str | None, summary_after
 def main(args: list[str] | None = None) -> int:
     parser = create_parser()
     parsed = parser.parse_args(args)
+
+    if parsed.version:
+        print(f"gpt2whatever {__version__}")
+        return 0
 
     append_path = _resolve_append_path(parsed)
     if append_path == "both":

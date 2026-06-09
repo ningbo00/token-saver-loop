@@ -22,6 +22,12 @@ from gpt2whatever.cli import main
 
 
 class TestCLILegacy(unittest.TestCase):
+    def test_version_flag(self) -> None:
+        with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
+            code = main(["--version"])
+            self.assertEqual(code, 0)
+            self.assertEqual(mock_stdout.getvalue().strip(), "gpt2whatever 1.0.0")
+
     def test_list_formats(self) -> None:
         with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
             code = main(["--list-formats"])

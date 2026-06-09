@@ -8,7 +8,10 @@ Turn any repository into a Kimi-Codex managed project by generating the required
 
 This project is pivoting from its earlier "LLM-to-structured-output converter" direction into a reusable workflow installer.
 
+Package version: **1.0.0** preview-only workflow kit. JSON output schemas remain independently versioned as `version: 1`.
+
 Current capabilities:
+- Print package version (`--version`)
 - Preview project configuration (`--show-config`)
 - Preview generated worker skill (`--show-project-skill`)
 - List planned install paths (`--list-install-paths`)
@@ -117,6 +120,7 @@ pip install -e .
 
 ```
 gpt2whatever [--project-name NAME] [--test-command CMD]
+             [--version]
              [--show-config] [--show-project-skill] [--list-install-paths]
              [--parse-kimi-usage-jsonl PATH] [--round-name NAME] [--tier TIER]
              [--record-codex-usage]
@@ -125,12 +129,14 @@ gpt2whatever [--project-name NAME] [--test-command CMD]
              [--summarize-token-usage-jsonl PATH]
              [--append-metrics PATH] [--append-default-metrics]
              [--summary-after-append]
+             [--install] [--dry-run]
 ```
 
 ### Options
 
 - `--project-name` — Target project name used in config and skill generation
 - `--test-command` — Default test command to embed in the project worker skill
+- `--version` — Print package version and exit
 - `--show-config` — Print the default project config JSON and exit
 - `--show-project-skill` — Print the generated worker SKILL.md content and exit
 - `--list-install-paths` — List planned installation paths and exit

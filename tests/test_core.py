@@ -169,6 +169,18 @@ class TestRenderProjectWorkerSkill(unittest.TestCase):
         self.assertIn("fresh Kimi conversation/process per round", text)
         self.assertIn("Do not rely on prior Kimi chat memory", text)
 
+    def test_generated_worker_skill_includes_progress_snapshot_rules(self) -> None:
+        text = render_project_worker_skill("MyApp")
+        self.assertIn(".ai/active_task/progress.md", text)
+        self.assertIn("user-facing orientation only", text)
+        self.assertIn("Separate Kimi-authored status from Codex-verified status", text)
+
+    def test_generated_worker_skill_includes_testing_and_git_limits(self) -> None:
+        text = render_project_worker_skill("MyApp")
+        self.assertIn("Run required test commands", text)
+        self.assertIn("git diff --check", text)
+        self.assertIn("Do not commit, tag, push, reset, checkout, amend", text)
+
     def test_includes_test_command_when_provided(self) -> None:
         text = render_project_worker_skill("MyApp", test_command="pytest")
         self.assertIn("pytest", text)

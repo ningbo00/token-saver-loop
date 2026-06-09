@@ -16,6 +16,7 @@ This file is the stable bootstrap for a fresh Codex thread.
    - `docs/AGENT_CONTEXT.md`
    - `docs/REPO_MAP.md`
    - `.ai/active_task/state.md`
+   - `.ai/active_task/progress.md`
 3. Then inspect only the latest round artifacts named by `.ai/active_task/state.md`:
    - `codex_review.md`
    - `verdict.json`
@@ -23,9 +24,10 @@ This file is the stable bootstrap for a fresh Codex thread.
    - `kimi_log.md` only if report/diff raises questions
 4. Run `git status --short` and `git diff --stat HEAD`.
 5. Continue from the `Next action` section in `.ai/active_task/state.md`.
-6. Trust tests, diff, and files over chat history or model claims.
-7. If handing work to Kimi, update `KIMI_NEXT_TASK.md` with a bounded round.
-8. If reviewing Kimi work, run `python -m unittest discover -s tests -v` unless clearly unnecessary.
+6. Use `progress.md` only as navigation; do not decide pass, release readiness, or bug correctness from it.
+7. Trust tests, diff, latest reports, and files over chat history, `progress.md`, or model claims.
+8. If handing work to Kimi, update `KIMI_NEXT_TASK.md` with a bounded round, required test evidence, and git archive limits.
+9. If reviewing Kimi work, verify diff/tests/logs; rerun key tests for T1, release, commit, installer/security/data work, or suspicious reports.
 
 ## Rotation Rules
 
@@ -33,3 +35,4 @@ This file is the stable bootstrap for a fresh Codex thread.
 - Do not start a fresh Codex thread for every same-tier fix.
 - Prefer a fresh Kimi conversation/process per round when handoff files are current.
 - Kimi should follow repo handoff files, not long-term chat memory.
+- Kimi may collect test and git evidence, but Codex/user own final acceptance and git history unless explicitly delegated.
