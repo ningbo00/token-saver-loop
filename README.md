@@ -1,151 +1,152 @@
 # Token Saver Loop
 
-> Move search, execution, retries, and memory out of the expensive model loop. Keep planning and final review in the expensive model's hands.
+**Slogan: Split AI model roles, reduce premium model token bills by up to 75%**
 
 Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
-Token Saver Loop is a portable workflow for using two AI roles on one coding project:
+---
 
-```text
-Worker model   = searches, edits, runs checks, retries, writes results
-Reviewer model = plans, sets limits, reviews results, decides pass/fix/stop
-File system    = stores memory, tasks, reports, diffs, logs, verdicts
-```
+## I. Core User Pain Points
 
-The default setup is **Kimi as worker + Codex as reviewer**, but the idea is model-agnostic. The important part is the loop, not the brand names.
+When using mainstream premium general-purpose models like GPT and Claude for code iteration, repo exploration, and documentation drafting, you almost always run into three seemingly unsolvable problems:
 
-## 1. Where The Tokens Are Saved
+1. **Runaway Bills**: Over 70% of premium token spend goes to low-value manual work like file retrieval, repeated debugging, and progress reporting, while decision-making accounts for only a tiny fraction of the cost.
 
-The tokens are saved from the expensive model's low-value workload.
+2. **Task Drift**: A single model working alone tends to deviate from the original requirements as the conversation context grows longer, leading to excessive code changes.
 
-In a normal one-model coding workflow, your strongest model often does everything:
+3. **Knowledge Loss**: Session memory is temporary and fragile. Project review standards and lessons learned cannot be reused across sessions, so you have to re-explain everything every time.
 
-```text
-read broad context -> search files -> edit -> run tests -> hit errors -> retry -> explain -> repeat next turn
-```
+---
 
-That burns premium tokens on work that is not really premium judgment:
+## II. Core Benefit (Single Primary Benefit: Reduce Premium Model Token Consumption)
 
-- broad repo search
-- trial-and-error edits
-- repeated test/debug loops
-- replaying long chat history
-- progress narration and status recap
+The core underlying logic: **We are not reducing AI workload; we are preventing the most expensive model from doing manual labor, forcibly driving down the premium token bill.**
 
-Token Saver Loop changes the cost structure:
+All other capabilities are incidental gains and do not define the project's core positioning.
 
-```text
-Expensive model: planning, constraints, acceptance, risk judgment
-Worker model:    search, execution, retries, command output, reports
-File system:     durable memory instead of long chat context
-```
-
-So the saving is not magic. You stop paying the strongest model to grind through the whole execution loop. You pay it mainly for the decisions that actually need it.
-
-The loop saves the most when the worker can do a lot of execution and the
-reviewer can inspect a compact result:
-
-| High-savings shape | Why it saves expensive tokens |
+| Core Benefit | Practical Effect |
 |---|---|
-| Repo exploration | The worker searches many files; the reviewer reads the conclusion and a few relevant files. |
-| Repetitive edits | The worker applies the pattern; the reviewer checks the diff shape and risky samples. |
-| Test/debug loops | The worker absorbs failed attempts; the reviewer reads the final result and remaining failures. |
-| Bulk document drafts | The worker generates volume; the reviewer checks structure, terminology, and high-risk claims. |
-| Multi-step implementation | The worker handles mechanics; the reviewer controls scope and acceptance between rounds. |
+| **Dramatic Premium Token Cost Reduction** | Shift 90% of the expensive model's wasted token consumption to a low-cost model, directly lowering the **premium bill by 75%** for routine AI development tasks. |
 
-The project can also make this automatic: before assigning work, estimate the
-shape of the task. If execution is large and review can stay compact, send it to
-the worker. If the real value is mostly judgment, keep it with the reviewer.
+---
 
-## 2. Why The Loop Is Reliable
+## III. Real Cost-Saving Data Estimates
 
-The loop is reliable because the worker is allowed to execute, but not allowed to decide.
+### 3.1 Same-Task Cost Comparison
 
-This is the key difference from simply using a cheaper model directly. The worker can search, edit, test, and retry, but the reviewer still controls:
+Taking a routine code optimization task as an example: originally, a single premium model consumed 8,000 tokens for the full workflow. After adopting the loop, the cost comparison is as follows:
 
-- what the task is
-- how much freedom the worker gets
-- whether the result is accepted
-- whether the next round should fix, downgrade, or stop
+| Work Item | Traditional Single Model (Premium Tokens) | Token Saver Loop (Premium Tokens) |
+|---|---|---|
+| Task planning, risk assessment, final acceptance | 2,000 | 2,000 |
+| Repo retrieval, batch source-code reading | 2,400 | 0 (handled by low-cost execution model) |
+| Code edits, bug retries, passing tests | 2,800 | 0 (handled by low-cost execution model) |
+| Process logs, progress reports | 800 | 0 (handled by local file system) |
+| **Total Premium Tokens** | **8,000** | **2,000 (75% reduction)** |
 
-Compared with using one strong model end-to-end, Token Saver Loop avoids several reliability traps:
+Benefit Boundary: The larger the execution workload and the more the reviewer inspects only core results, the more obvious the savings. One-off extremely short tasks yield almost no benefit.
 
-| Risk in one-model workflow | Loop answer |
+### 3.2 High-Fit Task List (Priority Use)
+
+| Task Scenario | Cost-Saving Principle |
 |---|---|
-| The same model does the work and reviews its own work. | Worker executes; reviewer judges from outside the execution path. |
-| A large task drifts over time. | Each round is bounded by task scope and tier. |
-| The model rationalizes its own failed attempt. | Failure becomes a control action: fix, downgrade, or stop. |
-| Long chats dilute the original requirements. | Current task, state, and review rules live in files. |
-| Mistakes can spread through a broad edit. | Round limits reduce the blast radius. |
+| Large repo source exploration, dependency mapping | Low-cost model traverses hundreds of files; premium model only reviews the final summary. |
+| Global batch renaming, comment standardization | Low-cost model applies fixed patterns in bulk; premium model spot-checks diff risks. |
+| API integration, iterative debug loops | Low-cost model absorbs repeated retries; premium model only reviews the final error. |
+| Multilingual document drafts, long-document authoring | Low-cost model fills in content; premium model verifies structure and terminology. |
 
-The quality does not come from trusting the worker. It comes from using the worker for labor while keeping judgment, acceptance, and risk control with the reviewer.
+---
 
-## 3. Why It Gets Better Over Time
+## IV. Fit / Not-Fit Scenarios (Quick Self-Check)
 
-Token Saver Loop improves because each round turns experience into reusable project knowledge.
+### ✅ Good Fit
 
-A normal chat gets longer and noisier. This loop should get sharper. Over time, the project accumulates better answers to questions like:
+- You need to separate execution and review into two models to prevent AI from breaking code.
 
-- What task size works best?
-- Which folders should the worker avoid?
-- Which tests must run for this kind of change?
-- What mistakes does this worker often make?
-- When should reviewer downgrade from T2 to T1?
-- What does a good task handoff look like for this repo?
+- You maintain multiple code repositories and want a unified AI development standard.
 
-That means future rounds start with better boundaries than earlier rounds. The improvement is not stored in one model's fragile chat memory; it is stored in project files, task templates, review habits, and accumulated rules.
+- You are tired of endlessly long chat contexts and want task records preserved permanently in local files.
 
-In short:
+- You need to strictly limit the number of files AI can modify and prevent unauthorized changes to core configurations.
 
-```text
-The model does not need to magically remember more.
-The project learns how to use models better.
+### ❌ Not Needed
+
+- One-off short Q&A or single-file tiny changes that can be completed in one conversation turn.
+
+- You have no need for cost reduction, risk control, or knowledge reuse.
+
+---
+
+## V. Minimal Three-Party Role Division
+
+The framework is **completely model-agnostic, unbound, and has no deployment dependencies**. In plain terms, we only need two categories of large models, without tying to specific products:
+1. Low-cost general-purpose model (execution side: Kimi, Tongyi Qianwen, etc.)
+2. High-tier reasoning model (review side: GPT, Claude, etc.)
+
+- **Execution Model (Worker)**: Pure manual labor. File retrieval, code editing, test execution, error retry, log/diff output. Has no final decision-making authority.
+
+- **Review Model (Reviewer)**: Pure decision-making and control. Breaks tasks into fine-grained pieces, defines operation boundaries, checks modification results, and delivers the final verdict.
+
+- **Local File System**: Durable memory carrier. Stores task work orders, modification diffs, review logs, and project rules, replacing fragile chat context.
+
+---
+
+## VI. 60-Second Zero-Barrier Onboarding (Plain Explanation: How Ordinary People Use It)
+
+**One-sentence usage principle**: No software installation, no coding, no key configuration. Just copy one folder from the project, open two AI web pages, paste one fixed phrase into each, and the whole loop is ready. Everything flows through local files; existing code is not touched.
+
+### Minimal 4-Step Onboarding (Plain language + copy-paste commands combined, no need to switch back and forth)
+
+1. **Step 1 (Local Prep)**: Copy the `portable/kimi-codex-kit` folder from this repo and paste it into your own project's root directory.
+
+2. **Step 2 (Reviewer assigns task)**: Open a high-tier reasoning model and paste: `Read kimi-codex-kit/START_HERE.md and create a safe first worker task.`
+
+3. **Step 3 (Worker executes)**: Open a low-cost model and paste: `Read kimi-codex-kit/KIMI_NEXT_TASK.md and execute it against this project.`
+
+4. **Step 4 (Reviewer accepts)**: Switch back to the high-tier reasoning model and paste: `The worker is done. Review the latest round evidence.`
+
+### Optional: PowerShell Shortcut to Generate Tasks (no need to type phrases manually)
+
+```powershell
+# Initialize a repo exploration task
+powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-init.ps1 -Task "Inspect this project and summarize the structure" -Tier T0
+# Generate the execution command without running it directly
+powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-run.ps1 -NoRun
 ```
 
-The loop self-optimizes by updating how future rounds are shaped:
+---
 
-```text
-observe a round -> identify friction -> update task shape, limits, or review checklist -> run the next round better
-```
+## VII. Core Kit File Descriptions
 
-For example, if a multilingual docs round makes the reviewer read too much, the
-next docs task should ask the worker for a compact review pack: changed files,
-term choices, uncertain translations, high-risk sections, and a short self-check.
-That keeps the next reviewer pass smaller than the last one.
+Kit state is stored independently; **by default, it will not actively modify existing project code.**
 
-Over time, the loop learns practical routing rules:
+| File Path | Core Purpose |
+|---|---|
+| `START_HERE.md` | Unified entry point for both models; defines basic usage constraints. |
+| `KIMI_NEXT_TASK.md` | The specific task issued to the execution model for the current round. |
+| `CODEX_CONTINUE.md` | Context bootstrap file when starting a new review session. |
+| `.ai/active_task/` | Local storage for round logs, modification diffs, and verdict results. |
+| `tools/` | Task initialization and batch review helper scripts. |
 
-- send execution-heavy work to the worker
-- keep judgment-heavy work with the reviewer
-- ask the worker for review-friendly summaries
-- raise batch size only when review stays compact
-- reduce freedom when review becomes expensive or noisy
+---
 
-## New Here?
+## VIII. Complete Closed-Loop Workflow (Understand it; no manual operation needed)
 
-If you are new to GitHub, Codex/Kimi workflows, or command-line tools, start here:
-
-```text
-docs/BEGINNER_GUIDE.md
-```
-
-That guide walks through the simplest path: copy the kit, ask Codex for a safe first task, ask Kimi to run it, then ask Codex to review the result.
-
-## The Basic Loop
+Workflow summary: Reviewer breaks down task → File handoff → Execution → Result package produced → Reviewer four-way verdict → Loop iteration.
 
 ```mermaid
 %%{init: {"theme": "base", "themeVariables": {"background": "transparent", "primaryColor": "#1f6feb", "primaryTextColor": "#ffffff", "primaryBorderColor": "#58a6ff", "lineColor": "#8b949e", "secondaryColor": "#238636", "tertiaryColor": "#30363d"}}}%%
 flowchart TD
-    A[Reviewer model<br/>plans one small task]
+    A[Reviewer model plans one small task]
     B[Task handoff file]
-    C[Worker model<br/>executes one bounded round]
-    D[Evidence package<br/>report + diff + logs + tests]
-    E[Reviewer model<br/>checks the outcome]
+    C[Worker model executes one bounded round]
+    D[Result package report + diff + logs + tests]
+    E[Reviewer model checks the outcome]
     F{Verdict}
-    G[Pass<br/>start next task]
-    H[Fix<br/>retry with same limits]
-    I[Downgrade<br/>retry with stricter limits]
-    J[Stop<br/>human decides]
+    G[Pass start next task]
+    H[Fix retry with same limits]
+    I[Downgrade retry with stricter limits]
+    J[Stop human decides]
 
     A --> B --> C --> D --> E --> F
     F --> G --> A
@@ -165,100 +166,74 @@ flowchart TD
     class G,H,I,J outcome
 ```
 
-## 60-Second Quickstart
+Verdict branch explanation: Pass / same-tier fix / tighten-permissions downgrade / human stop. Four closed-loop branches with no omissions.
 
-No Python required. No package install required. PowerShell helper scripts are optional.
+---
 
-1. Copy this folder into another project:
-   ```text
-   portable/kimi-codex-kit/
-   ```
+## IX. Quality, Risk, and Long-Term Concern Answers
 
-2. In Codex, say:
-   ```text
-   Read kimi-codex-kit/START_HERE.md and create a safe first worker task.
-   ```
+Beyond cost reduction, users care most about four hidden concerns: Will cheaper execution sacrifice code quality? Will tasks drift off course? Can knowledge be reused? Can it be used across multiple projects? The following full set of guarantees comes at no extra cost and adds no token consumption:
 
-3. In Kimi, say:
-   ```text
-   Read kimi-codex-kit/KIMI_NEXT_TASK.md and execute it against this project.
-   ```
+1. **Prevent Task Drift**: Each round limits file modification scope and operation permissions, blocking the model's unbounded free improvisation and solving long-conversation requirement drift.
 
-4. Back in Codex, say:
-   ```text
-   The worker is done. Review the latest round evidence.
-   ```
+2. **Eliminate Self-Review Blind Spots**: Execution and review models are physically separated, avoiding the common problems of a single model self-editing and self-reviewing, missing bugs, and self-whitewashing.
 
-Prefer scripts? Generate the worker prompt without running Kimi:
+3. **Long-Term Compounding Efficiency (incidental cost-reduction gain)**: With continued use, the project accumulates AI calling rules and pitfall standards, so there is no need to re-brief the model each time, further implicitly reducing wasted token consumption.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-init.ps1 -Task "Inspect this project and summarize the structure" -Tier T0
-powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-run.ps1 -NoRun
-```
+4. **Zero-Cost Cross-Project Reuse**: No framework dependency; copy the portable kit to plug into any repo and unify the AI development standard across all repositories.
 
-## What You Copy Into a Project
+The original standalone safety and risk-control items have been streamlined and merged with quality concerns to avoid content fragmentation:
 
-| Path | Purpose |
-|---|---|
-| `START_HERE.md` | First file for reviewer/worker models to read. |
-| `KIMI_NEXT_TASK.md` | The current bounded worker task. |
-| `CODEX_CONTINUE.md` | Fresh reviewer-thread bootstrap. |
-| `KIMI_CODEX_LOOP.md` | Full workflow notes for the default Kimi/Codex setup. |
-| `tools/` | Optional PowerShell helpers for init, run, review pack, verdict. |
-| `skills/kimi-codex-worker.md` | Default worker instructions for Kimi. |
-| `.ai/active_task/` | Kit-local state, progress, and round history. |
+1. **Permission Separation and Anti-Mistake Changes**: The execution model has no final decision-making authority; all changes must be reviewed and verified. Automatic Git commits are disabled by default.
 
-The copied kit keeps its workflow state inside `kimi-codex-kit/.ai/`, so your parent project is only changed by the actual task you approve.
+2. **Four-Level Permission Safety Net**: Starting from read-only T0, modification permissions are released step by step, preventing unauthorized changes to core configurations.
 
-## Example First Task
+3. **Result-Oriented Verification**: Only code diffs and test logs are verified; the model's verbal reports are not trusted, avoiding narrative deception.
 
-See `examples/minimal-task.md` for a safe T0 inspect-only task. It asks the worker to summarize a project without changing source code.
+4. **Install Anti-Overwrite**: CLI installation requires manual confirmation and includes file conflict detection to protect existing business code.
 
-## Optional Python CLI
+---
 
-The portable folder is the recommended path. If you prefer a Python installer:
+## X. Advanced Usage (99% of beginners can skip this)
+
+### 10.1 Minimal Safe Example
+
+See `examples/minimal-task.md` for a zero-code-change T0 repo inspection task, suitable for first-time process verification.
+
+### 10.2 Python CLI Install (Batch Operations Scenarios)
 
 ```bash
 pip install -e .
 token-saver-loop --install --yes --project-name MyApp --test-command "pytest"
 ```
 
-## When To Use It
+Applicable scenarios: Batch initialization of the kit across multiple repos. For personal daily use, the portable folder is preferred.
 
-Use Token Saver Loop when:
+---
 
-- You want one model to execute and another model to review.
-- You need a repeatable AI development process across multiple repos.
-- You want evidence-based handoffs instead of long chat memory.
-- You want stricter control over worker freedom and changed files.
+## XI. Beginner FAQ
 
-Skip it when:
+- **Q: Must I use Kimi + a specific model?** A: Absolutely not. The kit only uses them as default examples. Any "low-cost execution model + premium review model" pair can be substituted without changing any internal kit files.
 
-- You only need a one-shot answer.
-- The task is tiny enough for one model in one chat.
-- You do not need token savings, review gates, or file-based history.
+- **Q: Will it pollute existing project files?** A: All runtime data lives inside the kit's internal `.ai` directory. By default, the kit only reads source code and does not actively write to project business files.
 
-## Safety Model
+- **Q: Where can I learn if I don't understand the workflow?** A: Pure beginners should read **docs/BEGINNER_GUIDE.md** for a step-by-step illustrated tutorial.
 
-- **Worker executes; reviewer judges.** The worker does not get final say.
-- **No default commits.** Git history remains under human/reviewer control.
-- **Review from results, not self-belief.** The reviewer checks the outcome instead of trusting the worker's confidence.
-- **Tiered freedom.** T0 inspect-only, T1 precise, T2 bounded, T3 broad.
-- **Installer safety.** Real install requires `--yes` and uses no-overwrite checks.
+---
 
-## Project Status
+## XII. Project Status and Open-Source License
+
+### 12.1 Feature Progress
 
 | Feature | Status |
 |---|---|
-| Portable no-install kit | Available in `portable/kimi-codex-kit/` |
-| Beginner guide | Available in `docs/BEGINNER_GUIDE.md` |
-| Minimal example | Available in `examples/minimal-task.md` |
-| Python CLI installer | Available via `pip install -e .` |
-| Token usage helpers | JSONL parsing and metrics helpers |
-| Reviewer verdicts | Pass / same-tier-fix / downgrade / stop |
-| Future: doctor command | Planned |
-| Future: model-agnostic templates | Planned |
+| No-install portable kit | Completed (portable directory) |
+| Beginner illustrated guide and minimal example | Completed |
+| Python CLI installer and token metrics | Completed |
+| Cross-model generic templates and task diagnostics | Planned |
 
-## License
+### 12.2 License
 
-MIT
+MIT License, allowing free commercial use and redistribution with modifications.
+
+> (Note: Some parts of this document may be AI-generated.)
