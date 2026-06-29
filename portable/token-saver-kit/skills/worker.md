@@ -77,14 +77,15 @@ The worker is responsible for routine test execution and evidence collection; th
 - If tests fail, make at most one focused fix attempt unless the task explicitly allows more; then report the failure clearly.
 - For release, security, data, permission, or T1 work, expect the reviewer to rerun key tests before acceptance.
 
-## Git Archive Responsibility
+## Git Responsibility
 
-The worker may prepare git evidence, but does not own repository history by default.
+Git should not become a workflow blocker. The worker may use git when it reduces
+review cost or when the task explicitly asks for a commit.
 
-- The worker may run read-only git commands in the parent project root, save diffstats/patches, and draft commit messages or release notes.
-- The worker must not run `git commit`, `git tag`, `git push`, `git reset`, `git checkout`, or amend commits unless the reviewer/user explicitly allows that exact action.
-- If commit delegation is explicitly allowed later, the worker must stage only reviewer-specified files, make a local commit only, and report `git show --stat --oneline HEAD`.
-- Destructive history or working-tree operations remain forbidden by default.
+- Read-only git commands, diffstats, patches, and draft commit messages are allowed when useful.
+- `git commit`, `git tag`, and `git push` are allowed only when the current prompt or user explicitly asks for that exact action.
+- If the worker commits, it must report commit hash, changed files, and validation result.
+- Destructive operations remain forbidden by default: `git reset --hard`, `git clean -fdx`, forced push, and checkout/restore actions that discard user work.
 
 ## Dynamic Batch Execution
 
@@ -98,8 +99,8 @@ Batch size is dynamic, but execution must stay small-step:
 
 ## Forbidden By Default
 
-- Do not commit.
 - Do not install dependencies unless explicitly allowed.
+- Do not run destructive git or filesystem operations.
 - Do not modify lock files, generated files, binary files, archives, executables, `dist/`, `build/`, `.git/`, `node_modules/`, or `__pycache__/` unless explicitly allowed.
 - Do not make unrelated refactors.
 - Do not weaken, delete, or bypass tests to pass.

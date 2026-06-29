@@ -45,7 +45,8 @@ Worker model:
 - Executes only the latest worker prompt.
 - Changes parent-project files only inside the stated task scope.
 - Writes the required worker reports under the current `round_NNN/` directory.
-- Does not commit unless explicitly delegated by the reviewer/user.
+- Commits, tags, or pushes only when explicitly delegated by the reviewer/user.
+- Does not run destructive git or filesystem operations.
 
 Tools:
 
@@ -65,7 +66,8 @@ Tools:
 | `LATEST_WORKER_PROMPT.md` | Stable copy of the latest worker prompt. |
 | `tools/tsl-new-round.ps1` | Create the next worker prompt. |
 | `tools/tsl-latest.ps1` | Print the latest round and prompt paths. |
-| `tools/tsl-review.ps1` | Print a compact latest-round review summary. |
+| `tools/tsl-status.ps1` | Print the next short prompt to copy. |
+| `tools/tsl-review.ps1` | Print a compact latest-round review pack. |
 | `tools/tsl-redflags.ps1` | Check for common scope/evidence/generated-file problems. |
 | `tools/tsl-doctor.ps1` | Check kit health. |
 | `tools/tsl-archive.ps1` | Archive the active task. |

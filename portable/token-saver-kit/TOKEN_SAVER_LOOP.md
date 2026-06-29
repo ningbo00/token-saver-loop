@@ -21,7 +21,8 @@ not installers and are not required for manual use.
 |---|---|
 | `tsl-new-round.ps1` | Create the next worker handoff prompt and refresh `LATEST_WORKER_PROMPT.md`. |
 | `tsl-latest.ps1` | Find latest round paths without guessing `round_NNN`. |
-| `tsl-review.ps1` | Summarize latest worker evidence for reviewer inspection. |
+| `tsl-status.ps1` | Print the next short prompt to copy. |
+| `tsl-review.ps1` | Summarize latest worker evidence with a compact verdict hint. |
 | `tsl-redflags.ps1` | Detect common evidence/scope/generated-file issues. |
 | `tsl-doctor.ps1` | Check kit health. |
 | `tsl-archive.ps1` | Archive the active task when a phase is done. |

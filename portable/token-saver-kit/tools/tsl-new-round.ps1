@@ -86,7 +86,7 @@ $Tier
 - Use the worker model as a bounded executor, not as final reviewer.
 - Trust files, diffs, tests, and reports over chat claims.
 - Keep changes small. Default max changed files: $MaxFiles.
-- Do not commit from the worker model.
+- Commit/tag/push only when explicitly requested in the current prompt; report hashes and validation if used.
 "@
 }
 
@@ -145,7 +145,8 @@ $(Get-Content $planPath -Raw)
 
 - Execute only this worker prompt.
 - Change parent-project files only inside the stated task scope.
-- Do not commit.
+- Run git commit/tag/push only when this prompt or the user explicitly asks for that exact action; report commit hashes if used.
+- Do not run destructive git operations such as reset --hard, clean -fdx, forced push, or checkout/restore that discards user work.
 - Do not modify lock files, generated files, binary files, archives, executables, dist/, build/, .git/, node_modules/, or __pycache__/ unless explicitly allowed.
 - Do not claim success without command evidence.
 - $workflowLimit

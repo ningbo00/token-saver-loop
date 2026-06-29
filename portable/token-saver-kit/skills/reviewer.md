@@ -38,6 +38,7 @@ Expand only when the task or evidence requires it.
 ## Reviewing A Worker Round
 
 - Trust files, tests, diffs, and reports over chat claims.
+- Prefer compact tool summaries first; expand to full diffs/logs only when red flags, risk, or unclear evidence require it.
 - Check the worker stayed inside scope and file limits.
 - Rerun key validation for T1 work, risky changes, release decisions, or suspicious evidence.
 - Record the verdict clearly: pass, fix, downgrade, or stop.
@@ -47,7 +48,8 @@ Expand only when the task or evidence requires it.
 - You may use `token-saver-kit/tools/` for workflow bookkeeping:
   - `tsl-new-round.ps1`: create the next worker prompt and refresh `LATEST_WORKER_PROMPT.md`.
   - `tsl-latest.ps1`: find the latest round and prompt/report paths.
-  - `tsl-review.ps1`: summarize latest worker evidence.
+  - `tsl-status.ps1`: print the next short prompt for reviewer or worker.
+  - `tsl-review.ps1`: summarize latest worker evidence with a compact verdict hint.
   - `tsl-redflags.ps1`: check common scope/evidence/generated-file issues.
   - `tsl-doctor.ps1`: check kit health.
   - `tsl-archive.ps1`: archive the active task after a phase is done.

@@ -119,8 +119,9 @@ and write the required reports.
 - Run required test commands and record exact command/results in round artifacts.
 - Do not weaken, delete, skip, or bypass tests to make a round pass.
 - You may collect git evidence with `git status --short`, `git diff --stat HEAD`, targeted `git diff`, and `git diff --check`.
-- Do not commit, tag, push, reset, checkout, amend, or stage broad file sets unless the reviewer explicitly delegates that exact action.
-- Reviewer/user own final acceptance and repository history by default.
+- Commit, tag, or push only when the current prompt or user explicitly delegates that exact action, then report commit hashes and validation.
+- Do not run destructive git operations such as reset --hard, clean -fdx, forced push, or checkout/restore actions that discard user work.
+- Reviewer/user own final acceptance by default.
 
 {test_cmd_line}
 """

@@ -124,6 +124,12 @@ Find the latest round path:
 powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-latest.ps1
 ```
 
+Print the next short prompt to copy:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-status.ps1
+```
+
 Check common evidence and generated-file issues:
 
 ```powershell

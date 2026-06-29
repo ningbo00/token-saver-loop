@@ -31,6 +31,14 @@ function Get-ConfiguredFileLimit {
   return $null
 }
 
+function Get-CommandText($Item) {
+  if ($null -eq $Item) { return '' }
+  if ($Item -is [string]) { return $Item }
+  $commandProperty = $Item.PSObject.Properties['command']
+  if ($commandProperty) { return [string]$commandProperty.Value }
+  return [string]$Item
+}
+
 foreach ($name in @('.token-saver-loop', '__pycache__', 'build', 'dist', 'node_modules')) {
   $p = Join-Path $Parent $name
   if (Test-Path $p) { Add-Flag 'warn' 'generated_or_temp' "Found $name in parent project root." }
@@ -40,6 +48,7 @@ $allowedTools = @(
   'tsl-new-round.ps1',
   'tsl-latest.ps1',
   'tsl-review.ps1',
+  'tsl-status.ps1',
   'tsl-redflags.ps1',
   'tsl-doctor.ps1',
   'tsl-archive.ps1'
@@ -104,6 +113,16 @@ if ($latest) {
           Add-Flag 'warn' 'evidence' 'Worker reports done but commands_run is empty.'
         } elseif (-not ($commands | Where-Object { $_.result -eq 'passed' })) {
           Add-Flag 'warn' 'evidence' 'Worker reports done but no passed validation command is recorded.'
+        }
+      }
+      foreach ($command in @($report.commands_run)) {
+        $text = (Get-CommandText $command).Trim()
+        if (-not $text) { continue }
+        if ($text -match '(?i)\bgit\s+reset\s+--hard\b' -or
+            $text -match '(?i)\bgit\s+clean\s+-[^\s]*[fdx][^\s]*\b' -or
+            $text -match '(?i)\bgit\s+push\s+--force\b' -or
+            $text -match '(?i)\bgit\s+checkout\s+--\b') {
+          Add-Flag 'error' 'dangerous_git' "Worker report includes dangerous git command: $text"
         }
       }
     } catch {

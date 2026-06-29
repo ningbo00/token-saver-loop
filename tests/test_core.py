@@ -178,7 +178,8 @@ class TestRenderProjectWorkerSkill(unittest.TestCase):
         text = render_project_worker_skill("MyApp")
         self.assertIn("Run required test commands", text)
         self.assertIn("git diff --check", text)
-        self.assertIn("Do not commit, tag, push, reset, checkout, amend", text)
+        self.assertIn("Commit, tag, or push only when", text)
+        self.assertIn("destructive git operations", text)
 
     def test_includes_test_command_when_provided(self) -> None:
         text = render_project_worker_skill("MyApp", test_command="pytest")
