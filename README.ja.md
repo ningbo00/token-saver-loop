@@ -15,7 +15,7 @@ Token Saver Loop は portable-only ツールです。インストーラーは実
    または、自分のプロジェクトルートで CMD を開き、次をそのまま実行します：
 
    ```cmd
-   git clone --depth 1 https://github.com/ningbo00/token-saver-loop.git .token-saver-loop && xcopy ".token-saver-loop\portable\token-saver-kit" "token-saver-kit" /E /I
+   rmdir /S /Q "%TEMP%\token-saver-loop-kit" 2>NUL & git clone --depth 1 https://github.com/ningbo00/token-saver-loop.git "%TEMP%\token-saver-loop-kit" && xcopy "%TEMP%\token-saver-loop-kit\portable\token-saver-kit" "token-saver-kit" /E /I /Y && rmdir /S /Q "%TEMP%\token-saver-loop-kit"
    ```
 
    後で削除する方法：プロジェクトが完了した後、またはこの workflow が不要になった場合は、プロジェクトルートの `token-saver-kit` フォルダを削除するだけです。

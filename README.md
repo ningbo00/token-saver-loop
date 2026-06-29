@@ -15,7 +15,7 @@ Token Saver Loop is portable-only. You do not run an installer.
    Or run this from your own project root in CMD:
 
    ```cmd
-   git clone --depth 1 https://github.com/ningbo00/token-saver-loop.git .token-saver-loop && xcopy ".token-saver-loop\portable\token-saver-kit" "token-saver-kit" /E /I
+   rmdir /S /Q "%TEMP%\token-saver-loop-kit" 2>NUL & git clone --depth 1 https://github.com/ningbo00/token-saver-loop.git "%TEMP%\token-saver-loop-kit" && xcopy "%TEMP%\token-saver-loop-kit\portable\token-saver-kit" "token-saver-kit" /E /I /Y && rmdir /S /Q "%TEMP%\token-saver-loop-kit"
    ```
 
    Removal later: when the project is done, or when you no longer need the workflow, delete the `token-saver-kit` folder from your project root.

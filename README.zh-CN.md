@@ -15,7 +15,7 @@ Token Saver Loop 是 portable-only 工具，不需要运行安装器。
    或者在你的项目根目录打开 CMD，直接复制运行：
 
    ```cmd
-   git clone --depth 1 https://github.com/ningbo00/token-saver-loop.git .token-saver-loop && xcopy ".token-saver-loop\portable\token-saver-kit" "token-saver-kit" /E /I
+   rmdir /S /Q "%TEMP%\token-saver-loop-kit" 2>NUL & git clone --depth 1 https://github.com/ningbo00/token-saver-loop.git "%TEMP%\token-saver-loop-kit" && xcopy "%TEMP%\token-saver-loop-kit\portable\token-saver-kit" "token-saver-kit" /E /I /Y && rmdir /S /Q "%TEMP%\token-saver-loop-kit"
    ```
 
    后续移除方式：项目做完后，或者你不再需要这个工作流时，直接删除项目根目录里的 `token-saver-kit` 文件夹即可。
