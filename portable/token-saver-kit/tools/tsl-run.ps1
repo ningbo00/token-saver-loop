@@ -104,7 +104,7 @@ $previewNotice = if ($NoRun) {
 
 $prompt = @"
 You are the worker model working as a bounded executor in the Token Saver Loop.
-The worker can be DeepSeek, GLM, Qwen, Kimi, or another CLI/model. Current worker command: $workerCommandLabel.
+The worker can be any compatible CLI/model. Current worker command: $workerCommandLabel.
 
 ## Round Mode
 

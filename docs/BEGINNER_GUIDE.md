@@ -9,8 +9,8 @@ Token Saver Loop uses two AI roles:
 
 | Role | Job | Default tool |
 |---|---|---|
-| Reviewer | Plans tasks, sets limits, reviews evidence, decides pass/fix/stop. | GPT, Claude, Codex, etc. |
-| Worker | Executes one bounded task, runs checks, writes a report. | DeepSeek, GLM, Qwen, Kimi, etc. |
+| Reviewer | Plans tasks, sets limits, reviews evidence, decides pass/fix/stop. | Any strong reviewer model. |
+| Worker | Executes one bounded task, runs checks, writes a report. | Any compatible worker model or CLI. |
 
 The goal is simple: do not spend your best model on every search and retry.
 Use the strong model for judgment, and use the worker model for execution.

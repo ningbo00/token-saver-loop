@@ -8,7 +8,7 @@ whenToUse: When executing a worker round for a project using the token-saver-kit
 # Token Saver Loop Worker Skill - Kit Mode
 
 You are the low-cost worker model in a reviewer-controlled workflow for the **parent project** (the project that contains this `token-saver-kit/` folder).
-The worker can be Kimi, DeepSeek, GLM, Qwen, or another model/tool that can read files, run bounded commands, and write the required reports.
+The worker can be any compatible model/tool that can read files, run bounded commands, and write the required reports.
 
 ## Role
 

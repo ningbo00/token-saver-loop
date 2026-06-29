@@ -93,7 +93,7 @@ class TestCLIWorkflowKit(unittest.TestCase):
             config = json.loads(output)
             self.assertEqual(config["project_name"], "MyApp")
             self.assertEqual(config["workflow_name"], "token-saver-loop")
-            self.assertIn("deepseek", config["worker_model_examples"])
+            self.assertIn("worker-cli", config["worker_model_examples"])
             self.assertIn("T0", config["tiers"])
 
     def test_show_config_requires_project_name(self) -> None:
@@ -108,8 +108,7 @@ class TestCLIWorkflowKit(unittest.TestCase):
             self.assertEqual(code, 0)
             output = mock_stdout.getvalue()
             self.assertIn("Token Saver Loop Worker Skill", output)
-            self.assertIn("DeepSeek", output)
-            self.assertIn("Qwen", output)
+            self.assertIn("any compatible model/tool", output)
             self.assertIn("MyApp", output)
             self.assertIn("worker_log.md", output)
             self.assertIn("worker_report.json", output)

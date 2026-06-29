@@ -106,8 +106,8 @@ Benefit Boundary: The larger the execution workload and the more the reviewer in
 ## V. Minimal Three-Party Role Division
 
 The framework is **completely model-agnostic, unbound, and has no deployment dependencies**. In plain terms, we only need two categories of large models, without tying to specific products:
-1. Low-cost general-purpose model (execution side: DeepSeek, GLM, Qwen, Kimi, Tongyi Qianwen, etc.)
-2. High-tier reasoning model (review side: GPT, Claude, Codex, etc.)
+1. Low-cost general-purpose model or CLI (execution side).
+2. High-tier reasoning model (review side).
 
 - **Execution Model (Worker)**: Pure manual labor. File retrieval, code editing, test execution, error retry, log/diff output. Has no final decision-making authority.
 

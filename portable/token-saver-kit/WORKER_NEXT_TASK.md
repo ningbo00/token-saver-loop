@@ -7,7 +7,7 @@ This is a placeholder starter task. The reviewer will replace it with a real tas
 - The reviewer writes bounded tasks here.
 - Recommended path: run `token-saver-kit/tools/tsl-run.ps1` first, then give the worker model the generated `round_NNN/worker_prompt.md`.
 - Manual path: the worker model may read this file directly, but must still write the required reports under the current round path provided by the prompt.
-- DeepSeek, GLM, Qwen, Kimi, or another compatible model can be used if it follows the same limits and report paths.
+- Any compatible worker model can be used if it follows the same limits and report paths.
 - After each round, the reviewer updates this file with the next task.
 
 ## Current task

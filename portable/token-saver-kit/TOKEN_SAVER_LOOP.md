@@ -1,6 +1,6 @@
 # Token Saver Loop
 
-This kit provides a semi-automatic workflow where a reviewer model plans/reviews and a worker model implements in bounded rounds. reviewer and workerCode are the default examples, but the worker can be DeepSeek, GLM, Qwen, or another compatible CLI/model.
+This kit provides a semi-automatic workflow where a reviewer model plans/reviews and a worker model implements in bounded rounds. Both roles are model-agnostic; the worker can be any compatible CLI/model that follows the prompt and writes the required reports.
 
 ## Kit mode
 

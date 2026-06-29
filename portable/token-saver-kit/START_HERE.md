@@ -21,7 +21,7 @@ This is a **no-install, drop-in Token Saver Loop workflow kit**.
 
 - **Parent project**: the folder that contains `token-saver-kit/`. That is the project the reviewer and worker models will work on.
 - **Kit-local state**: workflow history lives inside `token-saver-kit/.ai/active_task/`. It does not pollute your parent project.
-- **Worker model**: DeepSeek, GLM, Qwen, Kimi, or another CLI/model can be used if it follows the same prompt and writes the same reports.
+- **Worker model**: any compatible CLI/model can be used if it follows the same prompt and writes the same reports.
 - **Reviewer model**: any strong reviewer model can plan and review the round evidence.
 - **Scripts**: PowerShell scripts in `token-saver-kit/tools/` initialize rounds, run the worker, and record reviewer verdicts.
 

@@ -56,7 +56,7 @@ def default_project_config(project_name: str) -> dict:
         "project_name": project_name,
         "workflow_name": "token-saver-loop",
         "default_worker_command": None,
-        "worker_model_examples": ["deepseek", "glm", "qwen"],
+        "worker_model_examples": ["worker-cli"],
         "reviewer_role": "high-tier reviewer model",
         "tiers": ["T0", "T1", "T2", "T3"],
         "active_task_dir": ".ai/active_task",
@@ -86,8 +86,8 @@ whenToUse: When executing a worker round for {project_name} under reviewer contr
 # Token Saver Loop Worker Skill - {project_name}
 
 You are the low-cost worker model in a reviewer-controlled workflow for **{project_name}**.
-The worker can be Kimi, DeepSeek, GLM, Qwen, or another model/tool that can read files,
-run bounded commands, and write the required reports.
+The worker can be any compatible model/tool that can read files, run bounded commands,
+and write the required reports.
 
 ## Role
 - Worker implements, explores, runs commands, and writes logs.
@@ -244,7 +244,7 @@ def build_doctor_report(project_root: str | Path = ".") -> dict:
         "checks": checks,
         "next_action": next_action,
         "notes": [
-            "Use -WorkerCommand on tsl-run.ps1 to run a worker CLI such as deepseek, glm, or qwen.",
+            "Use -WorkerCommand on tsl-run.ps1 to run any compatible worker CLI.",
             "_validate is a preview prompt only; round_NNN is the real worker round.",
         ],
     }

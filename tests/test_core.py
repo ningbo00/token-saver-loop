@@ -154,9 +154,7 @@ class TestRenderProjectWorkerSkill(unittest.TestCase):
     def test_includes_token_saver_worker_rules(self) -> None:
         text = render_project_worker_skill("MyApp")
         self.assertIn("Token Saver Loop Worker Skill", text)
-        self.assertIn("DeepSeek", text)
-        self.assertIn("GLM", text)
-        self.assertIn("Qwen", text)
+        self.assertIn("any compatible model/tool", text)
         self.assertIn("Tier Rules", text)
         self.assertIn("T0", text)
         self.assertIn("T1", text)
