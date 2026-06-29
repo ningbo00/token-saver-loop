@@ -11,6 +11,13 @@ Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README
 Token Saver Loop 是 portable-only 工具，不需要运行安装器。
 
 1. 把本仓库的 `portable/token-saver-kit` 复制到你的项目根目录。
+
+   或者在你的项目根目录打开 CMD，直接复制运行：
+
+   ```cmd
+   git clone --depth 1 https://github.com/ningbo00/token-saver-loop.git .token-saver-loop && xcopy ".token-saver-loop\portable\token-saver-kit" "token-saver-kit" /E /I
+   ```
+
 2. 把这段固定话术发给 reviewer 模型：
 
 ```text

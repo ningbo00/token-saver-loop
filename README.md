@@ -11,6 +11,13 @@ Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README
 Token Saver Loop is portable-only. You do not run an installer.
 
 1. Copy `portable/token-saver-kit` from this repo into your own project root.
+
+   Or run this from your own project root in CMD:
+
+   ```cmd
+   git clone --depth 1 https://github.com/ningbo00/token-saver-loop.git .token-saver-loop && xcopy ".token-saver-loop\portable\token-saver-kit" "token-saver-kit" /E /I
+   ```
+
 2. Send this fixed prompt to the reviewer model:
 
 ```text

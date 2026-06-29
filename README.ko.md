@@ -11,6 +11,13 @@ Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README
 Token Saver Loop는 portable-only 도구입니다. 설치 프로그램을 실행하지 않습니다.
 
 1. 이 리포지토리의 `portable/token-saver-kit` 을 자신의 프로젝트 루트에 복사합니다.
+
+   또는 자신의 프로젝트 루트에서 CMD를 열고 그대로 실행합니다：
+
+   ```cmd
+   git clone --depth 1 https://github.com/ningbo00/token-saver-loop.git .token-saver-loop && xcopy ".token-saver-loop\portable\token-saver-kit" "token-saver-kit" /E /I
+   ```
+
 2. reviewer 모델에 이 고정 프롬프트를 보냅니다：
 
 ```text
