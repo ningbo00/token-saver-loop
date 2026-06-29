@@ -126,6 +126,10 @@ For every round, create/update kit-local files:
 - `token-saver-kit/.ai/active_task/rounds/round_XXX/worker_report.json`
 - `token-saver-kit/.ai/active_task/progress.md`
 
+`worker_report.json` must include status, tier, summary, files_read,
+files_changed, commands_run, acceptance, risks, deviations, open_questions, and
+next_action. Empty arrays are fine when nothing changed or no risks are known.
+
 ## Final Reply To User
 
 End with only:

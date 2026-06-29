@@ -39,6 +39,7 @@ Reviewer model:
 - Reviews worker reports, tests, diffs, and changed files.
 - Decides pass, fix, downgrade, or stop.
 - Must not directly modify parent-project source code.
+- May use tool-generated evidence verdicts, but owns final acceptance.
 
 Worker model:
 
@@ -67,7 +68,7 @@ Tools:
 | `tools/tsl-new-round.ps1` | Create the next worker prompt. |
 | `tools/tsl-latest.ps1` | Print the latest round and prompt paths. |
 | `tools/tsl-status.ps1` | Print the next short prompt to copy. |
-| `tools/tsl-review.ps1` | Print a compact latest-round review pack. |
+| `tools/tsl-review.ps1` | Print a compact latest-round review pack and write `verdict.json`. |
 | `tools/tsl-redflags.ps1` | Check for common scope/evidence/generated-file problems. |
 | `tools/tsl-doctor.ps1` | Check kit health. |
 | `tools/tsl-archive.ps1` | Archive the active task. |

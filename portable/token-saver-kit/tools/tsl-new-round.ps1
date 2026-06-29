@@ -181,6 +181,7 @@ Write-Utf8File $statePath @"
 Status: worker_prompt_ready
 Current phase: $phase
 Current tier: $Tier
+Source/config/doc file limit: $MaxFiles
 Latest round: $roundRel
 
 Latest artifacts:

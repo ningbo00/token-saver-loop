@@ -92,8 +92,9 @@ if ($latest) {
           $path = (Get-ChangedPath $_).Replace('\','/')
           $path -and ($path -notlike 'token-saver-kit/*')
         })
-        if ($parentChanges.Count -gt $limit) {
-          Add-Flag 'error' 'scope' "Worker changed $($parentChanges.Count) parent files, exceeding limit $limit."
+        $parentChangeCount = ($parentChanges | Measure-Object).Count
+        if ($parentChangeCount -gt $limit) {
+          Add-Flag 'error' 'scope' "Worker changed $parentChangeCount parent files, exceeding limit $limit."
         }
       }
       foreach ($file in $changed) {
@@ -109,7 +110,8 @@ if ($latest) {
       }
       if ($report.status -eq 'done') {
         $commands = @($report.commands_run)
-        if ($commands.Count -eq 0) {
+        $commandCount = ($commands | Measure-Object).Count
+        if ($commandCount -eq 0) {
           Add-Flag 'warn' 'evidence' 'Worker reports done but commands_run is empty.'
         } elseif (-not ($commands | Where-Object { $_.result -eq 'passed' })) {
           Add-Flag 'warn' 'evidence' 'Worker reports done but no passed validation command is recorded.'

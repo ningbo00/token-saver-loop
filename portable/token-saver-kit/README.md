@@ -33,7 +33,7 @@ them to reduce repeated bookkeeping and path mistakes.
 | `tools/tsl-new-round.ps1` | Create the next round prompt and refresh `LATEST_WORKER_PROMPT.md`. |
 | `tools/tsl-latest.ps1` | Print latest round and prompt/report paths. |
 | `tools/tsl-status.ps1` | Print the next short prompt to copy. |
-| `tools/tsl-review.ps1` | Print a compact latest-round review pack. |
+| `tools/tsl-review.ps1` | Print a compact latest-round review pack and write `verdict.json`. |
 | `tools/tsl-redflags.ps1` | Check common scope, evidence, and generated-file problems. |
 | `tools/tsl-doctor.ps1` | Check kit health. |
 | `tools/tsl-archive.ps1` | Archive the active task. |

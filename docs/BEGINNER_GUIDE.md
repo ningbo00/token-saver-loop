@@ -136,6 +136,12 @@ Check common evidence and generated-file issues:
 powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-redflags.ps1
 ```
 
+Create a compact evidence verdict for the reviewer:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-review.ps1
+```
+
 ## What Files Matter?
 
 | File | Why it matters |
