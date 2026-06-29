@@ -24,7 +24,7 @@ Continue the project that contains this token-saver-kit. Read the kit's REVIEWER
 6. Use `progress.md` only as navigation; do not decide pass, release readiness, or bug correctness from it.
 7. Trust tests, diff, latest reports, and files over chat history, `progress.md`, or model claims.
 8. If handing work to the worker, update `token-saver-kit/WORKER_NEXT_TASK.md` with a bounded round, required test evidence, and git archive limits.
-9. If reviewing worker work, verify diff/tests/logs; rerun key tests for T1, release, commit, installer/security/data work, or suspicious reports.
+9. If reviewing worker work, verify diff/tests/logs; rerun key tests for T1, release, commit, security/data work, or suspicious reports.
 
 ## Rotation Rules
 

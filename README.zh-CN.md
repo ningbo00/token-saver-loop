@@ -6,6 +6,32 @@ Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README
 
 ---
 
+## 快速开始（无需安装）
+
+Token Saver Loop 是 portable-only 工具，不需要运行安装器。
+
+1. 把本仓库的 `portable/token-saver-kit` 复制到你的项目根目录。
+2. 对审查模型发送：`Read token-saver-kit/START_HERE.md and create a safe first worker task.`
+3. 准备一轮 worker 执行：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -WorkerCommand deepseek
+```
+
+可以把 `deepseek` 换成你实际使用的 worker CLI 命令。只预览提示词、不创建真实轮次：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -NoRun
+```
+
+可选健康检查：
+
+```bash
+token-saver-loop --doctor
+```
+
+---
+
 ## 一、用户核心痛点
 
 使用GPT、Claude等主流高价通用大模型做代码迭代、仓库梳理、文档编撰时，几乎都会遇到三类无解问题：
@@ -239,7 +265,7 @@ Python CLI 是可选辅助工具，不会把文件安装进你的项目。主要
 |---|---|
 |免安装便携套件|已完成（portable目录）|
 |新手图文指南、最小示例|已完成|
-|Python CLI安装器、Token指标统计|已完成|
+|Python CLI doctor、Token指标统计|已完成|
 |跨模型通用模板、任务诊断命令|规划中|
 
 ### 12.2 许可

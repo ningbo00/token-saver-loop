@@ -6,6 +6,32 @@ Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README
 
 ---
 
+## Quick Start (No Install)
+
+Token Saver Loop is portable-only. You do not run an installer.
+
+1. Copy `portable/token-saver-kit` from this repo into your own project root.
+2. Ask your reviewer model: `Read token-saver-kit/START_HERE.md and create a safe first worker task.`
+3. Prepare a worker round:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -WorkerCommand deepseek
+```
+
+Use another worker CLI by replacing `deepseek` with your command. To preview the prompt only:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -NoRun
+```
+
+Optional health check:
+
+```bash
+token-saver-loop --doctor
+```
+
+---
+
 ## I. Core User Pain Points
 
 When using mainstream premium general-purpose models like GPT and Claude for code iteration, repo exploration, and documentation drafting, you almost always run into three seemingly unsolvable problems:

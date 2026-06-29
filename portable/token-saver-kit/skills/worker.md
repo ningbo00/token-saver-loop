@@ -68,7 +68,7 @@ The worker is responsible for routine test execution and evidence collection; th
 - You may add or improve tests in T2/T3 rounds when coverage is weak and the task allows it.
 - Do not weaken, delete, skip, or bypass tests to get green output.
 - If tests fail, make at most one focused fix attempt unless the task explicitly allows more; then report the failure clearly.
-- For release, installer, security, data, permission, or T1 work, expect the reviewer to rerun key tests before acceptance.
+- For release, security, data, permission, or T1 work, expect the reviewer to rerun key tests before acceptance.
 
 ## Git Archive Responsibility
 

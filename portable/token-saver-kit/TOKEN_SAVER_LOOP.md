@@ -63,7 +63,7 @@ The worker may own routine test execution and evidence collection; the reviewer 
 - The worker should run the requested test commands, record exact commands/results, and save evidence in round artifacts.
 - The worker may add or improve tests in T2/T3 rounds when coverage is weak and the scope allows it.
 - The reviewer does not need to rerun every worker test for low-risk clean rounds, but must verify the report against diff and logs.
-- The reviewer should rerun key tests for T1 work, release decisions, commits, installer/security/data logic, or any suspicious report/diff mismatch.
+- The reviewer should rerun key tests for T1 work, release decisions, commits, security/data logic, or any suspicious report/diff mismatch.
 - Never accept a green run if tests were weakened, skipped, or changed without a clear reason.
 
 ## Git Archive Responsibility Split
