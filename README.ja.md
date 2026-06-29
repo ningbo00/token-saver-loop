@@ -6,6 +6,32 @@ Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README
 
 ---
 
+## クイックスタート（インストール不要）
+
+Token Saver Loop は portable-only ツールです。インストーラーは実行しません。
+
+1. このリポジトリの `portable/token-saver-kit` を、自分のプロジェクトのルートにコピーします。
+2. reviewer モデルに送信します：`Read token-saver-kit/START_HERE.md and create a safe first worker task.`
+3. worker ラウンドを準備します：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -WorkerCommand deepseek
+```
+
+`deepseek` は実際に使う worker CLI コマンドに置き換えられます。プロンプトだけをプレビューし、実際のラウンドを作らない場合：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -NoRun
+```
+
+任意のヘルスチェック：
+
+```bash
+token-saver-loop --doctor
+```
+
+---
+
 ## 一、ユーザーの核心的な悩み
 
 GPTやClaudeなどの主流高価格汎用大モデルを使ってコード反復、リポジトリ整理、ドキュメント作成を行う際、ほぼ必ず3つの解決しがたい問題に遭遇します：
