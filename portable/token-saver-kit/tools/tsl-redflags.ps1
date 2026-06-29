@@ -18,6 +18,21 @@ foreach ($name in @('.token-saver-loop', '__pycache__', 'build', 'dist', 'node_m
   if (Test-Path $p) { Add-Flag 'warn' 'generated_or_temp' "Found $name in parent project root." }
 }
 
+$allowedTools = @(
+  'tsl-new-round.ps1',
+  'tsl-latest.ps1',
+  'tsl-review.ps1',
+  'tsl-redflags.ps1',
+  'tsl-doctor.ps1',
+  'tsl-archive.ps1',
+  'tsl-clean.ps1'
+)
+Get-ChildItem -Path $PSScriptRoot -File -Filter '*.ps1' | ForEach-Object {
+  if ($allowedTools -notcontains $_.Name) {
+    Add-Flag 'error' 'unknown_tool' "Found unexpected tool script $($_.Name)."
+  }
+}
+
 if (-not (Test-Path (Join-Path $KitDir 'START_HERE.md'))) { Add-Flag 'error' 'kit' 'Missing START_HERE.md.' }
 if (-not (Test-Path (Join-Path $KitDir 'skills/reviewer.md'))) { Add-Flag 'error' 'kit' 'Missing skills/reviewer.md.' }
 if (-not (Test-Path (Join-Path $KitDir 'skills/worker.md'))) { Add-Flag 'error' 'kit' 'Missing skills/worker.md.' }

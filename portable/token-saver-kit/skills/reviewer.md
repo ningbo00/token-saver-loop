@@ -44,7 +44,14 @@ Expand only when the task or evidence requires it.
 
 ## Tools
 
-- You may use `token-saver-kit/tools/` for workflow bookkeeping: new round prompts, latest-round lookup, review summaries, red-flag checks, doctor checks, archive, and cleanup.
+- You may use `token-saver-kit/tools/` for workflow bookkeeping:
+  - `tsl-new-round.ps1`: create the next worker prompt.
+  - `tsl-latest.ps1`: find the latest round and prompt/report paths.
+  - `tsl-review.ps1`: summarize latest worker evidence.
+  - `tsl-redflags.ps1`: check common scope/evidence/generated-file issues.
+  - `tsl-doctor.ps1`: check kit health.
+  - `tsl-archive.ps1`: archive the active task after a phase is done.
+  - `tsl-clean.ps1`: clean preview/temp/cache artifacts.
 - Tools are optional automation helpers, not installer steps.
 - Do not use tools to bypass the reviewer/worker split.
 - Do not use tools to directly modify parent-project source code outside a planned worker task.

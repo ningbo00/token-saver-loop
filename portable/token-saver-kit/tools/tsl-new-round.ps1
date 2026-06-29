@@ -38,6 +38,7 @@ New-Item -ItemType Directory -Force $Active, $Rounds | Out-Null
 
 $statePath = Join-Path $Active 'state.md'
 $taskPath = Join-Path $Active 'task.md'
+$visibleTaskPath = Join-Path $KitDir 'WORKER_NEXT_TASK.md'
 $contextPath = Join-Path $Active 'context_pack.md'
 $planPath = Join-Path $Active 'reviewer_plan.md'
 $progressPath = Join-Path $Active 'progress.md'
@@ -49,6 +50,17 @@ if (-not $Tier) {
 
 if ($Task) {
   Write-Utf8File $taskPath "# Task`n`n$Task`n"
+  Write-Utf8File $visibleTaskPath @"
+# Worker: Do This Task Now
+
+## Current task
+
+$Task
+
+## Source of truth
+
+Use the latest `token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md` as the binding worker prompt.
+"@
 }
 if (-not (Test-Path $taskPath)) {
   throw 'Missing task. Pass -Task or write token-saver-kit/.ai/active_task/task.md first.'

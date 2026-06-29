@@ -42,7 +42,7 @@ Review the latest token-saver-kit/.ai/active_task/rounds/round_NNN evidence.
 
 ## I. Core User Pain Points
 
-When using mainstream premium general-purpose models like GPT and Claude for code iteration, repo exploration, and documentation drafting, you almost always run into three seemingly unsolvable problems:
+When using mainstream premium general-purpose models for code iteration, repo exploration, and documentation drafting, you almost always run into three seemingly unsolvable problems:
 
 1. **Runaway Bills**: Over 70% of premium token spend goes to low-value manual work like file retrieval, repeated debugging, and progress reporting, while decision-making accounts for only a tiny fraction of the cost.
 

@@ -59,6 +59,13 @@ The worker should usually start each round in a fresh conversation/process when 
 - Do not rely on previous worker chat history for requirements, file scope, or acceptance criteria.
 - If the handoff is incomplete or conflicting, stop and report instead of using memory to guess.
 
+## Optional Tools
+
+- `token-saver-kit/tools/tsl-latest.ps1` may be used to find the latest round prompt/report paths.
+- `token-saver-kit/tools/tsl-redflags.ps1` may be used after work to check for missing evidence or generated-file issues.
+- `token-saver-kit/tools/tsl-clean.ps1` may be used to remove preview/temp/cache artifacts when the task allows cleanup.
+- Do not use tools to expand scope, bypass reviewer instructions, or modify parent-project source code outside the current worker prompt.
+
 ## Testing Responsibility
 
 The worker is responsible for routine test execution and evidence collection; the reviewer is responsible for acceptance.
