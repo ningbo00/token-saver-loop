@@ -1,36 +1,36 @@
-# Minimal Kimi-Codex Task Example
+# Minimal Token Saver Loop Task Example
 
 Use this when you want to test the kit in a small repository without giving
-Kimi broad permission to change code.
+the worker broad permission to change code.
 
 ## 1. Copy the kit
 
-Copy `portable/kimi-codex-kit/` into the target project root as
-`kimi-codex-kit/`.
+Copy `portable/token-saver-kit/` into the target project root as
+`token-saver-kit/`.
 
-## 2. Ask Codex to create the first task
+## 2. Ask the reviewer model to create the first task
 
 ```text
-Read kimi-codex-kit/START_HERE.md and create a T0 task that only inspects this
+Read token-saver-kit/START_HERE.md and create a T0 task that only inspects this
 project, summarizes the structure, and recommends one safe next step.
 ```
 
-## 3. Expected Kimi task shape
+## 3. Expected worker task shape
 
-Codex should write a small task into `kimi-codex-kit/KIMI_NEXT_TASK.md`:
+The reviewer should write a small task into `token-saver-kit/WORKER_NEXT_TASK.md`:
 
 ```markdown
-# Kimi: Do This Task Now
+# Worker: Do This Task Now
 
 ## Current task
 
 Inspect the parent project and write a concise project summary.
 
-1. Read `kimi-codex-kit/START_HERE.md`.
+1. Read `token-saver-kit/START_HERE.md`.
 2. Inspect the parent project root.
 3. Identify the main language/framework, test command if obvious, and risky
    generated folders to avoid.
-4. Update `kimi-codex-kit/.ai/active_task/progress.md` with the summary.
+4. Update `token-saver-kit/.ai/active_task/progress.md` with the summary.
 
 ## Limits
 
@@ -42,18 +42,20 @@ Inspect the parent project and write a concise project summary.
 ## 4. Run or copy the prompt
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-run.ps1 -NoRun
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -NoRun
 ```
 
-Copy the generated prompt into Kimi manually, or remove `-NoRun` if your Kimi
+Copy the generated prompt into the worker manually, or remove `-NoRun` if your worker
 CLI is installed and configured.
 
-## 5. Ask Codex to review
+## 5. Ask the reviewer model to review
 
 ```text
-Kimi is done. Review the latest round under kimi-codex-kit/.ai/active_task/rounds/.
+The worker is done. Review the latest round under token-saver-kit/.ai/active_task/rounds/.
 ```
 
-Codex should check the round report, git diff, and progress board before
+The reviewer should check the round report, git diff, and progress board before
 writing a verdict.
+
+
 

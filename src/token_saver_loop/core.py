@@ -51,42 +51,47 @@ def extract_text_from_response(response: dict) -> str:
 
 
 def default_project_config(project_name: str) -> dict:
-    """Return the default configuration for a new Kimi-Codex managed project."""
+    """Return the default configuration for a Token Saver Loop managed project."""
     return {
         "project_name": project_name,
-        "workflow_name": "kimi-codex",
+        "workflow_name": "token-saver-loop",
+        "default_worker_command": None,
+        "worker_model_examples": ["deepseek", "glm", "qwen", "kimi"],
+        "reviewer_role": "high-tier reviewer model",
         "tiers": ["T0", "T1", "T2", "T3"],
         "active_task_dir": ".ai/active_task",
         "rounds_dir": ".ai/active_task/rounds",
         "docs_dir": "docs",
         "tools_dir": "tools",
-        "skills_dir": ".kimi-code/skills",
+        "skills_dir": ".token-saver/skills",
     }
 
 
 def render_project_worker_skill(
     project_name: str, test_command: str | None = None
 ) -> str:
-    """Return the content of a project-local kimi-codex-worker SKILL.md."""
+    """Return the content of a project-local worker SKILL.md."""
     test_cmd_line = (
         f"Default test command: `{test_command}`"
         if test_command
         else "No default test command configured."
     )
     return f"""---
-name: kimi-codex-worker
-description: Work as the Kimi executor in a Codex-reviewed loop for {project_name}.
+name: worker
+description: Work as the low-cost worker model in a reviewer-controlled Token Saver Loop for {project_name}.
 type: prompt
-whenToUse: When executing a Kimi round for {project_name} under Codex review.
+whenToUse: When executing a worker round for {project_name} under reviewer control.
 ---
 
-# Kimi-Codex Worker Skill — {project_name}
+# Token Saver Loop Worker Skill - {project_name}
 
-You are the Kimi executor in a Codex-reviewed workflow for **{project_name}**.
+You are the low-cost worker model in a reviewer-controlled workflow for **{project_name}**.
+The worker can be Kimi, DeepSeek, GLM, Qwen, or another model/tool that can read files,
+run bounded commands, and write the required reports.
 
 ## Role
-- Kimi implements, explores, runs commands, and writes logs.
-- Codex plans, reviews, decides pass/fix/downgrade/stop, and owns final quality.
+- Worker implements, explores, runs commands, and writes logs.
+- Reviewer plans, reviews, decides pass/fix/downgrade/stop, and owns final quality.
 
 ## Tier Rules
 - T3: Free execution. Small patch.
@@ -95,52 +100,161 @@ You are the Kimi executor in a Codex-reviewed workflow for **{project_name}**.
 - T0: No implementation. Inspect and report only.
 
 ## Required Artifacts
-- `.ai/active_task/rounds/round_XXX/kimi_log.md`
-- `.ai/active_task/rounds/round_XXX/kimi_report.json`
+- `.ai/active_task/rounds/round_XXX/worker_log.md`
+- `.ai/active_task/rounds/round_XXX/worker_report.json`
 - `.ai/active_task/progress.md`
 
 ## User Progress Board
 - At the end of every round, update `.ai/active_task/progress.md`.
 - Treat it as user-facing orientation only, not a source of truth.
-- Separate Kimi-authored status from Codex-verified status.
-- Do not store full thinking or long logs; Codex verifies with tests, diff, latest reports, and files.
+- Separate worker-authored status from reviewer-verified status.
+- Do not store full thinking or long logs; the reviewer verifies with tests, diff, latest reports, and files.
 
 ## Process Rotation
-- Prefer a fresh Kimi conversation/process per round when handoff files are complete.
-- Do not rely on prior Kimi chat memory; follow Codex's current handoff and repo files.
-- Reuse the same Kimi conversation only for an immediate same-round retry or when Codex explicitly asks for continuity.
+- Prefer a fresh worker conversation/process per round when handoff files are complete.
+- Do not rely on prior worker chat memory; follow the reviewer's current handoff and repo files.
+- Reuse the same worker conversation only for an immediate same-round retry or when the reviewer explicitly asks for continuity.
 
 ## Testing And Git Evidence
 - Run required test commands and record exact command/results in round artifacts.
 - Do not weaken, delete, skip, or bypass tests to make a round pass.
 - You may collect git evidence with `git status --short`, `git diff --stat HEAD`, targeted `git diff`, and `git diff --check`.
-- Do not commit, tag, push, reset, checkout, amend, or stage broad file sets unless Codex explicitly delegates that exact action.
-- Codex/user own final acceptance and repository history by default.
+- Do not commit, tag, push, reset, checkout, amend, or stage broad file sets unless the reviewer explicitly delegates that exact action.
+- Reviewer/user own final acceptance and repository history by default.
 
 {test_cmd_line}
 """
 
 
-def planned_install_paths() -> list[str]:
-    """Return the list of paths that a future installer would create."""
-    return [
-        ".ai/active_task/state.md",
-        ".ai/active_task/task.md",
-        "docs/AGENT_CONTEXT.md",
-        "docs/REPO_MAP.md",
-        "tools/ai-kimi-init.ps1",
-        "tools/ai-kimi-run.ps1",
-        "tools/ai-kimi-review-pack.ps1",
-        "tools/ai-kimi-verdict.ps1",
-        ".kimi-code/skills/kimi-codex-worker/SKILL.md",
-    ]
+def build_doctor_report(project_root: str | Path = ".") -> dict:
+    """Inspect a project for Token Saver Loop state without modifying files."""
+    root = Path(project_root).resolve()
+    portable_kit = root / "token-saver-kit"
+    if (portable_kit / "START_HERE.md").exists():
+        mode = "portable"
+        base = portable_kit
+        active = base / ".ai" / "active_task"
+        run_script = base / "tools" / "tsl-run.ps1"
+    else:
+        mode = "missing"
+        base = None
+        active = portable_kit / ".ai" / "active_task"
+        run_script = None
+
+    def rel(path: Path | None) -> str | None:
+        if path is None:
+            return None
+        try:
+            return path.resolve().relative_to(root).as_posix()
+        except ValueError:
+            return path.as_posix()
+
+    checks: list[dict] = []
+
+    def add_check(name: str, ok: bool, details: str) -> None:
+        checks.append(
+            {
+                "name": name,
+                "status": "ok" if ok else "missing",
+                "details": details,
+            }
+        )
+
+    add_check(
+        "workflow_kit",
+        mode != "missing",
+        "Found portable kit." if mode == "portable" else "No token-saver-kit/ folder found.",
+    )
+    add_check(
+        "run_script",
+        bool(run_script and run_script.exists()),
+        rel(run_script) or "Expected tsl-run.ps1.",
+    )
+    add_check(
+        "active_task",
+        active.exists(),
+        rel(active),
+    )
+    add_check(
+        "state",
+        (active / "state.md").exists(),
+        rel(active / "state.md"),
+    )
+    add_check(
+        "task",
+        (active / "task.md").exists(),
+        rel(active / "task.md"),
+    )
+    rounds = active / "rounds"
+    add_check(
+        "rounds_dir",
+        rounds.exists(),
+        rel(rounds),
+    )
+
+    latest_round = None
+    if rounds.exists():
+        round_dirs = sorted(
+            [p for p in rounds.iterdir() if p.is_dir() and re.match(r"^round_\d+$", p.name)],
+            key=lambda p: p.name,
+        )
+        latest_round = round_dirs[-1] if round_dirs else None
+
+    preview_prompt = rounds / "_validate" / "worker_prompt.md"
+    latest_prompt = latest_round / "worker_prompt.md" if latest_round else None
+    latest_report = latest_round / "worker_report.json" if latest_round else None
+
+    add_check(
+        "latest_round",
+        latest_round is not None,
+        rel(latest_round) if latest_round else "No round_NNN directory yet.",
+    )
+    add_check(
+        "latest_round_prompt",
+        bool(latest_prompt and latest_prompt.exists()),
+        rel(latest_prompt) if latest_prompt else "Run tsl-run.ps1 without -NoRun to create one.",
+    )
+    add_check(
+        "latest_worker_report",
+        bool(latest_report and latest_report.exists()),
+        rel(latest_report) if latest_report else "Missing until the worker finishes.",
+    )
+
+    has_preview = preview_prompt.exists()
+    next_action = "copy_portable_kit"
+    if mode != "missing" and not active.exists():
+        next_action = "initialize_task"
+    elif mode != "missing" and latest_round is None:
+        next_action = "create_real_round"
+    elif mode != "missing" and latest_prompt is not None and not latest_prompt.exists():
+        next_action = "create_real_round"
+    elif mode != "missing" and latest_round is not None and not latest_report.exists():
+        next_action = "give_prompt_to_worker"
+    elif mode != "missing" and latest_report.exists():
+        next_action = "review_latest_round"
+
+    return {
+        "version": 1,
+        "project_root": root.as_posix(),
+        "mode": mode,
+        "base_path": rel(base),
+        "active_task_path": rel(active),
+        "latest_round": rel(latest_round),
+        "validate_preview_prompt": rel(preview_prompt) if has_preview else None,
+        "checks": checks,
+        "next_action": next_action,
+        "notes": [
+            "Use -WorkerCommand on tsl-run.ps1 to run a worker CLI such as deepseek, glm, qwen, or kimi.",
+            "_validate is a preview prompt only; round_NNN is the real worker round.",
+        ],
+    }
 
 
 # ---------- Token usage helpers ----------
 
 
-def parse_kimi_usage_counts_from_jsonl(jsonl_text: str) -> list[int]:
-    """Extract `_usage` token_count values from Kimi session JSONL text.
+def parse_worker_usage_counts_from_jsonl(jsonl_text: str) -> list[int]:
+    """Extract `_usage` token_count values from worker session JSONL text.
 
     Only inspects lines where role == "_usage". Ignores invalid JSON,
     non-dict lines, and any non-numeric token_count values.
@@ -170,7 +284,7 @@ def parse_kimi_usage_counts_from_jsonl(jsonl_text: str) -> list[int]:
     return counts
 
 
-def parse_kimi_usage_counts_from_jsonl_file(path: str | Path) -> list[int]:
+def parse_worker_usage_counts_from_jsonl_file(path: str | Path) -> list[int]:
     """Stream a JSONL file and extract only `_usage` token_count values.
 
     Reads line-by-line to avoid loading the entire file into memory.
@@ -203,7 +317,7 @@ def parse_kimi_usage_counts_from_jsonl_file(path: str | Path) -> list[int]:
     return counts
 
 
-def summarize_kimi_usage_counts(counts: list[int]) -> dict:
+def summarize_worker_usage_counts(counts: list[int]) -> dict:
     """Return a summary dict for a list of usage counts."""
     if not counts:
         return {
@@ -226,17 +340,17 @@ def build_round_token_usage_record(
     round_name: str,
     tier: str,
     counts: list[int],
-    source: str = "kimi_context_jsonl",
+    source: str = "worker_context_jsonl",
     notes: str | None = None,
 ) -> dict:
     """Build a round-level token usage record dict."""
-    summary = summarize_kimi_usage_counts(counts)
+    summary = summarize_worker_usage_counts(counts)
     measurement_mode = "actual_total_only" if counts else "unavailable"
     if not counts and notes is None:
         notes = "No _usage entries found."
     return {
         "version": 1,
-        "actor": "kimi",
+        "actor": "worker",
         "round": round_name,
         "tier": tier,
         "source": source,
@@ -275,15 +389,15 @@ def parse_jsonl_records(jsonl_text: str) -> list[dict]:
     return records
 
 
-def build_codex_usage_snapshot(
+def build_reviewer_usage_snapshot(
     input_tokens: int,
     output_tokens: int,
     total_tokens: int,
     requests: int,
-    source: str = "manual_codex_profile_snapshot",
+    source: str = "manual_reviewer_profile_snapshot",
     notes: str | None = None,
 ) -> dict:
-    """Build a Codex usage snapshot dict.
+    """Build a reviewer usage snapshot dict.
 
     Validates that all numeric fields are non-negative ints.
     """
@@ -297,7 +411,7 @@ def build_codex_usage_snapshot(
             raise ValueError(f"{name} must be a non-negative int, got {value!r}")
     return {
         "version": 1,
-        "actor": "codex",
+        "actor": "reviewer",
         "source": source,
         "input_tokens": input_tokens,
         "output_tokens": output_tokens,
@@ -308,269 +422,41 @@ def build_codex_usage_snapshot(
 
 
 def summarize_token_usage_records(records: list[dict]) -> dict:
-    """Summarize a list of mixed Kimi and Codex token usage records.
+    """Summarize a list of mixed worker and reviewer token usage records.
 
-    - Kimi: sums delta_token_count when actor is "kimi" (or inferred from
-      delta_token_count presence for backward compatibility).
-    - Codex: uses the latest total_tokens, input_tokens, output_tokens,
-      and requests from the last codex record.
+    - Worker: sums delta_token_count when actor is "worker" or inferred from
+      delta_token_count presence.
+    - Reviewer: uses the latest total_tokens, input_tokens, output_tokens,
+      and requests from the last reviewer record.
     """
-    kimi_delta_total = 0
-    codex_latest_input: int | None = None
-    codex_latest_output: int | None = None
-    codex_latest_total: int | None = None
-    codex_latest_requests: int | None = None
+    worker_delta_total = 0
+    reviewer_latest_input: int | None = None
+    reviewer_latest_output: int | None = None
+    reviewer_latest_total: int | None = None
+    reviewer_latest_requests: int | None = None
 
     for rec in records:
         actor = rec.get("actor")
-        if actor == "kimi" or (actor is None and "delta_token_count" in rec):
+        if actor == "worker" or (actor is None and "delta_token_count" in rec):
             delta = rec.get("delta_token_count")
             if isinstance(delta, int):
-                kimi_delta_total += delta
-        elif actor == "codex":
+                worker_delta_total += delta
+        elif actor == "reviewer":
             total = rec.get("total_tokens")
             if isinstance(total, int):
-                codex_latest_total = total
-                codex_latest_input = rec.get("input_tokens")
-                codex_latest_output = rec.get("output_tokens")
-                codex_latest_requests = rec.get("requests")
+                reviewer_latest_total = total
+                reviewer_latest_input = rec.get("input_tokens")
+                reviewer_latest_output = rec.get("output_tokens")
+                reviewer_latest_requests = rec.get("requests")
 
     return {
-        "kimi_delta_tokens_total": kimi_delta_total,
-        "codex_latest_input_tokens": codex_latest_input,
-        "codex_latest_output_tokens": codex_latest_output,
-        "codex_latest_total_tokens": codex_latest_total,
-        "codex_latest_requests": codex_latest_requests,
+        "worker_delta_tokens_total": worker_delta_total,
+        "reviewer_latest_input_tokens": reviewer_latest_input,
+        "reviewer_latest_output_tokens": reviewer_latest_output,
+        "reviewer_latest_total_tokens": reviewer_latest_total,
+        "reviewer_latest_requests": reviewer_latest_requests,
         "records_count": len(records),
     }
-
-
-# ---------- Installer dry-run helpers ----------
-
-
-_PROJECT_NAME_RE = re.compile(r"^[a-zA-Z0-9_-]+$")
-
-
-def validate_project_name(name: str) -> str:
-    """Validate a project name for use in generated paths.
-
-    Rejects empty, whitespace-only, or names containing path separators,
-    traversal sequences, or other unsafe characters.
-
-    Allowed characters: letters, digits, underscore, and hyphen.
-    """
-    if not isinstance(name, str):
-        raise ValueError(f"project_name must be a string, got {type(name).__name__}")
-    stripped = name.strip()
-    if not stripped:
-        raise ValueError("project_name must be a non-empty string")
-    if stripped != name:
-        raise ValueError("project_name must not have leading or trailing whitespace")
-    if ".." in stripped:
-        raise ValueError("project_name must not contain '..'")
-    if not _PROJECT_NAME_RE.match(stripped):
-        raise ValueError(
-            "project_name must contain only letters, digits, underscores, and hyphens"
-        )
-    return stripped
-
-
-def build_install_dry_run_plan(
-    project_name: str,
-    test_command: str | None = None,
-) -> dict:
-    """Build a dry-run install plan dict without writing any files.
-
-    Returns a versioned JSON-ready dict with one action entry per planned
-    install path. Existing files are flagged as conflicts.
-    """
-    project_name = validate_project_name(project_name)
-    paths = planned_install_paths()
-    # Project-specific skill path
-    skill_path = f".kimi-code/skills/{project_name}-kimi-codex-worker/SKILL.md"
-    all_paths = paths + [skill_path]
-
-    actions: list[dict] = []
-    for path in all_paths:
-        p = Path(path)
-        exists = p.exists()
-        action = "modify" if exists else "create"
-        conflict = "existing" if exists else None
-        reason = "Planned install path"
-        if path == skill_path:
-            reason = "Project-specific worker skill"
-        actions.append(
-            {
-                "path": path,
-                "action": action,
-                "reason": reason,
-                "conflict": conflict,
-            }
-        )
-
-    return {
-        "version": 1,
-        "project_name": project_name,
-        "test_command": test_command,
-        "actions": actions,
-    }
-
-
-def check_install_safety(plan: dict) -> dict:
-    """Check a dry-run install plan for safety concerns.
-
-    Returns a safety report dict without writing any files:
-    - ``safe`` (bool): whether the plan can proceed without concerns.
-    - ``concerns`` (list[str]): human-readable safety concern messages.
-    - ``blocked_actions`` (list[dict]): actions that would be blocked.
-
-    Safety rules (preview-only, no writes):
-    - Conflict fail by default (existing files are blocked).
-    - No writes outside the repo root.
-    - No writes to generated/binary areas.
-    """
-    concerns: list[str] = []
-    blocked: list[dict] = []
-
-    for action in plan.get("actions", []):
-        path = action.get("path", "")
-
-        # No writes outside repo root
-        if path.startswith("..") or path.startswith("/") or ".." in path:
-            concerns.append(f"Path escapes repo root: {path}")
-            blocked.append(action)
-            continue
-
-        # No writes to generated/binary areas
-        forbidden_prefixes = (
-            "dist/",
-            "build/",
-            ".git/",
-            "node_modules/",
-            "__pycache__/",
-        )
-        if any(path.startswith(fp) for fp in forbidden_prefixes):
-            concerns.append(f"Path touches generated/binary area: {path}")
-            blocked.append(action)
-            continue
-
-        # Conflict fail by default
-        if action.get("conflict") == "existing":
-            concerns.append(f"Conflict: {path} already exists")
-            blocked.append(action)
-            continue
-
-    return {
-        "safe": len(concerns) == 0,
-        "concerns": concerns,
-        "blocked_actions": blocked,
-    }
-
-
-def apply_install_action(action: dict, target_root: str | Path) -> None:
-    """Apply a single install action under an explicit target root.
-
-    Creates the file and its parent directories if needed. Rejects
-    outside-root paths, existing files, and non-create actions.
-
-    Raises:
-        ValueError: If the path is missing, escapes the target root,
-            the action type is unsupported, or target_root is not a directory.
-        FileExistsError: If the target already exists.
-    """
-    target_root = Path(target_root).resolve()
-    if not target_root.is_dir():
-        raise ValueError(f"target_root must be a directory: {target_root}")
-
-    path = action.get("path", "")
-    if not path:
-        raise ValueError("Action missing path")
-
-    # Resolve against target root
-    target = (target_root / path).resolve()
-
-    # Security: must be under target_root
-    try:
-        target.relative_to(target_root)
-    except ValueError:
-        raise ValueError(f"Path escapes target root: {path}")
-
-    # Security: no overwrite
-    if target.exists():
-        raise FileExistsError(f"Target already exists: {path}")
-
-    # Security: only create actions
-    if action.get("action") != "create":
-        raise ValueError(
-            f"Unsupported action: {action.get('action')}. Only 'create' is allowed."
-        )
-
-    # Create parent directories
-    target.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write content
-    content = action.get("content", "")
-    target.write_text(content, encoding="utf-8")
-
-
-def apply_install_plan(actions: list[dict], target_root: str | Path) -> None:
-    """Apply a list of install actions under an explicit target root.
-
-    Preflights every action before writing any files. If any action fails
-    preflight, no files are written (all-or-nothing).
-
-    Raises:
-        TypeError: If actions is not a list.
-        ValueError: If an action is invalid, missing content, or a path
-            escapes the target root.
-        FileExistsError: If a target already exists.
-    """
-    if not isinstance(actions, list):
-        raise TypeError(f"actions must be a list, got {type(actions).__name__}")
-
-    target_root = Path(target_root).resolve()
-    if not target_root.is_dir():
-        raise ValueError(f"target_root must be a directory: {target_root}")
-
-    # Preflight: validate all actions first
-    validated: list[tuple[Path, str]] = []
-    seen: set[Path] = set()
-    for action in actions:
-        path = action.get("path", "")
-        if not path:
-            raise ValueError("Action missing path")
-        if "content" not in action:
-            raise ValueError(f"Action missing content: {path}")
-
-        target = (target_root / path).resolve()
-
-        # Security: must be under target_root
-        try:
-            target.relative_to(target_root)
-        except ValueError:
-            raise ValueError(f"Path escapes target root: {path}")
-
-        # Security: no overwrite
-        if target.exists():
-            raise FileExistsError(f"Target already exists: {path}")
-
-        # Security: only create actions
-        if action.get("action") != "create":
-            raise ValueError(
-                f"Unsupported action: {action.get('action')}. Only 'create' is allowed."
-            )
-
-        # Security: no duplicate targets within the same plan
-        if target in seen:
-            raise ValueError(f"Duplicate target path in plan: {path}")
-        seen.add(target)
-
-        validated.append((target, action["content"]))
-
-    # Apply: write all files
-    for target, content in validated:
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(content, encoding="utf-8")
 
 
 # ---------- Metrics file I/O helpers ----------
@@ -605,5 +491,7 @@ def load_jsonl_records_from_file(path: str | Path) -> list[dict]:
     if not p.exists():
         return []
     return parse_jsonl_records(p.read_text(encoding="utf-8"))
+
+
 
 

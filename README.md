@@ -80,8 +80,8 @@ Benefit Boundary: The larger the execution workload and the more the reviewer in
 ## V. Minimal Three-Party Role Division
 
 The framework is **completely model-agnostic, unbound, and has no deployment dependencies**. In plain terms, we only need two categories of large models, without tying to specific products:
-1. Low-cost general-purpose model (execution side: Kimi, Tongyi Qianwen, etc.)
-2. High-tier reasoning model (review side: GPT, Claude, etc.)
+1. Low-cost general-purpose model (execution side: DeepSeek, GLM, Qwen, Kimi, Tongyi Qianwen, etc.)
+2. High-tier reasoning model (review side: GPT, Claude, Codex, etc.)
 
 - **Execution Model (Worker)**: Pure manual labor. File retrieval, code editing, test execution, error retry, log/diff output. Has no final decision-making authority.
 
@@ -97,11 +97,11 @@ The framework is **completely model-agnostic, unbound, and has no deployment dep
 
 ### Minimal 4-Step Onboarding (Plain language + copy-paste commands combined, no need to switch back and forth)
 
-1. **Step 1 (Local Prep)**: Copy the `portable/kimi-codex-kit` folder from this repo and paste it into your own project's root directory.
+1. **Step 1 (Local Prep)**: Copy the `portable/token-saver-kit` folder from this repo and paste it into your own project's root directory.
 
-2. **Step 2 (Reviewer assigns task)**: Open a high-tier reasoning model and paste: `Read kimi-codex-kit/START_HERE.md and create a safe first worker task.`
+2. **Step 2 (Reviewer assigns task)**: Open a high-tier reasoning model and paste: `Read token-saver-kit/START_HERE.md and create a safe first worker task.`
 
-3. **Step 3 (Worker executes)**: Open a low-cost model and paste: `Read kimi-codex-kit/KIMI_NEXT_TASK.md and execute it against this project.`
+3. **Step 3 (Worker executes)**: Prefer running `powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1` to create a real `round_NNN` prompt. If you are working manually, open a low-cost model and paste: `Read token-saver-kit/WORKER_NEXT_TASK.md and execute it against this project.`
 
 4. **Step 4 (Reviewer accepts)**: Switch back to the high-tier reasoning model and paste: `The worker is done. Review the latest round evidence.`
 
@@ -109,9 +109,19 @@ The framework is **completely model-agnostic, unbound, and has no deployment dep
 
 ```powershell
 # Initialize a repo exploration task
-powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-init.ps1 -Task "Inspect this project and summarize the structure" -Tier T0
-# Generate the execution command without running it directly
-powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-run.ps1 -NoRun
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-init.ps1 -Task "Inspect this project and summarize the structure" -Tier T0
+# Run with the default worker command, or swap in another compatible worker CLI
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -WorkerCommand deepseek
+# Preview the prompt without creating a real round
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -NoRun
+```
+
+`-NoRun` writes a `_validate` preview prompt only. Use it to inspect the prompt; run without `-NoRun` for the actual worker round.
+
+Health check from any project root:
+
+```bash
+token-saver-loop --doctor
 ```
 
 ---
@@ -123,8 +133,8 @@ Kit state is stored independently; **by default, it will not actively modify exi
 | File Path | Core Purpose |
 |---|---|
 | `START_HERE.md` | Unified entry point for both models; defines basic usage constraints. |
-| `KIMI_NEXT_TASK.md` | The specific task issued to the execution model for the current round. |
-| `CODEX_CONTINUE.md` | Context bootstrap file when starting a new review session. |
+| `WORKER_NEXT_TASK.md` | The specific task issued to the execution model for the current round. |
+| `REVIEWER_CONTINUE.md` | Context bootstrap file when starting a new review session. |
 | `.ai/active_task/` | Local storage for round logs, modification diffs, and verdict results. |
 | `tools/` | Task initialization and batch review helper scripts. |
 
@@ -190,7 +200,7 @@ The original standalone safety and risk-control items have been streamlined and 
 
 3. **Result-Oriented Verification**: Only code diffs and test logs are verified; the model's verbal reports are not trusted, avoiding narrative deception.
 
-4. **Install Anti-Overwrite**: CLI installation requires manual confirmation and includes file conflict detection to protect existing business code.
+4. **Portable Removal**: Runtime state stays inside `token-saver-kit/`, so removing the loop is just deleting that folder.
 
 ---
 
@@ -200,20 +210,20 @@ The original standalone safety and risk-control items have been streamlined and 
 
 See `examples/minimal-task.md` for a zero-code-change T0 repo inspection task, suitable for first-time process verification.
 
-### 10.2 Python CLI Install (Batch Operations Scenarios)
+### 10.2 Python CLI Helpers
+
+The Python CLI is optional. It does not install files into your project. Use it for diagnostics and metrics:
 
 ```bash
-pip install -e .
-token-saver-loop --install --yes --project-name MyApp --test-command "pytest"
+token-saver-loop --doctor
+token-saver-loop --project-name MyApp --show-config
 ```
-
-Applicable scenarios: Batch initialization of the kit across multiple repos. For personal daily use, the portable folder is preferred.
 
 ---
 
 ## XI. Beginner FAQ
 
-- **Q: Must I use Kimi + a specific model?** A: Absolutely not. The kit only uses them as default examples. Any "low-cost execution model + premium review model" pair can be substituted without changing any internal kit files.
+- **Q: Must I use a specific worker + reviewer model pair?** A: Absolutely not. The kit only uses them as default examples. Any "low-cost execution model + premium review model" pair can be substituted without changing any internal kit files.
 
 - **Q: Will it pollute existing project files?** A: All runtime data lives inside the kit's internal `.ai` directory. By default, the kit only reads source code and does not actively write to project business files.
 
@@ -229,7 +239,7 @@ Applicable scenarios: Batch initialization of the kit across multiple repos. For
 |---|---|
 | No-install portable kit | Completed (portable directory) |
 | Beginner illustrated guide and minimal example | Completed |
-| Python CLI installer and token metrics | Completed |
+| Python CLI doctor and token metrics | Completed |
 | Cross-model generic templates and task diagnostics | Planned |
 
 ### 12.2 License
@@ -237,3 +247,5 @@ Applicable scenarios: Batch initialization of the kit across multiple repos. For
 MIT License, allowing free commercial use and redistribution with modifications.
 
 > (Note: Some parts of this document may be AI-generated.)
+
+

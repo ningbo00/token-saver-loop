@@ -31,7 +31,7 @@ if (!$roundDir) { throw 'No round found.' }
 
 if (-not $ReviewMarkdown) {
   $ReviewMarkdown = @"
-# Codex Review
+# Reviewer Review
 
 ## Verdict
 $Verdict
@@ -51,7 +51,7 @@ $NextTier
 TBD
 "@
 }
-Write-Utf8File (Join-Path $roundDir 'codex_review.md') $ReviewMarkdown
+Write-Utf8File (Join-Path $roundDir 'reviewer_review.md') $ReviewMarkdown
 
 $obj = [ordered]@{
   verdict = $Verdict
@@ -59,7 +59,7 @@ $obj = [ordered]@{
   next_tier = $NextTier
   reasons = $Reasons
   findings = @()
-  kimi_reliability = [ordered]@{
+  worker_reliability = [ordered]@{
     followed_scope = $null
     tests_verified = $null
     report_matches_diff = $null
@@ -70,11 +70,11 @@ $obj | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $roundDir 'verdict.json'
 
 $nextAction = switch ($Verdict) {
   'pass' { 'Commit or archive this task.' }
-  'same-tier-fix' { 'Prepare another Kimi round at the same tier.' }
-  'downgrade' { 'Prepare another Kimi round with lower freedom.' }
-  'stop' { 'Stop Kimi and let Codex or user decide.' }
+  'same-tier-fix' { 'Prepare another worker round at the same tier.' }
+  'downgrade' { 'Prepare another worker round with lower freedom.' }
+  'stop' { 'Stop the worker and let the reviewer or user decide.' }
 }
-$phase = if ($Verdict -eq 'pass') { 'done' } elseif ($Verdict -eq 'stop') { 'stopped' } else { 'kimi_implementation' }
+$phase = if ($Verdict -eq 'pass') { 'done' } elseif ($Verdict -eq 'stop') { 'stopped' } else { 'worker_execution' }
 $state = @"
 # State
 
@@ -89,3 +89,4 @@ Next action:
 Write-Utf8File (Join-Path $active 'state.md') $state
 
 Write-Host "Wrote review and verdict to $roundDir"
+

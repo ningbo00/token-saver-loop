@@ -44,10 +44,10 @@ $Task
 $Tier
 
 ## Constraints
-- Use Kimi as a bounded executor, not as final reviewer.
+- Use the worker model as a bounded executor, not as final reviewer.
 - Trust diff and tests over model explanations.
 - Keep changes small. Default max changed files: $MaxFiles.
-- Do not commit from Kimi.
+- Do not commit from the worker model.
 
 ## Repo Context
 - If present, read AGENTS.md, docs/AGENT_CONTEXT.md, and docs/REPO_MAP.md before broad exploration.
@@ -57,50 +57,59 @@ $Tier
 - [ ] Implement the requested behavior.
 - [ ] Stay within the agreed scope.
 - [ ] Run relevant validation or explain why it cannot be run.
-- [ ] Produce Kimi log and JSON report for Codex review.
+- [ ] Produce worker log and JSON report for reviewer review.
 "@
 Write-Utf8File (Join-Path $active 'context_pack.md') $context
 
+$changeLimit = if ($Tier -eq 'T0') {
+  "Max parent-project source/config/doc files changed before stopping: 0. Workflow reports plus progress.md are allowed reporting artifacts."
+} else {
+  "Max parent-project source/config/doc files changed before stopping: $MaxFiles. Workflow reports plus progress.md are allowed reporting artifacts."
+}
+
+$phase = if ($Tier -eq 'T0') { 'worker_inspection' } else { 'worker_execution' }
+
 $plan = @"
-# Codex Plan
+# Reviewer Plan
 
 ## Delegation Strategy
-- Initial Kimi tier: $Tier
-- Max changed files before stopping: $MaxFiles
-- Kimi may execute according to the tier rules, then Codex reviews objective artifacts.
+- Initial worker tier: $Tier
+- $changeLimit
+- The worker may execute according to the tier rules, then the reviewer checks objective artifacts.
 
 ## Test Commands
 $TestCommands
 
 ## Review Inputs
-Codex should review the latest round's:
+The reviewer should inspect the latest round's:
 - diffstat.txt
 - diff.patch
 - tests.txt
-- kimi_report.json
+- worker_report.json
 - changed files only when needed
 "@
-Write-Utf8File (Join-Path $active 'codex_plan.md') $plan
+Write-Utf8File (Join-Path $active 'reviewer_plan.md') $plan
 
 $state = @"
 # State
 
 Status: initialized
-Current phase: kimi_implementation
+Current phase: $phase
 Current tier: $Tier
-Max files: $MaxFiles
+Source/config/doc file limit: $(if ($Tier -eq 'T0') { 0 } else { $MaxFiles })
+Workflow artifact exception: the worker may write round reports and .ai/active_task/progress.md.
 
 Latest artifacts: none yet
 
 Next action:
-- Run tools/ai-kimi-run.ps1
+- Run tools/tsl-run.ps1
 "@
 Write-Utf8File (Join-Path $active 'state.md') $state
 
 $capability = Join-Path $active 'capability_notes.md'
 if (!(Test-Path $capability)) {
   Write-Utf8File $capability @'
-# Kimi Capability Notes
+# Worker Capability Notes
 
 ## Works Well
 - TBD
@@ -119,4 +128,5 @@ if (!(Test-Path $capability)) {
 Write-Host "Initialized .ai/active_task"
 Write-Host "Task: $Task"
 Write-Host "Tier: $Tier"
-Write-Host "Next: powershell -ExecutionPolicy Bypass -File tools/ai-kimi-run.ps1"
+Write-Host "Next: powershell -ExecutionPolicy Bypass -File tools/tsl-run.ps1"
+

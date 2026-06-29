@@ -9,8 +9,8 @@ Token Saver Loop uses two AI roles:
 
 | Role | Job | Default tool |
 |---|---|---|
-| Reviewer | Plans tasks, sets limits, reviews evidence, decides pass/fix/stop. | Codex |
-| Worker | Executes one bounded task, runs checks, writes a report. | Kimi |
+| Reviewer | Plans tasks, sets limits, reviews evidence, decides pass/fix/stop. | GPT, Claude, Codex, etc. |
+| Worker | Executes one bounded task, runs checks, writes a report. | DeepSeek, GLM, Qwen, Kimi, etc. |
 
 The goal is simple: do not spend your best model on every search and retry.
 Use the strong model for judgment, and use the worker model for execution.
@@ -53,56 +53,69 @@ In this guide, "target project" means that folder.
 From this repo, copy:
 
 ```text
-portable/kimi-codex-kit/
+portable/token-saver-kit/
 ```
 
 into your target project, so the target project contains:
 
 ```text
-D:\MyProject\kimi-codex-kit\
+D:\MyProject\token-saver-kit\
 ```
 
 You can copy it with File Explorer. You do not need Git for this step.
 
 ## Step 2: Start With a Safe Inspect-Only Task
 
-Open Codex in the target project and say:
+Open the reviewer model in the target project and say:
 
 ```text
-Read kimi-codex-kit/START_HERE.md and create a T0 inspect-only first task.
+Read token-saver-kit/START_HERE.md and create a T0 inspect-only first task.
 The worker should summarize the project structure and must not modify source code.
 ```
 
 T0 means "look only, do not change code." This is the safest first run.
 
-Codex should update:
+The reviewer should update:
 
 ```text
-kimi-codex-kit/KIMI_NEXT_TASK.md
+token-saver-kit/WORKER_NEXT_TASK.md
 ```
 
-## Step 3: Ask Kimi To Execute
+## Step 3: Ask the worker model To Execute
 
-Open Kimi in the same target project and say:
+Recommended path: from the target project root, generate a real round prompt:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1
+```
+
+Then give the worker model the generated prompt from the latest `round_NNN/worker_prompt.md`.
+To use another worker CLI, pass it explicitly:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -WorkerCommand deepseek
+```
+
+Manual path: open the worker model in the same target project and say:
 
 ```text
-Read kimi-codex-kit/KIMI_NEXT_TASK.md and execute it against this project.
+Read token-saver-kit/WORKER_NEXT_TASK.md and execute it against this project.
 Follow the limits exactly and write the required round report.
 ```
 
-For the first run, Kimi should inspect and report. It should not edit source
-code if Codex created a T0 task.
+For the first run, the worker should inspect and report. It should not edit source
+code if the reviewer created a T0 task.
 
-## Step 4: Ask Codex To Review
+## Step 4: Ask the reviewer model To Review
 
-When Kimi finishes, go back to Codex and say:
+When the worker finishes, go back to the reviewer and say:
 
 ```text
 The worker is done. Review the latest round evidence under
-kimi-codex-kit/.ai/active_task/rounds/.
+token-saver-kit/.ai/active_task/rounds/.
 ```
 
-Codex should check the report, any diff, and any test output before deciding:
+The reviewer should check the report, any diff, and any test output before deciding:
 
 | Verdict | Meaning |
 |---|---|
@@ -117,26 +130,28 @@ If you are on Windows and comfortable with PowerShell, you can initialize a task
 from the target project root:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-init.ps1 -Task "Inspect this project and summarize the structure" -Tier T0
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-init.ps1 -Task "Inspect this project and summarize the structure" -Tier T0
 ```
 
-Generate a Kimi prompt without running Kimi:
+Generate a worker prompt without running the worker:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-run.ps1 -NoRun
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -NoRun
 ```
 
-Copy the printed prompt into Kimi manually.
+This creates a `_validate` preview prompt only. Use it to inspect the prompt text.
+For a real worker round, run the same script without `-NoRun` so it creates a
+`round_NNN` directory.
 
 ## What Files Matter?
 
 | File | Why it matters |
 |---|---|
-| `kimi-codex-kit/START_HERE.md` | First explanation for both models. |
-| `kimi-codex-kit/KIMI_NEXT_TASK.md` | The task the worker should do now. |
-| `kimi-codex-kit/.ai/active_task/progress.md` | Human-readable progress board. |
-| `kimi-codex-kit/.ai/active_task/rounds/` | Evidence from each worker round. |
-| `kimi-codex-kit/CODEX_CONTINUE.md` | How a fresh Codex thread can resume. |
+| `token-saver-kit/START_HERE.md` | First explanation for both models. |
+| `token-saver-kit/WORKER_NEXT_TASK.md` | The task the worker should do now. |
+| `token-saver-kit/.ai/active_task/progress.md` | Human-readable progress board. |
+| `token-saver-kit/.ai/active_task/rounds/` | Evidence from each worker round. |
+| `token-saver-kit/REVIEWER_CONTINUE.md` | How a fresh reviewer thread can resume. |
 
 ## Recommended First Three Rounds
 
@@ -150,17 +165,27 @@ Do not start with a broad T3 task. Build trust first.
 
 - Do not ask the worker to "fix everything" in the first round.
 - Do not accept a round just because the worker says it passed.
-- Do not skip the Codex/reviewer review step.
+- Do not skip the reviewer review step.
 - Do not let the worker commit unless you explicitly want that.
 - Do not paste long chat history when the handoff files already contain state.
 
 ## If You Get Lost
 
-Ask Codex:
+If the Python CLI is available in your dev environment, run:
 
 ```text
-Read kimi-codex-kit/START_HERE.md, kimi-codex-kit/.ai/active_task/state.md,
-and kimi-codex-kit/.ai/active_task/progress.md. Tell me the next safest step.
+token-saver-loop --doctor
+```
+
+It prints a JSON health report and a recommended next action.
+
+Ask the reviewer model:
+
+```text
+Read token-saver-kit/START_HERE.md, token-saver-kit/.ai/active_task/state.md,
+and token-saver-kit/.ai/active_task/progress.md. Tell me the next safest step.
 ```
 
 That is the recovery path.
+
+

@@ -73,20 +73,18 @@ class TestCLILegacy(unittest.TestCase):
                 self.assertIn("not implemented yet", mock_stderr.getvalue())
 
 
+    def test_legacy_dry_run_still_works(self) -> None:
+        with patch.object(sys, "stdin", io.StringIO("hello world")):
+            with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
+                code = main(["--dry-run", "--format", "json"])
+                self.assertEqual(code, 0)
+                output = mock_stdout.getvalue()
+                messages = json.loads(output)
+                self.assertEqual(len(messages), 2)
 # ---------- Workflow-kit tests ----------
 
 
 class TestCLIWorkflowKit(unittest.TestCase):
-    def test_list_install_paths(self) -> None:
-        with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
-            code = main(["--list-install-paths"])
-            self.assertEqual(code, 0)
-            output = mock_stdout.getvalue()
-            self.assertIn(".ai/active_task/state.md", output)
-            self.assertIn("docs/AGENT_CONTEXT.md", output)
-            self.assertIn("tools/ai-kimi-init.ps1", output)
-            self.assertIn(".kimi-code/skills/kimi-codex-worker/SKILL.md", output)
-
     def test_show_config(self) -> None:
         with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
             code = main(["--project-name", "MyApp", "--show-config"])
@@ -94,7 +92,8 @@ class TestCLIWorkflowKit(unittest.TestCase):
             output = mock_stdout.getvalue()
             config = json.loads(output)
             self.assertEqual(config["project_name"], "MyApp")
-            self.assertEqual(config["workflow_name"], "kimi-codex")
+            self.assertEqual(config["workflow_name"], "token-saver-loop")
+            self.assertIn("deepseek", config["worker_model_examples"])
             self.assertIn("T0", config["tiers"])
 
     def test_show_config_requires_project_name(self) -> None:
@@ -108,10 +107,44 @@ class TestCLIWorkflowKit(unittest.TestCase):
             code = main(["--project-name", "MyApp", "--show-project-skill"])
             self.assertEqual(code, 0)
             output = mock_stdout.getvalue()
-            self.assertIn("Kimi-Codex Worker Skill", output)
+            self.assertIn("Token Saver Loop Worker Skill", output)
+            self.assertIn("DeepSeek", output)
+            self.assertIn("Qwen", output)
             self.assertIn("MyApp", output)
-            self.assertIn("kimi_log.md", output)
-            self.assertIn("kimi_report.json", output)
+            self.assertIn("worker_log.md", output)
+            self.assertIn("worker_report.json", output)
+
+    def test_doctor_reports_missing_layout(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            original_cwd = os.getcwd()
+            os.chdir(tmpdir)
+            try:
+                with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
+                    code = main(["--doctor"])
+                    self.assertEqual(code, 0)
+                    report = json.loads(mock_stdout.getvalue())
+                    self.assertEqual(report["mode"], "missing")
+                    self.assertEqual(report["next_action"], "copy_portable_kit")
+            finally:
+                os.chdir(original_cwd)
+
+    def test_doctor_reports_portable_layout(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            kit = Path(tmpdir) / "token-saver-kit"
+            (kit / "tools").mkdir(parents=True)
+            (kit / "START_HERE.md").write_text("# start\n", encoding="utf-8")
+            (kit / "tools" / "tsl-run.ps1").write_text("param()\n", encoding="utf-8")
+            original_cwd = os.getcwd()
+            os.chdir(tmpdir)
+            try:
+                with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
+                    code = main(["--doctor"])
+                    self.assertEqual(code, 0)
+                    report = json.loads(mock_stdout.getvalue())
+                    self.assertEqual(report["mode"], "portable")
+                    self.assertEqual(report["next_action"], "initialize_task")
+            finally:
+                os.chdir(original_cwd)
 
     def test_show_project_skill_with_test_command(self) -> None:
         with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
@@ -142,7 +175,7 @@ class TestCLIWorkflowKit(unittest.TestCase):
 
 
 class TestCLITokenUsage(unittest.TestCase):
-    def test_parse_kimi_usage_jsonl_prints_record(self) -> None:
+    def test_parse_worker_usage_jsonl_prints_record(self) -> None:
         with tempfile.NamedTemporaryFile(
             mode="w", encoding="utf-8", delete=False
         ) as f:
@@ -154,7 +187,7 @@ class TestCLITokenUsage(unittest.TestCase):
             with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
                 code = main(
                     [
-                        "--parse-kimi-usage-jsonl",
+                        "--parse-worker-usage-jsonl",
                         tmp_path,
                         "--round-name",
                         "round_005",
@@ -178,13 +211,13 @@ class TestCLITokenUsage(unittest.TestCase):
         finally:
             os.unlink(tmp_path)
 
-    def test_parse_kimi_usage_jsonl_missing_file(self) -> None:
+    def test_parse_worker_usage_jsonl_missing_file(self) -> None:
         with patch.object(sys, "stderr", new_callable=io.StringIO) as mock_stderr:
-            code = main(["--parse-kimi-usage-jsonl", "/nonexistent/context.jsonl"])
+            code = main(["--parse-worker-usage-jsonl", "/nonexistent/context.jsonl"])
             self.assertEqual(code, 1)
             self.assertIn("not found", mock_stderr.getvalue())
 
-    def test_parse_kimi_usage_jsonl_empty_file(self) -> None:
+    def test_parse_worker_usage_jsonl_empty_file(self) -> None:
         with tempfile.NamedTemporaryFile(
             mode="w", encoding="utf-8", delete=False
         ) as f:
@@ -194,7 +227,7 @@ class TestCLITokenUsage(unittest.TestCase):
             with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
                 code = main(
                     [
-                        "--parse-kimi-usage-jsonl",
+                        "--parse-worker-usage-jsonl",
                         tmp_path,
                         "--round-name",
                         "round_005",
@@ -217,53 +250,53 @@ class TestCLITokenUsage(unittest.TestCase):
 
 
 class TestCLIMetricsAggregation(unittest.TestCase):
-    def test_record_codex_usage_prints_snapshot(self) -> None:
+    def test_record_reviewer_usage_prints_snapshot(self) -> None:
         with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
             code = main(
                 [
-                    "--record-codex-usage",
-                    "--codex-input-tokens",
+                    "--record-reviewer-usage",
+                    "--reviewer-input-tokens",
                     "2300000",
-                    "--codex-output-tokens",
+                    "--reviewer-output-tokens",
                     "44000",
-                    "--codex-total-tokens",
+                    "--reviewer-total-tokens",
                     "2344000",
-                    "--codex-requests",
+                    "--reviewer-requests",
                     "71",
                 ]
             )
             self.assertEqual(code, 0)
             output = mock_stdout.getvalue()
             snapshot = json.loads(output)
-            self.assertEqual(snapshot["actor"], "codex")
+            self.assertEqual(snapshot["actor"], "reviewer")
             self.assertEqual(snapshot["input_tokens"], 2300000)
             self.assertEqual(snapshot["output_tokens"], 44000)
             self.assertEqual(snapshot["total_tokens"], 2344000)
             self.assertEqual(snapshot["requests"], 71)
 
-    def test_record_codex_usage_missing_fields(self) -> None:
+    def test_record_reviewer_usage_missing_fields(self) -> None:
         with patch.object(sys, "stderr", new_callable=io.StringIO) as mock_stderr:
-            code = main(["--record-codex-usage"])
+            code = main(["--record-reviewer-usage"])
             self.assertEqual(code, 1)
             err = mock_stderr.getvalue()
             self.assertIn("Missing required fields", err)
-            self.assertIn("--codex-input-tokens", err)
-            self.assertIn("--codex-output-tokens", err)
-            self.assertIn("--codex-total-tokens", err)
-            self.assertIn("--codex-requests", err)
+            self.assertIn("--reviewer-input-tokens", err)
+            self.assertIn("--reviewer-output-tokens", err)
+            self.assertIn("--reviewer-total-tokens", err)
+            self.assertIn("--reviewer-requests", err)
 
-    def test_record_codex_usage_rejects_negative(self) -> None:
+    def test_record_reviewer_usage_rejects_negative(self) -> None:
         with patch.object(sys, "stderr", new_callable=io.StringIO) as mock_stderr:
             code = main(
                 [
-                    "--record-codex-usage",
-                    "--codex-input-tokens",
+                    "--record-reviewer-usage",
+                    "--reviewer-input-tokens",
                     "-1",
-                    "--codex-output-tokens",
+                    "--reviewer-output-tokens",
                     "0",
-                    "--codex-total-tokens",
+                    "--reviewer-total-tokens",
                     "0",
-                    "--codex-requests",
+                    "--reviewer-requests",
                     "0",
                 ]
             )
@@ -274,11 +307,11 @@ class TestCLIMetricsAggregation(unittest.TestCase):
         with tempfile.NamedTemporaryFile(
             mode="w", encoding="utf-8", delete=False
         ) as f:
-            f.write('{"actor": "kimi", "delta_token_count": 100}\n')
+            f.write('{"actor": "worker", "delta_token_count": 100}\n')
             f.write(
-                '{"actor": "codex", "input_tokens": 1000, "output_tokens": 200, "total_tokens": 1200, "requests": 5}\n'
+                '{"actor": "reviewer", "input_tokens": 1000, "output_tokens": 200, "total_tokens": 1200, "requests": 5}\n'
             )
-            f.write('{"actor": "kimi", "delta_token_count": 200}\n')
+            f.write('{"actor": "worker", "delta_token_count": 200}\n')
             tmp_path = f.name
         try:
             with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
@@ -286,11 +319,11 @@ class TestCLIMetricsAggregation(unittest.TestCase):
                 self.assertEqual(code, 0)
                 output = mock_stdout.getvalue()
                 summary = json.loads(output)
-                self.assertEqual(summary["kimi_delta_tokens_total"], 300)
-                self.assertEqual(summary["codex_latest_total_tokens"], 1200)
-                self.assertEqual(summary["codex_latest_input_tokens"], 1000)
-                self.assertEqual(summary["codex_latest_output_tokens"], 200)
-                self.assertEqual(summary["codex_latest_requests"], 5)
+                self.assertEqual(summary["worker_delta_tokens_total"], 300)
+                self.assertEqual(summary["reviewer_latest_total_tokens"], 1200)
+                self.assertEqual(summary["reviewer_latest_input_tokens"], 1000)
+                self.assertEqual(summary["reviewer_latest_output_tokens"], 200)
+                self.assertEqual(summary["reviewer_latest_requests"], 5)
                 self.assertEqual(summary["records_count"], 3)
         finally:
             os.unlink(tmp_path)
@@ -306,20 +339,20 @@ class TestCLIMetricsAggregation(unittest.TestCase):
 
 
 class TestCLIMetricsAppend(unittest.TestCase):
-    def test_record_codex_usage_with_append_metrics(self) -> None:
+    def test_record_reviewer_usage_with_append_metrics(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             metrics_path = Path(tmpdir) / "metrics.jsonl"
             with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
                 code = main(
                     [
-                        "--record-codex-usage",
-                        "--codex-input-tokens",
+                        "--record-reviewer-usage",
+                        "--reviewer-input-tokens",
                         "1000",
-                        "--codex-output-tokens",
+                        "--reviewer-output-tokens",
                         "200",
-                        "--codex-total-tokens",
+                        "--reviewer-total-tokens",
                         "1200",
-                        "--codex-requests",
+                        "--reviewer-requests",
                         "5",
                         "--append-metrics",
                         str(metrics_path),
@@ -328,12 +361,12 @@ class TestCLIMetricsAppend(unittest.TestCase):
                 self.assertEqual(code, 0)
                 output = mock_stdout.getvalue()
                 snapshot = json.loads(output)
-                self.assertEqual(snapshot["actor"], "codex")
+                self.assertEqual(snapshot["actor"], "reviewer")
             lines = metrics_path.read_text(encoding="utf-8").strip().splitlines()
             self.assertEqual(len(lines), 1)
             self.assertEqual(json.loads(lines[0])["total_tokens"], 1200)
 
-    def test_parse_kimi_usage_jsonl_with_append_metrics(self) -> None:
+    def test_parse_worker_usage_jsonl_with_append_metrics(self) -> None:
         with tempfile.NamedTemporaryFile(
             mode="w", encoding="utf-8", delete=False
         ) as f:
@@ -346,7 +379,7 @@ class TestCLIMetricsAppend(unittest.TestCase):
                 with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
                     code = main(
                         [
-                            "--parse-kimi-usage-jsonl",
+                            "--parse-worker-usage-jsonl",
                             context_path,
                             "--round-name",
                             "round_008",
@@ -375,14 +408,14 @@ class TestCLIMetricsAppend(unittest.TestCase):
                 with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
                     code = main(
                         [
-                            "--record-codex-usage",
-                            "--codex-input-tokens",
+                            "--record-reviewer-usage",
+                            "--reviewer-input-tokens",
                             "500",
-                            "--codex-output-tokens",
+                            "--reviewer-output-tokens",
                             "100",
-                            "--codex-total-tokens",
+                            "--reviewer-total-tokens",
                             "600",
-                            "--codex-requests",
+                            "--reviewer-requests",
                             "3",
                             "--append-default-metrics",
                         ]
@@ -403,14 +436,14 @@ class TestCLIMetricsAppend(unittest.TestCase):
         with patch.object(sys, "stderr", new_callable=io.StringIO) as mock_stderr:
             code = main(
                 [
-                    "--record-codex-usage",
-                    "--codex-input-tokens",
+                    "--record-reviewer-usage",
+                    "--reviewer-input-tokens",
                     "0",
-                    "--codex-output-tokens",
+                    "--reviewer-output-tokens",
                     "0",
-                    "--codex-total-tokens",
+                    "--reviewer-total-tokens",
                     "0",
-                    "--codex-requests",
+                    "--reviewer-requests",
                     "0",
                     "--append-metrics",
                     "/tmp/m.jsonl",
@@ -431,22 +464,22 @@ class TestCLIMetricsAppend(unittest.TestCase):
     def test_summary_after_append_returns_appended_plus_summary(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             metrics_path = Path(tmpdir) / "metrics.jsonl"
-            # Pre-seed with a kimi record
+            # Pre-seed with a worker record
             metrics_path.write_text(
-                '{"actor": "kimi", "delta_token_count": 50}\n',
+                '{"actor": "worker", "delta_token_count": 50}\n',
                 encoding="utf-8",
             )
             with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
                 code = main(
                     [
-                        "--record-codex-usage",
-                        "--codex-input-tokens",
+                        "--record-reviewer-usage",
+                        "--reviewer-input-tokens",
                         "1000",
-                        "--codex-output-tokens",
+                        "--reviewer-output-tokens",
                         "200",
-                        "--codex-total-tokens",
+                        "--reviewer-total-tokens",
                         "1200",
-                        "--codex-requests",
+                        "--reviewer-requests",
                         "5",
                         "--append-metrics",
                         str(metrics_path),
@@ -459,11 +492,11 @@ class TestCLIMetricsAppend(unittest.TestCase):
                 self.assertIn("appended", result)
                 self.assertIn("summary", result)
                 self.assertEqual(result["appended"]["total_tokens"], 1200)
-                self.assertEqual(result["summary"]["kimi_delta_tokens_total"], 50)
-                self.assertEqual(result["summary"]["codex_latest_total_tokens"], 1200)
+                self.assertEqual(result["summary"]["worker_delta_tokens_total"], 50)
+                self.assertEqual(result["summary"]["reviewer_latest_total_tokens"], 1200)
                 self.assertEqual(result["summary"]["records_count"], 2)
 
-    def test_summary_after_append_for_kimi_record(self) -> None:
+    def test_summary_after_append_for_worker_record(self) -> None:
         with tempfile.NamedTemporaryFile(
             mode="w", encoding="utf-8", delete=False
         ) as f:
@@ -476,7 +509,7 @@ class TestCLIMetricsAppend(unittest.TestCase):
                 with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
                     code = main(
                         [
-                            "--parse-kimi-usage-jsonl",
+                            "--parse-worker-usage-jsonl",
                             context_path,
                             "--round-name",
                             "round_008",
@@ -491,241 +524,19 @@ class TestCLIMetricsAppend(unittest.TestCase):
                     output = mock_stdout.getvalue()
                     result = json.loads(output)
                     self.assertEqual(result["appended"]["delta_token_count"], 200)
-                    self.assertEqual(result["summary"]["kimi_delta_tokens_total"], 200)
+                    self.assertEqual(result["summary"]["worker_delta_tokens_total"], 200)
                     self.assertEqual(result["summary"]["records_count"], 1)
         finally:
             os.unlink(context_path)
 
 
-# ---------- Installer dry-run CLI tests ----------
-
-
-class TestCLIInstallerDryRun(unittest.TestCase):
-    def test_install_dry_run_succeeds_with_project_name(self) -> None:
-        with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
-            code = main(["--install", "--dry-run", "--project-name", "MyApp"])
-            self.assertEqual(code, 0)
-            output = mock_stdout.getvalue()
-            plan = json.loads(output)
-            self.assertEqual(plan["version"], 1)
-            self.assertEqual(plan["project_name"], "MyApp")
-            self.assertIn("actions", plan)
-            self.assertIn("safety_check", plan)
-            self.assertIn("safe", plan["safety_check"])
-            self.assertIn("concerns", plan["safety_check"])
-            paths = {a["path"] for a in plan["actions"]}
-            self.assertIn(".ai/active_task/state.md", paths)
-            self.assertIn(".kimi-code/skills/MyApp-kimi-codex-worker/SKILL.md", paths)
-
-    def test_install_dry_run_requires_project_name(self) -> None:
-        with patch.object(sys, "stderr", new_callable=io.StringIO) as mock_stderr:
-            code = main(["--install", "--dry-run"])
-            self.assertEqual(code, 1)
-            self.assertIn("requires --project-name", mock_stderr.getvalue())
-
-    def test_install_without_dry_run_rejected(self) -> None:
-        with patch.object(sys, "stderr", new_callable=io.StringIO) as mock_stderr:
-            code = main(["--install", "--project-name", "MyApp"])
-            self.assertEqual(code, 1)
-            err = mock_stderr.getvalue()
-            self.assertIn("requires --yes or --dry-run", err)
-
-    def test_install_dry_run_flags_existing_files_as_conflicts(self) -> None:
-        with tempfile.NamedTemporaryFile(
-            mode="w", encoding="utf-8", delete=False
-        ) as f:
-            f.write("existing")
-            tmp_path = f.name
-        try:
-            from unittest.mock import patch as mock_patch
-            with mock_patch(
-                "token_saver_loop.core.planned_install_paths", return_value=[tmp_path]
-            ):
-                with patch.object(
-                    sys, "stdout", new_callable=io.StringIO
-                ) as mock_stdout:
-                    code = main(["--install", "--dry-run", "--project-name", "X"])
-                    self.assertEqual(code, 0)
-                    plan = json.loads(mock_stdout.getvalue())
-                    action = next(a for a in plan["actions"] if a["path"] == tmp_path)
-                    self.assertEqual(action["action"], "modify")
-                    self.assertEqual(action["conflict"], "existing")
-                    # Safety check should flag the conflict
-                    self.assertFalse(plan["safety_check"]["safe"])
-                    self.assertEqual(len(plan["safety_check"]["blocked_actions"]), 1)
-        finally:
-            os.unlink(tmp_path)
-
-    def test_install_dry_run_does_not_create_files(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            fake_path = os.path.join(tmpdir, "should_not_be_created")
-            from unittest.mock import patch as mock_patch
-            with mock_patch(
-                "token_saver_loop.core.planned_install_paths",
-                return_value=[fake_path],
-            ):
-                with patch.object(
-                    sys, "stdout", new_callable=io.StringIO
-                ) as mock_stdout:
-                    code = main(["--install", "--dry-run", "--project-name", "X"])
-                    self.assertEqual(code, 0)
-            self.assertFalse(os.path.exists(fake_path))
-
-    def test_legacy_dry_run_still_works(self) -> None:
-        with patch.object(sys, "stdin", io.StringIO("hello world")):
-            with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
-                code = main(["--dry-run", "--format", "json"])
-                self.assertEqual(code, 0)
-                output = mock_stdout.getvalue()
-                messages = json.loads(output)
-                self.assertEqual(len(messages), 2)
-
-    def test_install_dry_run_rejects_empty_project_name(self) -> None:
-        with patch.object(sys, "stderr", new_callable=io.StringIO) as mock_stderr:
-            code = main(["--install", "--dry-run", "--project-name", ""])
-            self.assertEqual(code, 1)
-            err = mock_stderr.getvalue()
-            self.assertIn("non-empty", err)
-
-    def test_install_dry_run_rejects_path_separator(self) -> None:
-        with patch.object(sys, "stderr", new_callable=io.StringIO) as mock_stderr:
-            code = main(["--install", "--dry-run", "--project-name", "a/b"])
-            self.assertEqual(code, 1)
-            err = mock_stderr.getvalue()
-            self.assertIn("letters", err)
-
-    def test_install_dry_run_rejects_dotdot(self) -> None:
-        with patch.object(sys, "stderr", new_callable=io.StringIO) as mock_stderr:
-            code = main(["--install", "--dry-run", "--project-name", "a..b"])
-            self.assertEqual(code, 1)
-            err = mock_stderr.getvalue()
-            self.assertIn("'..'", err)
-
-    def test_install_dry_run_accepts_valid_name(self) -> None:
-        with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
-            code = main(["--install", "--dry-run", "--project-name", "MyApp_123"])
-            self.assertEqual(code, 0)
-            plan = json.loads(mock_stdout.getvalue())
-            self.assertEqual(plan["project_name"], "MyApp_123")
-
-    def test_install_dry_run_includes_test_command(self) -> None:
-        with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
-            code = main([
-                "--install", "--dry-run",
-                "--project-name", "MyApp",
-                "--test-command", "pytest -q",
-            ])
-            self.assertEqual(code, 0)
-            plan = json.loads(mock_stdout.getvalue())
-            self.assertEqual(plan["test_command"], "pytest -q")
-
-    def test_install_with_dry_run_and_project_name_only_rejects_real_writes(self) -> None:
-        # Sanity gate: even with all valid args, --install alone (no --dry-run, no --yes) is rejected
-        with patch.object(sys, "stderr", new_callable=io.StringIO) as mock_stderr:
-            code = main(["--install", "--project-name", "MyApp", "--test-command", "pytest"])
-            self.assertEqual(code, 1)
-            err = mock_stderr.getvalue()
-            self.assertIn("requires --yes or --dry-run", err)
-
-    def test_install_yes_creates_expected_files(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            original_cwd = os.getcwd()
-            os.chdir(tmpdir)
-            try:
-                with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
-                    code = main(["--install", "--yes", "--project-name", "MyApp"])
-                    self.assertEqual(code, 0)
-                    output = mock_stdout.getvalue()
-                    result = json.loads(output)
-                    self.assertTrue(result["installed"])
-                    self.assertEqual(result["project_name"], "MyApp")
-                    self.assertIn("actions", result)
-                self.assertTrue(
-                    os.path.exists(os.path.join(tmpdir, ".ai", "active_task", "state.md"))
-                )
-                self.assertTrue(
-                    os.path.exists(os.path.join(tmpdir, "docs", "AGENT_CONTEXT.md"))
-                )
-                self.assertTrue(
-                    os.path.exists(
-                        os.path.join(
-                            tmpdir,
-                            ".kimi-code",
-                            "skills",
-                            "MyApp-kimi-codex-worker",
-                            "SKILL.md",
-                        )
-                    )
-                )
-            finally:
-                os.chdir(original_cwd)
-
-    def test_install_yes_fails_all_or_nothing_if_target_exists(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Pre-create one target file to trigger a conflict
-            target = os.path.join(tmpdir, ".ai", "active_task", "state.md")
-            os.makedirs(os.path.dirname(target), exist_ok=True)
-            with open(target, "w", encoding="utf-8") as f:
-                f.write("existing")
-            original_cwd = os.getcwd()
-            os.chdir(tmpdir)
-            try:
-                with patch.object(sys, "stderr", new_callable=io.StringIO) as mock_stderr:
-                    code = main(["--install", "--yes", "--project-name", "MyApp"])
-                    self.assertEqual(code, 1)
-                    err = mock_stderr.getvalue()
-                    self.assertIn("safety check", err)
-                # No files should have been created (all-or-nothing)
-                self.assertFalse(
-                    os.path.exists(os.path.join(tmpdir, "docs", "AGENT_CONTEXT.md"))
-                )
-            finally:
-                os.chdir(original_cwd)
-
-    def test_install_dry_run_writes_nothing_even_with_yes(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            original_cwd = os.getcwd()
-            os.chdir(tmpdir)
-            try:
-                with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
-                    code = main(
-                        ["--install", "--dry-run", "--yes", "--project-name", "MyApp"]
-                    )
-                    self.assertEqual(code, 0)
-                # Verify nothing was written despite --yes
-                self.assertFalse(
-                    os.path.exists(os.path.join(tmpdir, ".ai", "active_task", "state.md"))
-                )
-            finally:
-                os.chdir(original_cwd)
-
-    def test_install_yes_scripts_contain_real_content(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            original_cwd = os.getcwd()
-            os.chdir(tmpdir)
-            try:
-                with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
-                    code = main(["--install", "--yes", "--project-name", "MyApp"])
-                    self.assertEqual(code, 0)
-
-                init_path = os.path.join(tmpdir, "tools", "ai-kimi-init.ps1")
-                self.assertTrue(os.path.exists(init_path))
-                content = Path(init_path).read_text(encoding="utf-8")
-                self.assertNotIn("Placeholder", content)
-                self.assertIn("param(", content)
-                self.assertIn("Initialized .ai/active_task", content)
-
-                run_path = os.path.join(tmpdir, "tools", "ai-kimi-run.ps1")
-                self.assertTrue(os.path.exists(run_path))
-                run_content = Path(run_path).read_text(encoding="utf-8")
-                self.assertIn("param(", run_content)
-                self.assertIn("Get-NextRoundDir", run_content)
-            finally:
-                os.chdir(original_cwd)
-
-
 if __name__ == "__main__":
     unittest.main()
+
+
+
+
+
 
 
 

@@ -6,10 +6,12 @@ param(
 
   [string]$TestCommands = '',
 
-  [switch]$NoRun,
+  [string]$WorkerCommand = '',
 
-  [string]$KimiCommand = 'kimi'
+  [switch]$NoRun
 )
+
+$KitDir = Split-Path -Parent $PSScriptRoot
 
 $ErrorActionPreference = 'Stop'
 
@@ -45,9 +47,9 @@ function Test-GitRepo {
   }
 }
 
-$active = Join-Path '.ai' 'active_task'
+$active = Join-Path (Join-Path $KitDir '.ai') 'active_task'
 if (!(Test-Path $active)) {
-  throw 'Missing .ai/active_task. Run tools/ai-kimi-init.ps1 first.'
+  throw 'Missing .ai/active_task. Run tools/tsl-init.ps1 first.'
 }
 
 $statePath = Join-Path $active 'state.md'
@@ -58,6 +60,7 @@ if (-not $Tier) {
 if (-not $TestCommands) {
   $TestCommands = 'Run the narrowest relevant validation if safe; otherwise explain why validation was skipped.'
 }
+$workerCommandLabel = if ($WorkerCommand) { $WorkerCommand } else { 'manual/no CLI configured' }
 
 # When -NoRun is set, use a fixed validation directory so safe checks do not
 # pollute the real round sequence or advance the round counter.
@@ -74,10 +77,11 @@ if ($NoRun) {
 
 $roundRel = $roundDir.Replace('\','/')
 Write-Utf8File (Join-Path $roundDir 'tier.md') "# Tier`n`n$Tier`n"
+$progressRel = (Join-Path $active 'progress.md').Replace('\','/')
 
 $task = Get-Content (Join-Path $active 'task.md') -Raw
 $contextPack = Get-Content (Join-Path $active 'context_pack.md') -Raw
-$codexPlan = Get-Content (Join-Path $active 'codex_plan.md') -Raw
+$reviewerPlan = Get-Content (Join-Path $active 'reviewer_plan.md') -Raw
 
 $allowedScope = switch ($Tier) {
   'T3' { 'Explore relevant files, but keep the patch small and stop before changing more than the max file limit.' }
@@ -86,8 +90,25 @@ $allowedScope = switch ($Tier) {
   'T0' { 'Do not modify code. Inspect, run safe commands, and produce a report only.' }
 }
 
+$workflowWriteLimit = if ($Tier -eq 'T0') {
+  "T0 file limit: do not modify parent-project source/config/doc files. You may write only the required workflow report files and $progressRel."
+} else {
+  "Source/config/doc file limit: stop before changing more than $MaxFiles parent-project files. Required workflow report files and $progressRel do not count against this limit."
+}
+
+$previewNotice = if ($NoRun) {
+  "Preview notice: this prompt was generated with -NoRun and writes to _validate only. Use it to inspect the prompt. For a real worker round, rerun this script without -NoRun so it creates a round_NNN directory."
+} else {
+  "Real round notice: this prompt belongs to an actual round_NNN directory. Write reports only to the exact paths below."
+}
+
 $prompt = @"
-You are KimiCode working as a bounded executor in the Kimi-Codex loop.
+You are the worker model working as a bounded executor in the Token Saver Loop.
+The worker can be DeepSeek, GLM, Qwen, Kimi, or another CLI/model. Current worker command: $workerCommandLabel.
+
+## Round Mode
+
+$previewNotice
 
 ## Tier
 
@@ -107,9 +128,9 @@ $task
 
 $contextPack
 
-## Codex Plan
+## Reviewer Plan
 
-$codexPlan
+$reviewerPlan
 
 ## Allowed Scope
 
@@ -122,7 +143,7 @@ $allowedScope
 - Do not make unrelated refactors.
 - Do not weaken, delete, or bypass tests to pass.
 - Do not claim success without command evidence.
-- If you need to modify more than $MaxFiles files, stop and report why.
+- $workflowWriteLimit
 
 ## Stop Conditions
 
@@ -144,14 +165,17 @@ $TestCommands
 ## Required Reports
 
 Write a detailed Markdown log to:
-- $roundRel/kimi_log.md
+- $roundRel/worker_log.md
 
 Write a structured JSON report to:
-- $roundRel/kimi_report.json
+- $roundRel/worker_report.json
+
+Also update the brief user-facing progress board:
+- $progressRel
 
 Markdown log format:
 
-# Kimi Round Log
+# Worker Round Log
 
 ## Round
 - Tier:
@@ -187,7 +211,7 @@ Markdown log format:
 - Potential bug:
 - Missing test:
 - Risk area:
-- Needs Codex attention:
+- Needs reviewer attention:
 
 JSON report shape:
 
@@ -202,39 +226,47 @@ JSON report shape:
   "risks": [{"level": "low | medium | high", "area": "", "description": "", "recommended_review": ""}],
   "deviations": [],
   "open_questions": [],
-  "next_action": "codex_review | kimi_fix | ask_user | split_task"
+  "next_action": "reviewer_review | worker_fix | ask_user | split_task"
 }
 "@
 
-$promptPath = Join-Path $roundDir 'kimi_prompt.md'
+$promptPath = Join-Path $roundDir 'worker_prompt.md'
 Write-Utf8File $promptPath $prompt
-Copy-Item -Path $promptPath -Destination (Join-Path $active 'kimi_prompt.md') -Force
+Copy-Item -Path $promptPath -Destination (Join-Path $active 'worker_prompt.md') -Force
 
 if (Test-GitRepo) {
   try { git status --short | Set-Content (Join-Path $roundDir 'git_status_before.txt') -Encoding utf8 } catch { $_ | Out-String | Set-Content (Join-Path $roundDir 'git_status_before.txt') -Encoding utf8 }
 }
 
 if ($NoRun) {
-  Write-Host "Prepared Kimi prompt only: $promptPath"
+  Write-Host "Prepared preview worker prompt only: $promptPath"
+  Write-Host "This is a _validate preview and should not be used as a real worker round."
+  Write-Host "For a real round, rerun without -NoRun so a round_NNN directory is created."
   exit 0
 }
 
-$cmd = Get-Command $KimiCommand -ErrorAction SilentlyContinue
-if (-not $cmd) {
-  Write-Warning "Kimi command '$KimiCommand' was not found. Prompt prepared at $promptPath"
-  Write-Host "After installing/login, run the prompt manually or re-run this script."
+if (-not $WorkerCommand) {
+  Write-Warning "No worker command configured. Prompt prepared at $promptPath"
+  Write-Host "Run manually, or re-run with -WorkerCommand <command>."
   exit 2
 }
 
-$kimiInput = Get-Content $promptPath -Raw
-& $KimiCommand -p $kimiInput --output-format text 1> (Join-Path $roundDir 'kimi_stdout.txt') 2> (Join-Path $roundDir 'kimi_stderr.txt')
+$cmd = Get-Command $WorkerCommand -ErrorAction SilentlyContinue
+if (-not $cmd) {
+  Write-Warning "Worker command '$WorkerCommand' was not found. Prompt prepared at $promptPath"
+  Write-Host "After installing/login, run the prompt manually or re-run this script with -WorkerCommand <command>."
+  exit 2
+}
+
+$workerInput = Get-Content $promptPath -Raw
+& $WorkerCommand -p $workerInput --output-format text 1> (Join-Path $roundDir 'worker_stdout.txt') 2> (Join-Path $roundDir 'worker_stderr.txt')
 $exitCode = $LASTEXITCODE
-Write-Utf8File (Join-Path $roundDir 'kimi_exit_code.txt') "$exitCode"
+Write-Utf8File (Join-Path $roundDir 'worker_exit_code.txt') "$exitCode"
 
 # Capture test command output if an explicit command is configured
 $testsPath = Join-Path $roundDir 'tests.txt'
 $effectiveTestCmd = $TestCommands
-if ($codexPlan -match '## Test Commands\s*\r?\n([^#\r\n]+)') {
+if ($reviewerPlan -match '## Test Commands\s*\r?\n([^#\r\n]+)') {
     $planTestCmd = $Matches[1].Trim()
     if ($planTestCmd -and ($planTestCmd -notmatch 'explain|Inspect|if safe|No explicit test command')) {
         $effectiveTestCmd = $planTestCmd
@@ -242,7 +274,7 @@ if ($codexPlan -match '## Test Commands\s*\r?\n([^#\r\n]+)') {
 }
 if ($effectiveTestCmd -and ($effectiveTestCmd -notmatch 'explain|Inspect|if safe|No explicit test command')) {
     try {
-        # TestCommands comes from the project's own codex_plan.md or an explicit script
+        # TestCommands comes from the project's own reviewer_plan.md or an explicit script
 # parameter; it is trusted workflow input controlled by the user/team.
 $testOutput = Invoke-Expression $effectiveTestCmd 2>&1
         $testOutput | Out-String | Set-Content $testsPath -Encoding utf8
@@ -262,8 +294,8 @@ if (Test-GitRepo) {
 $state = @"
 # State
 
-Status: kimi_round_completed
-Current phase: codex_review
+Status: worker_round_completed
+Current phase: reviewer_review
 Current tier: $Tier
 Latest round: $roundRel
 
@@ -271,16 +303,19 @@ Latest artifacts:
 - $roundRel/diffstat.txt
 - $roundRel/diff.patch
 - $roundRel/tests.txt
-- $roundRel/kimi_report.json
-- $roundRel/kimi_log.md
+- $roundRel/worker_report.json
+- $roundRel/worker_log.md
 
 Next action:
-- Ask Codex to review the latest round using kimi-codex-loop.
+- Ask the reviewer to review the latest round evidence.
 "@
 Write-Utf8File $statePath $state
 
 if ($exitCode -ne 0) {
-  Write-Warning "Kimi exited with code $exitCode. See $roundDir/kimi_stderr.txt"
+  Write-Warning "Worker exited with code $exitCode. See $roundDir/worker_stderr.txt"
 } else {
-  Write-Host "Kimi round completed: $roundDir"
+  Write-Host "Worker round completed: $roundDir"
 }
+
+
+

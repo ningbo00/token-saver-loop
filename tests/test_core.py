@@ -17,11 +17,8 @@ from unittest.mock import patch
 
 from token_saver_loop.core import (
     append_jsonl_record,
-    apply_install_action,
-    apply_install_plan,
-    build_codex_usage_snapshot,
-    build_install_dry_run_plan,
-    check_install_safety,
+    build_reviewer_usage_snapshot,
+    build_doctor_report,
     build_messages,
     build_round_token_usage_record,
     default_metrics_path,
@@ -29,14 +26,12 @@ from token_saver_loop.core import (
     extract_text_from_response,
     load_jsonl_records_from_file,
     parse_jsonl_records,
-    parse_kimi_usage_counts_from_jsonl,
-    parse_kimi_usage_counts_from_jsonl_file,
-    planned_install_paths,
+    parse_worker_usage_counts_from_jsonl,
+    parse_worker_usage_counts_from_jsonl_file,
     read_input,
     render_project_worker_skill,
-    summarize_kimi_usage_counts,
+    summarize_worker_usage_counts,
     summarize_token_usage_records,
-    validate_project_name,
 )
 from token_saver_loop.templates import get_template, list_templates
 
@@ -134,6 +129,9 @@ class TestDefaultProjectConfig(unittest.TestCase):
         expected_keys = {
             "project_name",
             "workflow_name",
+            "default_worker_command",
+            "worker_model_examples",
+            "reviewer_role",
             "tiers",
             "active_task_dir",
             "rounds_dir",
@@ -153,27 +151,30 @@ class TestRenderProjectWorkerSkill(unittest.TestCase):
         text = render_project_worker_skill("MyApp")
         self.assertIn("MyApp", text)
 
-    def test_includes_kimi_codex_rules(self) -> None:
+    def test_includes_token_saver_worker_rules(self) -> None:
         text = render_project_worker_skill("MyApp")
-        self.assertIn("Kimi-Codex Worker Skill", text)
+        self.assertIn("Token Saver Loop Worker Skill", text)
+        self.assertIn("DeepSeek", text)
+        self.assertIn("GLM", text)
+        self.assertIn("Qwen", text)
         self.assertIn("Tier Rules", text)
         self.assertIn("T0", text)
         self.assertIn("T1", text)
         self.assertIn("T2", text)
         self.assertIn("T3", text)
-        self.assertIn("kimi_log.md", text)
-        self.assertIn("kimi_report.json", text)
+        self.assertIn("worker_log.md", text)
+        self.assertIn("worker_report.json", text)
 
     def test_generated_worker_skill_includes_process_rotation_rules(self) -> None:
         text = render_project_worker_skill("MyApp")
-        self.assertIn("fresh Kimi conversation/process per round", text)
-        self.assertIn("Do not rely on prior Kimi chat memory", text)
+        self.assertIn("fresh worker conversation/process per round", text)
+        self.assertIn("Do not rely on prior worker chat memory", text)
 
     def test_generated_worker_skill_includes_progress_snapshot_rules(self) -> None:
         text = render_project_worker_skill("MyApp")
         self.assertIn(".ai/active_task/progress.md", text)
         self.assertIn("user-facing orientation only", text)
-        self.assertIn("Separate Kimi-authored status from Codex-verified status", text)
+        self.assertIn("Separate worker-authored status from reviewer-verified status", text)
 
     def test_generated_worker_skill_includes_testing_and_git_limits(self) -> None:
         text = render_project_worker_skill("MyApp")
@@ -190,40 +191,71 @@ class TestRenderProjectWorkerSkill(unittest.TestCase):
         self.assertIn("No default test command configured", text)
 
 
-class TestPlannedInstallPaths(unittest.TestCase):
-    def test_returns_list(self) -> None:
-        paths = planned_install_paths()
-        self.assertIsInstance(paths, list)
+class TestBuildDoctorReport(unittest.TestCase):
+    def test_missing_layout_reports_copy_portable_kit_next_action(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            report = build_doctor_report(tmpdir)
+            self.assertEqual(report["mode"], "missing")
+            self.assertEqual(report["next_action"], "copy_portable_kit")
+            self.assertIsNone(report["base_path"])
 
-    def test_includes_ai_paths(self) -> None:
-        paths = planned_install_paths()
-        self.assertIn(".ai/active_task/state.md", paths)
-        self.assertIn(".ai/active_task/task.md", paths)
+    def test_portable_layout_without_active_task_reports_initialize(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            kit = Path(tmpdir) / "token-saver-kit"
+            kit.mkdir()
+            (kit / "START_HERE.md").write_text("# start\n", encoding="utf-8")
+            tools = kit / "tools"
+            tools.mkdir()
+            (tools / "tsl-run.ps1").write_text("param()\n", encoding="utf-8")
 
-    def test_includes_docs_paths(self) -> None:
-        paths = planned_install_paths()
-        self.assertIn("docs/AGENT_CONTEXT.md", paths)
-        self.assertIn("docs/REPO_MAP.md", paths)
+            report = build_doctor_report(tmpdir)
+            self.assertEqual(report["mode"], "portable")
+            self.assertEqual(report["next_action"], "initialize_task")
+            self.assertEqual(report["base_path"], "token-saver-kit")
 
-    def test_includes_tools_paths(self) -> None:
-        paths = planned_install_paths()
-        self.assertIn("tools/ai-kimi-init.ps1", paths)
-        self.assertIn("tools/ai-kimi-run.ps1", paths)
-        self.assertIn("tools/ai-kimi-review-pack.ps1", paths)
-        self.assertIn("tools/ai-kimi-verdict.ps1", paths)
+    def test_portable_layout_with_preview_and_no_round_reports_create_round(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            kit = Path(tmpdir) / "token-saver-kit"
+            preview = kit / ".ai" / "active_task" / "rounds" / "_validate"
+            preview.mkdir(parents=True)
+            (kit / "START_HERE.md").write_text("# start\n", encoding="utf-8")
+            tools = kit / "tools"
+            tools.mkdir()
+            (tools / "tsl-run.ps1").write_text("param()\n", encoding="utf-8")
+            (kit / ".ai" / "active_task" / "state.md").write_text("# state\n", encoding="utf-8")
+            (kit / ".ai" / "active_task" / "task.md").write_text("# task\n", encoding="utf-8")
+            (preview / "worker_prompt.md").write_text("preview\n", encoding="utf-8")
 
-    def test_includes_skill_path(self) -> None:
-        paths = planned_install_paths()
-        self.assertIn(".kimi-code/skills/kimi-codex-worker/SKILL.md", paths)
+            report = build_doctor_report(tmpdir)
+            self.assertEqual(report["next_action"], "create_real_round")
+            self.assertEqual(
+                report["validate_preview_prompt"],
+                "token-saver-kit/.ai/active_task/rounds/_validate/worker_prompt.md",
+            )
+
+    def test_latest_round_without_worker_prompt_reports_create_round(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            kit = Path(tmpdir) / "token-saver-kit"
+            round_dir = kit / ".ai" / "active_task" / "rounds" / "round_001"
+            round_dir.mkdir(parents=True)
+            (kit / "START_HERE.md").write_text("# start\n", encoding="utf-8")
+            tools = kit / "tools"
+            tools.mkdir()
+            (tools / "tsl-run.ps1").write_text("param()\n", encoding="utf-8")
+            (kit / ".ai" / "active_task" / "state.md").write_text("# state\n", encoding="utf-8")
+            (kit / ".ai" / "active_task" / "task.md").write_text("# task\n", encoding="utf-8")
+
+            report = build_doctor_report(tmpdir)
+            self.assertEqual(report["next_action"], "create_real_round")
 
 
 # ---------- Token usage tests ----------
 
 
-class TestParseKimiUsageCountsFromJsonl(unittest.TestCase):
+class TestParseWorkerUsageCountsFromJsonl(unittest.TestCase):
     def test_extracts_usage_rows(self) -> None:
         jsonl = '{"role": "_usage", "token_count": 100}\n{"role": "_usage", "token_count": 200}\n'
-        counts = parse_kimi_usage_counts_from_jsonl(jsonl)
+        counts = parse_worker_usage_counts_from_jsonl(jsonl)
         self.assertEqual(counts, [100, 200])
 
     def test_ignores_normal_conversation_rows(self) -> None:
@@ -232,35 +264,35 @@ class TestParseKimiUsageCountsFromJsonl(unittest.TestCase):
             '{"role": "_usage", "token_count": 150}\n'
             '{"role": "assistant", "content": "hi"}\n'
         )
-        counts = parse_kimi_usage_counts_from_jsonl(jsonl)
+        counts = parse_worker_usage_counts_from_jsonl(jsonl)
         self.assertEqual(counts, [150])
 
     def test_ignores_invalid_json(self) -> None:
         jsonl = '{"role": "_usage", "token_count": 100}\nnot json\n{"role": "_usage", "token_count": 200}\n'
-        counts = parse_kimi_usage_counts_from_jsonl(jsonl)
+        counts = parse_worker_usage_counts_from_jsonl(jsonl)
         self.assertEqual(counts, [100, 200])
 
     def test_accepts_numeric_string_token_count(self) -> None:
         jsonl = '{"role": "_usage", "token_count": "300"}\n'
-        counts = parse_kimi_usage_counts_from_jsonl(jsonl)
+        counts = parse_worker_usage_counts_from_jsonl(jsonl)
         self.assertEqual(counts, [300])
 
     def test_ignores_non_numeric_token_count(self) -> None:
         jsonl = '{"role": "_usage", "token_count": "abc"}\n{"role": "_usage", "token_count": 400}\n'
-        counts = parse_kimi_usage_counts_from_jsonl(jsonl)
+        counts = parse_worker_usage_counts_from_jsonl(jsonl)
         self.assertEqual(counts, [400])
 
     def test_ignores_non_dict_lines(self) -> None:
         jsonl = '[1, 2, 3]\n{"role": "_usage", "token_count": 500}\n'
-        counts = parse_kimi_usage_counts_from_jsonl(jsonl)
+        counts = parse_worker_usage_counts_from_jsonl(jsonl)
         self.assertEqual(counts, [500])
 
     def test_empty_input(self) -> None:
-        counts = parse_kimi_usage_counts_from_jsonl("")
+        counts = parse_worker_usage_counts_from_jsonl("")
         self.assertEqual(counts, [])
 
 
-class TestParseKimiUsageCountsFromJsonlFile(unittest.TestCase):
+class TestParseWorkerUsageCountsFromJsonlFile(unittest.TestCase):
     def test_extracts_usage_rows_from_file(self) -> None:
         with tempfile.NamedTemporaryFile(
             mode="w", encoding="utf-8", delete=False
@@ -270,7 +302,7 @@ class TestParseKimiUsageCountsFromJsonlFile(unittest.TestCase):
             f.write('{"role": "_usage", "token_count": 200}\n')
             tmp_path = f.name
         try:
-            counts = parse_kimi_usage_counts_from_jsonl_file(tmp_path)
+            counts = parse_worker_usage_counts_from_jsonl_file(tmp_path)
             self.assertEqual(counts, [100, 200])
         finally:
             os.unlink(tmp_path)
@@ -284,7 +316,7 @@ class TestParseKimiUsageCountsFromJsonlFile(unittest.TestCase):
             f.write('{"role": "_usage", "token_count": 200}\n')
             tmp_path = f.name
         try:
-            counts = parse_kimi_usage_counts_from_jsonl_file(tmp_path)
+            counts = parse_worker_usage_counts_from_jsonl_file(tmp_path)
             self.assertEqual(counts, [100, 200])
         finally:
             os.unlink(tmp_path)
@@ -296,15 +328,15 @@ class TestParseKimiUsageCountsFromJsonlFile(unittest.TestCase):
             f.write("")
             tmp_path = f.name
         try:
-            counts = parse_kimi_usage_counts_from_jsonl_file(tmp_path)
+            counts = parse_worker_usage_counts_from_jsonl_file(tmp_path)
             self.assertEqual(counts, [])
         finally:
             os.unlink(tmp_path)
 
 
-class TestSummarizeKimiUsageCounts(unittest.TestCase):
+class TestSummarizeWorkerUsageCounts(unittest.TestCase):
     def test_empty_counts(self) -> None:
-        summary = summarize_kimi_usage_counts([])
+        summary = summarize_worker_usage_counts([])
         self.assertIsNone(summary["start_token_count"])
         self.assertIsNone(summary["end_token_count"])
         self.assertIsNone(summary["delta_token_count"])
@@ -312,7 +344,7 @@ class TestSummarizeKimiUsageCounts(unittest.TestCase):
         self.assertEqual(summary["usage_entries"], 0)
 
     def test_non_empty_counts(self) -> None:
-        summary = summarize_kimi_usage_counts([100, 200, 150])
+        summary = summarize_worker_usage_counts([100, 200, 150])
         self.assertEqual(summary["start_token_count"], 100)
         self.assertEqual(summary["end_token_count"], 150)
         self.assertEqual(summary["delta_token_count"], 50)
@@ -320,7 +352,7 @@ class TestSummarizeKimiUsageCounts(unittest.TestCase):
         self.assertEqual(summary["usage_entries"], 3)
 
     def test_delta_is_zero_when_end_less_than_start(self) -> None:
-        summary = summarize_kimi_usage_counts([300, 200])
+        summary = summarize_worker_usage_counts([300, 200])
         self.assertEqual(summary["delta_token_count"], 0)
 
 
@@ -330,10 +362,10 @@ class TestBuildRoundTokenUsageRecord(unittest.TestCase):
             round_name="round_005", tier="T2", counts=[100, 200]
         )
         self.assertEqual(record["version"], 1)
-        self.assertEqual(record["actor"], "kimi")
+        self.assertEqual(record["actor"], "worker")
         self.assertEqual(record["round"], "round_005")
         self.assertEqual(record["tier"], "T2")
-        self.assertEqual(record["source"], "kimi_context_jsonl")
+        self.assertEqual(record["source"], "worker_context_jsonl")
         self.assertEqual(record["measurement_mode"], "actual_total_only")
         self.assertEqual(record["start_token_count"], 100)
         self.assertEqual(record["end_token_count"], 200)
@@ -396,9 +428,9 @@ class TestParseJsonlRecords(unittest.TestCase):
         self.assertEqual(records, [])
 
 
-class TestBuildCodexUsageSnapshot(unittest.TestCase):
+class TestBuildReviewerUsageSnapshot(unittest.TestCase):
     def test_valid_snapshot(self) -> None:
-        snapshot = build_codex_usage_snapshot(
+        snapshot = build_reviewer_usage_snapshot(
             input_tokens=1000,
             output_tokens=200,
             total_tokens=1200,
@@ -406,7 +438,7 @@ class TestBuildCodexUsageSnapshot(unittest.TestCase):
             notes="Test",
         )
         self.assertEqual(snapshot["version"], 1)
-        self.assertEqual(snapshot["actor"], "codex")
+        self.assertEqual(snapshot["actor"], "reviewer")
         self.assertEqual(snapshot["input_tokens"], 1000)
         self.assertEqual(snapshot["output_tokens"], 200)
         self.assertEqual(snapshot["total_tokens"], 1200)
@@ -415,43 +447,43 @@ class TestBuildCodexUsageSnapshot(unittest.TestCase):
 
     def test_rejects_negative_input_tokens(self) -> None:
         with self.assertRaises(ValueError) as ctx:
-            build_codex_usage_snapshot(-1, 0, 0, 0)
+            build_reviewer_usage_snapshot(-1, 0, 0, 0)
         self.assertIn("input_tokens", str(ctx.exception))
 
     def test_rejects_negative_output_tokens(self) -> None:
         with self.assertRaises(ValueError) as ctx:
-            build_codex_usage_snapshot(0, -1, 0, 0)
+            build_reviewer_usage_snapshot(0, -1, 0, 0)
         self.assertIn("output_tokens", str(ctx.exception))
 
     def test_rejects_negative_total_tokens(self) -> None:
         with self.assertRaises(ValueError) as ctx:
-            build_codex_usage_snapshot(0, 0, -1, 0)
+            build_reviewer_usage_snapshot(0, 0, -1, 0)
         self.assertIn("total_tokens", str(ctx.exception))
 
     def test_rejects_negative_requests(self) -> None:
         with self.assertRaises(ValueError) as ctx:
-            build_codex_usage_snapshot(0, 0, 0, -1)
+            build_reviewer_usage_snapshot(0, 0, 0, -1)
         self.assertIn("requests", str(ctx.exception))
 
 
 class TestSummarizeTokenUsageRecords(unittest.TestCase):
-    def test_kimi_only(self) -> None:
+    def test_worker_only(self) -> None:
         records = [
-            {"actor": "kimi", "delta_token_count": 100},
-            {"actor": "kimi", "delta_token_count": 200},
+            {"actor": "worker", "delta_token_count": 100},
+            {"actor": "worker", "delta_token_count": 200},
         ]
         summary = summarize_token_usage_records(records)
-        self.assertEqual(summary["kimi_delta_tokens_total"], 300)
-        self.assertIsNone(summary["codex_latest_total_tokens"])
-        self.assertIsNone(summary["codex_latest_input_tokens"])
-        self.assertIsNone(summary["codex_latest_output_tokens"])
-        self.assertIsNone(summary["codex_latest_requests"])
+        self.assertEqual(summary["worker_delta_tokens_total"], 300)
+        self.assertIsNone(summary["reviewer_latest_total_tokens"])
+        self.assertIsNone(summary["reviewer_latest_input_tokens"])
+        self.assertIsNone(summary["reviewer_latest_output_tokens"])
+        self.assertIsNone(summary["reviewer_latest_requests"])
         self.assertEqual(summary["records_count"], 2)
 
-    def test_codex_only(self) -> None:
+    def test_reviewer_only(self) -> None:
         records = [
             {
-                "actor": "codex",
+                "actor": "reviewer",
                 "input_tokens": 1000,
                 "output_tokens": 200,
                 "total_tokens": 1200,
@@ -459,26 +491,26 @@ class TestSummarizeTokenUsageRecords(unittest.TestCase):
             },
         ]
         summary = summarize_token_usage_records(records)
-        self.assertEqual(summary["kimi_delta_tokens_total"], 0)
-        self.assertEqual(summary["codex_latest_total_tokens"], 1200)
-        self.assertEqual(summary["codex_latest_input_tokens"], 1000)
-        self.assertEqual(summary["codex_latest_output_tokens"], 200)
-        self.assertEqual(summary["codex_latest_requests"], 5)
+        self.assertEqual(summary["worker_delta_tokens_total"], 0)
+        self.assertEqual(summary["reviewer_latest_total_tokens"], 1200)
+        self.assertEqual(summary["reviewer_latest_input_tokens"], 1000)
+        self.assertEqual(summary["reviewer_latest_output_tokens"], 200)
+        self.assertEqual(summary["reviewer_latest_requests"], 5)
         self.assertEqual(summary["records_count"], 1)
 
     def test_mixed_records(self) -> None:
         records = [
-            {"actor": "kimi", "delta_token_count": 100},
+            {"actor": "worker", "delta_token_count": 100},
             {
-                "actor": "codex",
+                "actor": "reviewer",
                 "input_tokens": 1000,
                 "output_tokens": 200,
                 "total_tokens": 1200,
                 "requests": 5,
             },
-            {"actor": "kimi", "delta_token_count": 50},
+            {"actor": "worker", "delta_token_count": 50},
             {
-                "actor": "codex",
+                "actor": "reviewer",
                 "input_tokens": 2000,
                 "output_tokens": 400,
                 "total_tokens": 2400,
@@ -486,11 +518,11 @@ class TestSummarizeTokenUsageRecords(unittest.TestCase):
             },
         ]
         summary = summarize_token_usage_records(records)
-        self.assertEqual(summary["kimi_delta_tokens_total"], 150)
-        self.assertEqual(summary["codex_latest_total_tokens"], 2400)
-        self.assertEqual(summary["codex_latest_input_tokens"], 2000)
-        self.assertEqual(summary["codex_latest_output_tokens"], 400)
-        self.assertEqual(summary["codex_latest_requests"], 10)
+        self.assertEqual(summary["worker_delta_tokens_total"], 150)
+        self.assertEqual(summary["reviewer_latest_total_tokens"], 2400)
+        self.assertEqual(summary["reviewer_latest_input_tokens"], 2000)
+        self.assertEqual(summary["reviewer_latest_output_tokens"], 400)
+        self.assertEqual(summary["reviewer_latest_requests"], 10)
         self.assertEqual(summary["records_count"], 4)
 
     def test_backward_compat_no_actor(self) -> None:
@@ -499,387 +531,24 @@ class TestSummarizeTokenUsageRecords(unittest.TestCase):
             {"delta_token_count": 200},
         ]
         summary = summarize_token_usage_records(records)
-        self.assertEqual(summary["kimi_delta_tokens_total"], 300)
+        self.assertEqual(summary["worker_delta_tokens_total"], 300)
 
     def test_ignores_non_int_delta(self) -> None:
         records = [
-            {"actor": "kimi", "delta_token_count": 100},
-            {"actor": "kimi", "delta_token_count": "bad"},
+            {"actor": "worker", "delta_token_count": 100},
+            {"actor": "worker", "delta_token_count": "bad"},
         ]
         summary = summarize_token_usage_records(records)
-        self.assertEqual(summary["kimi_delta_tokens_total"], 100)
+        self.assertEqual(summary["worker_delta_tokens_total"], 100)
 
     def test_empty_records(self) -> None:
         summary = summarize_token_usage_records([])
-        self.assertEqual(summary["kimi_delta_tokens_total"], 0)
-        self.assertIsNone(summary["codex_latest_total_tokens"])
+        self.assertEqual(summary["worker_delta_tokens_total"], 0)
+        self.assertIsNone(summary["reviewer_latest_total_tokens"])
         self.assertEqual(summary["records_count"], 0)
 
 
 # ---------- Metrics file I/O tests ----------
-
-
-# ---------- Installer dry-run tests ----------
-
-
-class TestValidateProjectName(unittest.TestCase):
-    def test_valid_name(self) -> None:
-        self.assertEqual(validate_project_name("MyApp"), "MyApp")
-
-    def test_valid_name_with_hyphen(self) -> None:
-        self.assertEqual(validate_project_name("my-app"), "my-app")
-
-    def test_valid_name_with_underscore(self) -> None:
-        self.assertEqual(validate_project_name("my_app"), "my_app")
-
-    def test_rejects_empty_string(self) -> None:
-        with self.assertRaises(ValueError) as ctx:
-            validate_project_name("")
-        self.assertIn("non-empty", str(ctx.exception))
-
-    def test_rejects_whitespace_only(self) -> None:
-        with self.assertRaises(ValueError) as ctx:
-            validate_project_name("   ")
-        self.assertIn("non-empty", str(ctx.exception))
-
-    def test_rejects_leading_whitespace(self) -> None:
-        with self.assertRaises(ValueError) as ctx:
-            validate_project_name(" MyApp")
-        self.assertIn("whitespace", str(ctx.exception))
-
-    def test_rejects_trailing_whitespace(self) -> None:
-        with self.assertRaises(ValueError) as ctx:
-            validate_project_name("MyApp ")
-        self.assertIn("whitespace", str(ctx.exception))
-
-    def test_rejects_path_separator_slash(self) -> None:
-        with self.assertRaises(ValueError) as ctx:
-            validate_project_name("My/App")
-        self.assertIn("letters", str(ctx.exception))
-
-    def test_rejects_path_separator_backslash(self) -> None:
-        with self.assertRaises(ValueError) as ctx:
-            validate_project_name("My\\App")
-        self.assertIn("letters", str(ctx.exception))
-
-    def test_rejects_dotdot(self) -> None:
-        with self.assertRaises(ValueError) as ctx:
-            validate_project_name("My..App")
-        self.assertIn("'..'", str(ctx.exception))
-
-    def test_rejects_non_string(self) -> None:
-        with self.assertRaises(ValueError) as ctx:
-            validate_project_name(123)  # type: ignore[arg-type]
-        self.assertIn("string", str(ctx.exception))
-
-
-class TestBuildInstallDryRunPlan(unittest.TestCase):
-    def test_returns_versioned_plan(self) -> None:
-        plan = build_install_dry_run_plan("MyApp")
-        self.assertEqual(plan["version"], 1)
-        self.assertEqual(plan["project_name"], "MyApp")
-
-    def test_includes_planned_paths(self) -> None:
-        plan = build_install_dry_run_plan("MyApp")
-        paths = {a["path"] for a in plan["actions"]}
-        for expected in planned_install_paths():
-            self.assertIn(expected, paths)
-
-    def test_includes_project_skill_path(self) -> None:
-        plan = build_install_dry_run_plan("MyApp")
-        paths = [a["path"] for a in plan["actions"]]
-        self.assertIn(".kimi-code/skills/MyApp-kimi-codex-worker/SKILL.md", paths)
-
-    def test_action_structure(self) -> None:
-        plan = build_install_dry_run_plan("MyApp")
-        for action in plan["actions"]:
-            self.assertIn("path", action)
-            self.assertIn("action", action)
-            self.assertIn("reason", action)
-            self.assertIn("conflict", action)
-            self.assertIn(action["action"], {"create", "modify"})
-
-    def test_test_command_included(self) -> None:
-        plan = build_install_dry_run_plan("MyApp", test_command="pytest")
-        self.assertEqual(plan["test_command"], "pytest")
-
-    def test_no_test_command_when_none(self) -> None:
-        plan = build_install_dry_run_plan("MyApp")
-        self.assertIsNone(plan["test_command"])
-
-    def test_existing_files_flagged_as_conflict(self) -> None:
-        with tempfile.NamedTemporaryFile(
-            mode="w", encoding="utf-8", delete=False
-        ) as f:
-            f.write("existing")
-            tmp_path = f.name
-        try:
-            # Temporarily patch planned_install_paths to include our temp file
-            from unittest.mock import patch
-            with patch(
-                "token_saver_loop.core.planned_install_paths", return_value=[tmp_path]
-            ):
-                plan = build_install_dry_run_plan("MyApp")
-                action = next(a for a in plan["actions"] if a["path"] == tmp_path)
-                self.assertEqual(action["action"], "modify")
-                self.assertEqual(action["conflict"], "existing")
-        finally:
-            os.unlink(tmp_path)
-
-    def test_non_existing_files_have_no_conflict(self) -> None:
-        plan = build_install_dry_run_plan("MyApp")
-        # Use a path that is very unlikely to exist
-        fake_path = ".this_should_not_exist_99999"
-        with patch(
-            "token_saver_loop.core.planned_install_paths", return_value=[fake_path]
-        ):
-            plan = build_install_dry_run_plan("MyApp")
-            action = next(a for a in plan["actions"] if a["path"] == fake_path)
-            self.assertEqual(action["action"], "create")
-            self.assertIsNone(action["conflict"])
-
-
-class TestApplyInstallAction(unittest.TestCase):
-    def test_creates_file_under_target_root(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            action = {
-                "path": "docs/README.md",
-                "action": "create",
-                "content": "# Hello",
-            }
-            apply_install_action(action, tmpdir)
-            p = Path(tmpdir) / "docs" / "README.md"
-            self.assertTrue(p.exists())
-            self.assertEqual(p.read_text(encoding="utf-8"), "# Hello")
-
-    def test_rejects_outside_root_traversal(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            action = {
-                "path": "../escape.md",
-                "action": "create",
-                "content": "x",
-            }
-            with self.assertRaises(ValueError) as ctx:
-                apply_install_action(action, tmpdir)
-            self.assertIn("escapes", str(ctx.exception))
-
-    def test_rejects_existing_file(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            target = Path(tmpdir) / "existing.md"
-            target.write_text("old", encoding="utf-8")
-            action = {
-                "path": "existing.md",
-                "action": "create",
-                "content": "new",
-            }
-            with self.assertRaises(FileExistsError) as ctx:
-                apply_install_action(action, tmpdir)
-            self.assertIn("already exists", str(ctx.exception))
-
-    def test_rejects_non_create_action(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            action = {
-                "path": "x.md",
-                "action": "modify",
-                "content": "x",
-            }
-            with self.assertRaises(ValueError) as ctx:
-                apply_install_action(action, tmpdir)
-            self.assertIn("create", str(ctx.exception))
-
-    def test_rejects_missing_path(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            action = {"action": "create", "content": "x"}
-            with self.assertRaises(ValueError) as ctx:
-                apply_install_action(action, tmpdir)
-            self.assertIn("missing", str(ctx.exception))
-
-    def test_no_writes_to_current_repo(self) -> None:
-        # The helper requires an explicit target_root argument.
-        # Calling it without target_root raises TypeError, preventing
-        # accidental writes to the current working directory.
-        with self.assertRaises(TypeError):
-            apply_install_action({"path": "x", "action": "create"})
-
-    def test_rejects_non_directory_target_root(self) -> None:
-        with tempfile.NamedTemporaryFile(delete=False) as f:
-            tmp_path = f.name
-        try:
-            action = {"path": "x.md", "action": "create", "content": "x"}
-            with self.assertRaises(ValueError) as ctx:
-                apply_install_action(action, tmp_path)
-            self.assertIn("directory", str(ctx.exception))
-        finally:
-            os.unlink(tmp_path)
-
-
-class TestApplyInstallPlan(unittest.TestCase):
-    def test_creates_multiple_files(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            actions = [
-                {"path": "a.md", "action": "create", "content": "A"},
-                {"path": "b/c.md", "action": "create", "content": "C"},
-            ]
-            apply_install_plan(actions, tmpdir)
-            self.assertEqual((Path(tmpdir) / "a.md").read_text(encoding="utf-8"), "A")
-            self.assertEqual((Path(tmpdir) / "b" / "c.md").read_text(encoding="utf-8"), "C")
-
-    def test_conflict_aborts_all(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            (Path(tmpdir) / "existing.md").write_text("old", encoding="utf-8")
-            actions = [
-                {"path": "new.md", "action": "create", "content": "new"},
-                {"path": "existing.md", "action": "create", "content": "overwrite"},
-            ]
-            with self.assertRaises(FileExistsError):
-                apply_install_plan(actions, tmpdir)
-            self.assertFalse((Path(tmpdir) / "new.md").exists())
-
-    def test_traversal_aborts_all(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            actions = [
-                {"path": "a.md", "action": "create", "content": "A"},
-                {"path": "../escape.md", "action": "create", "content": "E"},
-            ]
-            with self.assertRaises(ValueError):
-                apply_install_plan(actions, tmpdir)
-            self.assertFalse((Path(tmpdir) / "a.md").exists())
-
-    def test_missing_content_aborts_all(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            actions = [
-                {"path": "a.md", "action": "create", "content": "A"},
-                {"path": "b.md", "action": "create"},
-            ]
-            with self.assertRaises(ValueError):
-                apply_install_plan(actions, tmpdir)
-            self.assertFalse((Path(tmpdir) / "a.md").exists())
-
-    def test_non_create_action_aborts_all(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            actions = [
-                {"path": "a.md", "action": "create", "content": "A"},
-                {"path": "b.md", "action": "modify", "content": "B"},
-            ]
-            with self.assertRaises(ValueError):
-                apply_install_plan(actions, tmpdir)
-            self.assertFalse((Path(tmpdir) / "a.md").exists())
-
-    def test_empty_content_allowed(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            actions = [{"path": "empty.md", "action": "create", "content": ""}]
-            apply_install_plan(actions, tmpdir)
-            self.assertEqual((Path(tmpdir) / "empty.md").read_text(encoding="utf-8"), "")
-
-    def test_duplicate_target_aborts_all(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            actions = [
-                {"path": "a.md", "action": "create", "content": "first"},
-                {"path": "a.md", "action": "create", "content": "second"},
-            ]
-            with self.assertRaises(ValueError) as ctx:
-                apply_install_plan(actions, tmpdir)
-            self.assertIn("Duplicate target", str(ctx.exception))
-            self.assertFalse((Path(tmpdir) / "a.md").exists())
-
-    def test_duplicate_target_via_alias_aborts_all(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            actions = [
-                {"path": "sub/x.md", "action": "create", "content": "first"},
-                {"path": "sub/../sub/x.md", "action": "create", "content": "second"},
-            ]
-            with self.assertRaises(ValueError) as ctx:
-                apply_install_plan(actions, tmpdir)
-            self.assertIn("Duplicate target", str(ctx.exception))
-            self.assertFalse((Path(tmpdir) / "sub" / "x.md").exists())
-
-    def test_rejects_non_list_actions(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            with self.assertRaises(TypeError) as ctx:
-                apply_install_plan("not-a-list", tmpdir)  # type: ignore[arg-type]
-            self.assertIn("list", str(ctx.exception))
-
-    def test_empty_actions_list_succeeds(self) -> None:
-        with tempfile.TemporaryDirectory() as tmpdir:
-            apply_install_plan([], tmpdir)
-            # No files should be created
-            self.assertEqual(list(Path(tmpdir).iterdir()), [])
-
-
-class TestCheckInstallSafety(unittest.TestCase):
-    def test_safe_plan(self) -> None:
-        plan = build_install_dry_run_plan("MyApp")
-        report = check_install_safety(plan)
-        self.assertIsInstance(report["safe"], bool)
-        self.assertIsInstance(report["concerns"], list)
-        self.assertIsInstance(report["blocked_actions"], list)
-
-    def test_blocks_existing_files(self) -> None:
-        with tempfile.NamedTemporaryFile(
-            mode="w", encoding="utf-8", delete=False
-        ) as f:
-            f.write("existing")
-            tmp_path = f.name
-        try:
-            plan = {
-                "actions": [
-                    {
-                        "path": tmp_path,
-                        "action": "modify",
-                        "reason": "test",
-                        "conflict": "existing",
-                    }
-                ]
-            }
-            report = check_install_safety(plan)
-            self.assertFalse(report["safe"])
-            self.assertEqual(len(report["concerns"]), 1)
-            self.assertIn("already exists", report["concerns"][0])
-            self.assertEqual(len(report["blocked_actions"]), 1)
-        finally:
-            os.unlink(tmp_path)
-
-    def test_blocks_path_traversal(self) -> None:
-        plan = {
-            "actions": [
-                {"path": "../escape", "action": "create", "reason": "test"}
-            ]
-        }
-        report = check_install_safety(plan)
-        self.assertFalse(report["safe"])
-        self.assertIn("escapes repo root", report["concerns"][0])
-
-    def test_blocks_absolute_path(self) -> None:
-        plan = {
-            "actions": [
-                {"path": "/etc/passwd", "action": "create", "reason": "test"}
-            ]
-        }
-        report = check_install_safety(plan)
-        self.assertFalse(report["safe"])
-        self.assertIn("escapes repo root", report["concerns"][0])
-
-    def test_blocks_generated_areas(self) -> None:
-        for forbidden in (".git/config", "node_modules/x", "__pycache__/x", "dist/x", "build/x"):
-            plan = {
-                "actions": [
-                    {"path": forbidden, "action": "create", "reason": "test"}
-                ]
-            }
-            report = check_install_safety(plan)
-            self.assertFalse(report["safe"], f"Expected {forbidden} to be blocked")
-            self.assertIn("generated/binary", report["concerns"][0])
-
-    def test_allows_normal_paths(self) -> None:
-        plan = {
-            "actions": [
-                {"path": "docs/README.md", "action": "create", "reason": "test"}
-            ]
-        }
-        report = check_install_safety(plan)
-        self.assertTrue(report["safe"])
-        self.assertEqual(report["concerns"], [])
-        self.assertEqual(report["blocked_actions"], [])
 
 
 class TestDefaultMetricsPath(unittest.TestCase):
@@ -891,7 +560,7 @@ class TestAppendJsonlRecord(unittest.TestCase):
     def test_creates_parent_dir_and_appends_line(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "nested" / "metrics.jsonl"
-            record = {"actor": "kimi", "delta": 100}
+            record = {"actor": "worker", "delta": 100}
             append_jsonl_record(path, record)
             self.assertTrue(path.exists())
             lines = path.read_text(encoding="utf-8").strip().splitlines()
@@ -951,5 +620,10 @@ class TestLoadJsonlRecordsFromFile(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+
+
+
 
 

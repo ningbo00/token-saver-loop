@@ -149,7 +149,7 @@ Reserved fields for future actual usage:
 
 ## 8. What Kimi should record in each round log when exact usage is unavailable
 
-In `.ai/active_task/rounds/round_XXX/kimi_log.md`, add a new section:
+In `.ai/active_task/rounds/round_XXX/worker_log.md`, add a new section:
 
 ```markdown
 ## Token Usage
@@ -177,4 +177,5 @@ If automatic reading fails, record:
 - Did **not** access the network.
 - Did **not** modify source code.
 - Inspected only non-sensitive metadata: extension manifest, README, CLI help, public config files, and session context traces.
+
 

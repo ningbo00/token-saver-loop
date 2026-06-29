@@ -3,31 +3,36 @@
 Project: Token Saver Loop
 
 Status:
-- Token Saver Loop is the primary product path; portable kit defaults to Kimi worker + Codex reviewer labels.
+- Token Saver Loop is the primary product path; worker/reviewer are generic roles, and specific model names are examples only.
 - README is GitHub-facing; `docs/BEGINNER_GUIDE.md` is the beginner path for users new to the workflow.
 - Package version is `1.0.0`; JSON schemas remain `version: 1`.
-- CLI supports project config preview, worker skill preview, planned install paths, Kimi token usage parsing, manual Codex usage snapshots, metrics summarization, metrics append/write, installer dry-run, and real install gated by `--yes`.
-- Real installer writes use all-or-nothing safety checks and install the real PowerShell workflow scripts.
-- Codex plans/reviews; KimiCode executes bounded rounds.
-- GitHub packaging pass added root MIT LICENSE, a minimal example, and portable kit-local `.gitignore`; root `.ai/` and `.kimi-code/` should stay local-only.
+- CLI supports project config preview, worker skill preview, setup doctor reports, worker token usage parsing, manual reviewer usage snapshots, metrics summarization, and metrics append/write.
+- There is no installer mode; the product path is copying `portable/token-saver-kit/`.
+- First-run portable workflow has been hardened: T0 init uses `worker_inspection`, workflow reports/progress are separated from parent-project file limits, and `-NoRun` is documented as `_validate` preview-only.
+- Reviewer plans/reviews; worker model executes bounded rounds. DeepSeek/GLM/Qwen-style workers are supported via `-WorkerCommand`.
+- GitHub packaging pass added root MIT LICENSE, a minimal example, and portable kit-local `.gitignore`; root `.ai/` and `.token-saver/` should stay local-only.
 
 Current Goal:
-- Finalize portable kit, real installer, and GitHub-first README for a commit-ready 1.0 workflow kit.
-- Keep portable/no-install usage as the README first path; Python CLI install remains optional/advanced.
+- Finalize portable kit and GitHub-first README for a commit-ready 1.0 workflow kit.
+- Keep portable/no-install usage as the only workflow setup path.
+- Next optimization candidates: add a small first-run fixture test around portable `round_NNN` generation, then prepare release packaging.
 - After creating the GitHub repo, optionally add real `project.urls` metadata to `pyproject.toml`.
 
 Rules:
 - Keep tasks small.
-- Apply Token Saver Loop to this repo's own work by routing on cost shape, not habit: use Kimi when execution/search/bulk generation is large and Codex review can stay compact.
-- Do not delegate when Codex would need to fully reread and rewrite the result anyway; judgment-heavy or short high-concept work should stay with Codex.
-- For Kimi batches, require a review pack that makes Codex review smaller than direct execution: files changed, key decisions, uncertain points, high-risk sections, and validation.
-- Split by risk and review cost: high-risk code/security/installer changes stay small; low-risk docs/i18n/bulk text can be one bounded batch only if the review pack is compact.
+- Apply Token Saver Loop to this repo's own work by routing on cost shape, not habit: use a low-cost worker when execution/search/bulk generation is large and reviewer work can stay compact.
+- Do not delegate when the reviewer would need to fully reread and rewrite the result anyway; judgment-heavy or short high-concept work should stay with the reviewer.
+- For worker batches, require a review pack that makes reviewer review smaller than direct execution: files changed, key decisions, uncertain points, high-risk sections, and validation.
+- Split by risk and review cost: high-risk code/security changes stay small; low-risk docs/i18n/bulk text can be one bounded batch only if the review pack is compact.
 - Trust diff, files, and tests over model claims.
-- Kimi must write round logs under `.ai/active_task/rounds/`.
-- Batch size is dynamic: increase after clean Kimi passes, reduce after failures or drift.
+- The worker must write round logs under `.ai/active_task/rounds/`.
+- Batch size is dynamic: increase after clean worker passes, reduce after failures or drift.
 - Larger batches must still be executed as multiple small checkpointed steps, not one large leap.
-- Codex thread rotation: suggest a fresh Codex thread after commits, phase boundaries, release decisions, or 2-3 clean Kimi passes; not after every same-tier fix.
-- Kimi process rotation: prefer a fresh Kimi conversation per round when handoff files are current; Kimi should follow repo handoff, not chat memory.
-- Fresh Codex threads can start by reading root `CODEX_CONTINUE.md`.
-- Kimi should update `.ai/active_task/progress.md` at the end of each round as a user-facing rough progress board; Codex may use it for navigation only, not verification.
+- Reviewer thread rotation: suggest a fresh reviewer thread after commits, phase boundaries, release decisions, or 2-3 clean worker passes; not after every same-tier fix.
+- Worker process rotation: prefer a fresh worker conversation per round when handoff files are current; the worker should follow repo handoff, not chat memory.
+- Fresh reviewer threads can start by reading root `REVIEWER_CONTINUE.md`.
+- The worker should update `.ai/active_task/progress.md` at the end of each round as a user-facing rough progress board; reviewer may use it for navigation only, not verification.
+
+
+
 

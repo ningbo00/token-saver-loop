@@ -20,11 +20,12 @@ if (!(Test-Path $roundDir)) { throw "Round not found: $roundDir" }
 Write-Host "Round: $roundDir"
 Write-Host '--- diffstat'
 if (Test-Path (Join-Path $roundDir 'diffstat.txt')) { Get-Content (Join-Path $roundDir 'diffstat.txt') } else { Write-Host '(missing)' }
-Write-Host '--- kimi_report.json'
-if (Test-Path (Join-Path $roundDir 'kimi_report.json')) { Get-Content (Join-Path $roundDir 'kimi_report.json') } else { Write-Host '(missing)' }
+Write-Host '--- worker_report.json'
+if (Test-Path (Join-Path $roundDir 'worker_report.json')) { Get-Content (Join-Path $roundDir 'worker_report.json') } else { Write-Host '(missing)' }
 Write-Host '--- tests / stdout summary'
 if (Test-Path (Join-Path $roundDir 'tests.txt')) { Get-Content (Join-Path $roundDir 'tests.txt') -TotalCount 120 }
-elseif (Test-Path (Join-Path $roundDir 'kimi_stdout.txt')) { Get-Content (Join-Path $roundDir 'kimi_stdout.txt') -TotalCount 120 }
+elseif (Test-Path (Join-Path $roundDir 'worker_stdout.txt')) { Get-Content (Join-Path $roundDir 'worker_stdout.txt') -TotalCount 120 }
 else { Write-Host '(missing)' }
-Write-Host '--- files for Codex review'
+Write-Host '--- files for reviewer review'
 Get-ChildItem $roundDir | Select-Object Name,Length | Format-Table -AutoSize
+
