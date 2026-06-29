@@ -11,23 +11,26 @@ Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README
 Token Saver Loop is portable-only. You do not run an installer.
 
 1. Copy `portable/token-saver-kit` from this repo into your own project root.
-2. Ask your reviewer model: `Read token-saver-kit/START_HERE.md and create a safe first worker task.`
-3. Prepare a worker round:
+2. Send this fixed prompt to the reviewer model:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -WorkerCommand deepseek
+```text
+Read token-saver-kit/START_HERE.md and act only as the reviewer/planner.
+Do not modify parent-project source code.
+Create the next safe worker task and prepare the worker handoff files.
 ```
 
-Use another worker CLI by replacing `deepseek` with your command. To preview the prompt only:
+3. Send this fixed prompt to the worker model:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -NoRun
+```text
+Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute the task against this project.
+Do not commit. Stay inside the stated scope and write the required worker reports.
 ```
 
-Optional health check:
+4. After the worker finishes, send this fixed prompt back to the reviewer model:
 
-```bash
-token-saver-loop --doctor
+```text
+The worker is done. Review the latest round evidence.
+Do not modify parent-project source code. Decide pass, fix, downgrade, or stop.
 ```
 
 ---
@@ -125,29 +128,34 @@ The framework is **completely model-agnostic, unbound, and has no deployment dep
 
 1. **Step 1 (Local Prep)**: Copy the `portable/token-saver-kit` folder from this repo and paste it into your own project's root directory.
 
-2. **Step 2 (Reviewer assigns task)**: Open a high-tier reasoning model and paste: `Read token-saver-kit/START_HERE.md and create a safe first worker task.`
+2. **Step 2 (Reviewer assigns task)**: Open a high-tier reasoning model and paste the reviewer start prompt below. It must plan only and must not edit project source files.
 
-3. **Step 3 (Worker executes)**: Prefer running `powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1` to create a real `round_NNN` prompt. If you are working manually, open a low-cost model and paste: `Read token-saver-kit/WORKER_NEXT_TASK.md and execute it against this project.`
+3. **Step 3 (Worker executes)**: Open the worker model and paste the worker handoff prompt prepared by the reviewer.
 
-4. **Step 4 (Reviewer accepts)**: Switch back to the high-tier reasoning model and paste: `The worker is done. Review the latest round evidence.`
+4. **Step 4 (Reviewer accepts)**: Switch back to the high-tier reasoning model and paste the reviewer review prompt below.
 
-### Optional: PowerShell Shortcut to Generate Tasks (no need to type phrases manually)
+### Fixed Prompts To Reuse
 
-```powershell
-# Initialize a repo exploration task
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-init.ps1 -Task "Inspect this project and summarize the structure" -Tier T0
-# Run with the default worker command, or swap in another compatible worker CLI
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -WorkerCommand deepseek
-# Preview the prompt without creating a real round
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -NoRun
+Reviewer start:
+
+```text
+Read token-saver-kit/START_HERE.md and act only as the reviewer/planner.
+Do not modify parent-project source code.
+Create the next safe worker task and prepare the worker handoff files.
 ```
 
-`-NoRun` writes a `_validate` preview prompt only. Use it to inspect the prompt; run without `-NoRun` for the actual worker round.
+Worker execution:
 
-Health check from any project root:
+```text
+Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute the task against this project.
+Do not commit. Stay inside the stated scope and write the required worker reports.
+```
 
-```bash
-token-saver-loop --doctor
+Reviewer review:
+
+```text
+The worker is done. Review the latest round evidence.
+Do not modify parent-project source code. Decide pass, fix, downgrade, or stop.
 ```
 
 ---
@@ -236,14 +244,9 @@ The original standalone safety and risk-control items have been streamlined and 
 
 See `examples/minimal-task.md` for a zero-code-change T0 repo inspection task, suitable for first-time process verification.
 
-### 10.2 Python CLI Helpers
+### 10.2 Developer Helpers
 
-The Python CLI is optional. It does not install files into your project. Use it for diagnostics and metrics:
-
-```bash
-token-saver-loop --doctor
-token-saver-loop --project-name MyApp --show-config
-```
+The Python package contains optional diagnostics and metrics helpers for contributors. Ordinary users do not need them for the portable workflow.
 
 ---
 

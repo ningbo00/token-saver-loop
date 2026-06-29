@@ -11,23 +11,26 @@ Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README
 Token Saver Loop는 portable-only 도구입니다. 설치 프로그램을 실행하지 않습니다.
 
 1. 이 리포지토리의 `portable/token-saver-kit` 을 자신의 프로젝트 루트에 복사합니다.
-2. reviewer 모델에 보냅니다：`Read token-saver-kit/START_HERE.md and create a safe first worker task.`
-3. worker 라운드를 준비합니다：
+2. reviewer 모델에 이 고정 프롬프트를 보냅니다：
 
-```powershell
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -WorkerCommand deepseek
+```text
+Read token-saver-kit/START_HERE.md and act only as the reviewer/planner.
+Do not modify parent-project source code.
+Create the next safe worker task and prepare the worker handoff files.
 ```
 
-`deepseek` 는 실제 사용하는 worker CLI 명령으로 바꿀 수 있습니다. 프롬프트만 미리 보고 실제 라운드를 만들지 않으려면：
+3. worker 모델에 이 고정 프롬프트를 보냅니다：
 
-```powershell
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -NoRun
+```text
+Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute the task against this project.
+Do not commit. Stay inside the stated scope and write the required worker reports.
 ```
 
-선택적 상태 확인：
+4. worker 가 끝나면 이 고정 프롬프트를 reviewer 모델에 다시 보냅니다：
 
-```bash
-token-saver-loop --doctor
+```text
+The worker is done. Review the latest round evidence.
+Do not modify parent-project source code. Decide pass, fix, downgrade, or stop.
 ```
 
 ---
@@ -125,29 +128,34 @@ GPT, Claude 등 주류 고가 범용 대형 모델을 사용하여 코드 반복
 
 1. **단계1（로컬 준비）**：리포지토리 내 `portable/token-saver-kit` 폴더를 자신의 프로젝트 루트 디렉터리에 복사하여 붙여넣기
 
-2. **단계2（심사 모델이 태스크 배포）**：고급 추론 모델을 열고, 직접 복사하여 전송：`Read token-saver-kit/START_HERE.md and create a safe first worker task.`
+2. **단계2（심사 모델이 태스크 배포）**：고급 추론 모델을 열고 아래 reviewer 시작 프롬프트를 붙여넣습니다. 계획만 해야 하며 프로젝트 소스 파일을 수정하면 안 됩니다.
 
-3. **단계3（실행 모델이 작업）**：먼저 `powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1` 를 실행해 실제 `round_NNN` 프롬프트를 생성합니다. 수동으로 사용할 때는 저비용 모델을 열고 직접 복사하여 전송：`Read token-saver-kit/WORKER_NEXT_TASK.md and execute it against this project.`
+3. **단계3（실행 모델이 작업）**：worker 모델을 열고 reviewer 가 준비한 worker handoff prompt 를 붙여넣습니다.
 
-4. **단계4（심사 모델이 검수）**：고급 추론 대형 모델로 돌아와, 직접 복사하여 전송：`The worker is done. Review the latest round evidence.`
+4. **단계4（심사 모델이 검수）**：고급 추론 모델로 돌아와 아래 reviewer 검토 프롬프트를 붙여넣습니다.
 
-### 선택：PowerShell 단축 생성 태스크（수동 멘트 입력 불필요）
+### 재사용할 고정 프롬프트
 
-```powershell
-# 리포지토리 정리 태스크 초기화
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-init.ps1 -Task "Inspect this project and summarize the structure" -Tier T0
-# 호환되는 임의의 worker CLI로 실행. deepseek/glm/qwen 등으로 교체 가능
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -WorkerCommand deepseek
-# 실제 라운드를 만들지 않고 프롬프트만 미리보기
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -NoRun
+reviewer 시작：
+
+```text
+Read token-saver-kit/START_HERE.md and act only as the reviewer/planner.
+Do not modify parent-project source code.
+Create the next safe worker task and prepare the worker handoff files.
 ```
 
-`-NoRun` 은 `_validate` 미리보기 프롬프트만 작성합니다. 실제 worker 라운드에서는 `-NoRun` 을 제거하세요.
+worker 실행：
 
-임의의 프로젝트 루트에서 상태 확인:
+```text
+Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute the task against this project.
+Do not commit. Stay inside the stated scope and write the required worker reports.
+```
 
-```bash
-token-saver-loop --doctor
+reviewer 검토：
+
+```text
+The worker is done. Review the latest round evidence.
+Do not modify parent-project source code. Decide pass, fix, downgrade, or stop.
 ```
 
 ---
@@ -236,14 +244,9 @@ flowchart TD
 
 `examples/minimal-task.md`를 참조. 코드 변경 제로의 T0 리포지토리 순찰 태스크를 제공하며, 첫 번째 프로세스 검증에 적합함.
 
-### 10.2 Python CLI 보조 도구
+### 10.2 개발자 보조 도구
 
-```bash
-token-saver-loop --doctor
-token-saver-loop --project-name MyApp --show-config
-```
-
-Python CLI는 선택적 보조 도구입니다. 프로젝트에 파일을 설치하지 않으며, 진단, 메트릭, 설정 미리보기에 사용합니다.
+Python 패키지에는 기여자를 위한 선택적 진단 및 메트릭 보조 기능이 있습니다. 일반 사용자는 portable workflow 에서 필요하지 않습니다.
 
 ---
 

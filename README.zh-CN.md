@@ -11,23 +11,26 @@ Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README
 Token Saver Loop 是 portable-only 工具，不需要运行安装器。
 
 1. 把本仓库的 `portable/token-saver-kit` 复制到你的项目根目录。
-2. 对审查模型发送：`Read token-saver-kit/START_HERE.md and create a safe first worker task.`
-3. 准备一轮 worker 执行：
+2. 把这段固定话术发给 reviewer 模型：
 
-```powershell
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -WorkerCommand deepseek
+```text
+Read token-saver-kit/START_HERE.md and act only as the reviewer/planner.
+Do not modify parent-project source code.
+Create the next safe worker task and prepare the worker handoff files.
 ```
 
-可以把 `deepseek` 换成你实际使用的 worker CLI 命令。只预览提示词、不创建真实轮次：
+3. 把这段固定话术发给 worker 模型：
 
-```powershell
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -NoRun
+```text
+Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute the task against this project.
+Do not commit. Stay inside the stated scope and write the required worker reports.
 ```
 
-可选健康检查：
+4. worker 完成后，把这段固定话术发回 reviewer 模型：
 
-```bash
-token-saver-loop --doctor
+```text
+The worker is done. Review the latest round evidence.
+Do not modify parent-project source code. Decide pass, fix, downgrade, or stop.
 ```
 
 ---
@@ -125,29 +128,34 @@ token-saver-loop --doctor
 
 1. **步骤1（本地准备）**：将仓库内 `portable/token-saver-kit` 文件夹，复制粘贴到你自己的项目根目录
 
-2. **步骤2（审查模型下发任务）**：打开高阶推理大模型，直接复制发送：`Read token-saver-kit/START_HERE.md and create a safe first worker task.`
+2. **步骤2（审查模型下发任务）**：打开高阶推理大模型，粘贴下面的 reviewer 启动话术。它只允许规划，不允许修改项目源码。
 
-3. **步骤3（执行模型干活）**：优先运行 `powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1` 生成真实 `round_NNN` 提示词。手动使用时，打开低成本大模型，直接复制发送：`Read token-saver-kit/WORKER_NEXT_TASK.md and execute it against this project.`
+3. **步骤3（执行模型干活）**：打开 worker 模型，粘贴 reviewer 准备好的 worker handoff prompt。
 
-4. **步骤4（审查模型验收）**：切回高阶推理大模型，直接复制发送：`The worker is done. Review the latest round evidence.`
+4. **步骤4（审查模型验收）**：切回高阶推理大模型，粘贴下面的 reviewer 审查话术。
 
-### 可选：PowerShell快捷生成任务（无需手动输入话术）
+### 可重复使用的固定话术
 
-```powershell
-# 初始化仓库梳理任务
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-init.ps1 -Task "Inspect this project and summarize the structure" -Tier T0
-# 使用任意兼容的 worker CLI 运行，或替换为 deepseek/glm/qwen 等命令
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -WorkerCommand deepseek
-# 只预览提示词，不创建真实轮次
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -NoRun
+reviewer 启动：
+
+```text
+Read token-saver-kit/START_HERE.md and act only as the reviewer/planner.
+Do not modify parent-project source code.
+Create the next safe worker task and prepare the worker handoff files.
 ```
 
-`-NoRun` 只写入 `_validate` 预览提示词。正式执行时去掉 `-NoRun`，生成真实 `round_NNN` 轮次。
+worker 执行：
 
-在任意项目根目录进行健康检查：
+```text
+Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute the task against this project.
+Do not commit. Stay inside the stated scope and write the required worker reports.
+```
 
-```bash
-token-saver-loop --doctor
+reviewer 审查：
+
+```text
+The worker is done. Review the latest round evidence.
+Do not modify parent-project source code. Decide pass, fix, downgrade, or stop.
 ```
 
 ---
@@ -236,14 +244,9 @@ flowchart TD
 
 查看 `examples/minimal-task.md`，提供零代码改动的T0仓库巡检任务，适合首次测试验证流程
 
-### 10.2 Python CLI辅助工具
+### 10.2 开发者辅助工具
 
-```bash
-token-saver-loop --doctor
-token-saver-loop --project-name MyApp --show-config
-```
-
-Python CLI 是可选辅助工具，不会把文件安装进你的项目。主要用于诊断、指标和配置预览。
+Python 包里保留了可选的诊断和指标辅助能力，主要给贡献者使用。普通用户使用 portable workflow 时不需要这些命令。
 
 ---
 
