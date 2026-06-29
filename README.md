@@ -29,7 +29,7 @@ Read token-saver-kit/START_HERE.md and act as reviewer only.
 3. Send this fixed prompt to the worker model:
 
 ```text
-Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
+Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 ```
 
 4. After the worker finishes, send this fixed prompt back to the reviewer model:
@@ -150,7 +150,7 @@ Read token-saver-kit/START_HERE.md and act as reviewer only.
 Worker execution:
 
 ```text
-Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
+Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 ```
 
 Reviewer review:

@@ -86,7 +86,7 @@ token-saver-kit/WORKER_NEXT_TASK.md
 Open the worker model in the same target project and say:
 
 ```text
-Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
+Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 ```
 
 For the first run, the worker should inspect and report. It should not edit source
@@ -135,6 +135,7 @@ powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-redflags.ps1
 | File | Why it matters |
 |---|---|
 | `token-saver-kit/START_HERE.md` | First explanation for both models. |
+| `token-saver-kit/LATEST_WORKER_PROMPT.md` | Stable short path for the current worker prompt. |
 | `token-saver-kit/WORKER_NEXT_TASK.md` | The task the worker should do now. |
 | `token-saver-kit/.ai/active_task/progress.md` | Human-readable progress board. |
 | `token-saver-kit/.ai/active_task/rounds/` | Evidence from each worker round. |

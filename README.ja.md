@@ -29,7 +29,7 @@ Read token-saver-kit/START_HERE.md and act as reviewer only.
 3. worker モデルにこの固定プロンプトを送信します：
 
 ```text
-Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
+Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 ```
 
 4. worker が完了したら、この固定プロンプトを reviewer モデルに戻します：
@@ -150,7 +150,7 @@ Read token-saver-kit/START_HERE.md and act as reviewer only.
 worker 実行：
 
 ```text
-Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
+Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 ```
 
 reviewer レビュー：

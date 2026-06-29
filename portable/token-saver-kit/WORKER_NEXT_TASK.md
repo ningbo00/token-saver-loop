@@ -5,7 +5,7 @@ This is a placeholder starter task. The reviewer will replace it with a real tas
 ## How this file works
 
 - The reviewer writes bounded tasks here.
-- Recommended path: use `token-saver-kit/tools/tsl-new-round.ps1` or reviewer-created handoff files, then give the worker model the generated `round_NNN/worker_prompt.md`.
+- Recommended path: use `token-saver-kit/tools/tsl-new-round.ps1` or reviewer-created handoff files, then give the worker model `token-saver-kit/LATEST_WORKER_PROMPT.md`.
 - Manual path: the worker model may read this file directly, but must still write the required reports under the current round path provided by the prompt.
 - Any compatible worker model can be used if it follows the same limits and report paths.
 - After each round, the reviewer updates this file with the next task.

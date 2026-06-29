@@ -13,6 +13,24 @@ function Add-Flag($Level, $Area, $Message) {
   $flags.Add([ordered]@{ level = $Level; area = $Area; message = $Message }) | Out-Null
 }
 
+function Get-ChangedPath($Item) {
+  if ($null -eq $Item) { return '' }
+  if ($Item -is [string]) { return $Item }
+  $pathProperty = $Item.PSObject.Properties['path']
+  if ($pathProperty) { return [string]$pathProperty.Value }
+  return [string]$Item
+}
+
+function Get-ConfiguredFileLimit {
+  foreach ($path in @((Join-Path $Active 'state.md'), (Join-Path $Active 'reviewer_plan.md'))) {
+    if (-not (Test-Path $path)) { continue }
+    $text = Get-Content $path -Raw
+    if ($text -match 'Source/config/doc file limit:\s*(\d+)') { return [int]$Matches[1] }
+    if ($text -match 'Max parent-project source/config/doc files changed before stopping:\s*(\d+)') { return [int]$Matches[1] }
+  }
+  return $null
+}
+
 foreach ($name in @('.token-saver-loop', '__pycache__', 'build', 'dist', 'node_modules')) {
   $p = Join-Path $Parent $name
   if (Test-Path $p) { Add-Flag 'warn' 'generated_or_temp' "Found $name in parent project root." }
@@ -35,6 +53,7 @@ Get-ChildItem -Path $PSScriptRoot -File -Filter '*.ps1' | ForEach-Object {
 if (-not (Test-Path (Join-Path $KitDir 'START_HERE.md'))) { Add-Flag 'error' 'kit' 'Missing START_HERE.md.' }
 if (-not (Test-Path (Join-Path $KitDir 'skills/reviewer.md'))) { Add-Flag 'error' 'kit' 'Missing skills/reviewer.md.' }
 if (-not (Test-Path (Join-Path $KitDir 'skills/worker.md'))) { Add-Flag 'error' 'kit' 'Missing skills/worker.md.' }
+if (-not (Test-Path (Join-Path $KitDir 'LATEST_WORKER_PROMPT.md'))) { Add-Flag 'warn' 'kit' 'Missing LATEST_WORKER_PROMPT.md.' }
 
 $latest = $null
 if (Test-Path $Rounds) {
@@ -56,6 +75,36 @@ if ($latest) {
       $report = Get-Content $reportPath -Raw | ConvertFrom-Json
       if ($report.status -eq 'done' -and -not (Test-Path (Join-Path $latest.FullName 'tests.txt'))) {
         Add-Flag 'warn' 'evidence' 'Worker reports done but tests.txt is missing.'
+      }
+      $changed = @($report.files_changed)
+      $limit = Get-ConfiguredFileLimit
+      if ($null -ne $limit) {
+        $parentChanges = @($changed | Where-Object {
+          $path = (Get-ChangedPath $_).Replace('\','/')
+          $path -and ($path -notlike 'token-saver-kit/*')
+        })
+        if ($parentChanges.Count -gt $limit) {
+          Add-Flag 'error' 'scope' "Worker changed $($parentChanges.Count) parent files, exceeding limit $limit."
+        }
+      }
+      foreach ($file in $changed) {
+        $path = Get-ChangedPath $file
+        if (-not $path) { continue }
+        $normalized = $path.Replace('\','/')
+        if ($normalized -match '(^|/)(__pycache__|build|dist|node_modules)(/|$)') {
+          Add-Flag 'warn' 'generated_or_temp' "Worker report includes generated/temp path: $normalized"
+        }
+        if ($normalized -match '^token-saver-kit/(tools|skills)/') {
+          Add-Flag 'warn' 'kit_boundary' "Worker report includes kit tool/skill change: $normalized"
+        }
+      }
+      if ($report.status -eq 'done') {
+        $commands = @($report.commands_run)
+        if ($commands.Count -eq 0) {
+          Add-Flag 'warn' 'evidence' 'Worker reports done but commands_run is empty.'
+        } elseif (-not ($commands | Where-Object { $_.result -eq 'passed' })) {
+          Add-Flag 'warn' 'evidence' 'Worker reports done but no passed validation command is recorded.'
+        }
       }
     } catch {
       Add-Flag 'error' 'evidence' 'worker_report.json is not valid JSON.'

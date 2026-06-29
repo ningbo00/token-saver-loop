@@ -29,7 +29,7 @@ Read token-saver-kit/START_HERE.md and act as reviewer only.
 3. worker 모델에 이 고정 프롬프트를 보냅니다：
 
 ```text
-Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
+Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 ```
 
 4. worker 가 끝나면 이 고정 프롬프트를 reviewer 모델에 다시 보냅니다：
@@ -150,7 +150,7 @@ Read token-saver-kit/START_HERE.md and act as reviewer only.
 worker 실행：
 
 ```text
-Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
+Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 ```
 
 reviewer 검토：

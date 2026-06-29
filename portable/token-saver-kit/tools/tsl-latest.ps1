@@ -24,6 +24,7 @@ $result = [ordered]@{
   kit = Rel $KitDir
   active_task = Rel $Active
   latest_round = if ($latest) { Rel $latest.FullName } else { $null }
+  latest_worker_prompt = Rel (Join-Path $KitDir 'LATEST_WORKER_PROMPT.md')
   worker_prompt = if ($latest) { Rel (Join-Path $latest.FullName 'worker_prompt.md') } else { $null }
   worker_report = if ($latest) { Rel (Join-Path $latest.FullName 'worker_report.json') } else { $null }
   worker_log = if ($latest) { Rel (Join-Path $latest.FullName 'worker_log.md') } else { $null }
@@ -36,6 +37,7 @@ if ($Json) {
 } else {
   if ($latest) {
     Write-Host "Latest round: $($result.latest_round)"
+    Write-Host "Stable worker prompt: $($result.latest_worker_prompt)"
     Write-Host "Worker prompt: $($result.worker_prompt)"
     Write-Host "Worker report: $($result.worker_report)"
   } else {

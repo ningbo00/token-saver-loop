@@ -29,7 +29,7 @@ Read token-saver-kit/START_HERE.md and act as reviewer only.
 3. 把这段固定话术发给 worker 模型：
 
 ```text
-Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
+Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 ```
 
 4. worker 完成后，把这段固定话术发回 reviewer 模型：
@@ -150,7 +150,7 @@ Read token-saver-kit/START_HERE.md and act as reviewer only.
 worker 执行：
 
 ```text
-Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
+Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 ```
 
 reviewer 审查：

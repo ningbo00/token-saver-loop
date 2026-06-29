@@ -33,6 +33,7 @@ If no tier is specified, assume T2 for ordinary implementation and T0 for explor
 - `token-saver-kit/.ai/active_task/context_pack.md`
 - `token-saver-kit/.ai/active_task/reviewer_plan.md`
 - `token-saver-kit/.ai/active_task/worker_prompt.md`
+- `token-saver-kit/LATEST_WORKER_PROMPT.md`
 - latest `token-saver-kit/.ai/active_task/rounds/round_*/reviewer_review.md`
 - latest `token-saver-kit/.ai/active_task/rounds/round_*/verdict.json`
 

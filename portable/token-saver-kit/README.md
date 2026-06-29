@@ -14,7 +14,7 @@ A no-install, drop-in workflow kit for reviewer/worker AI collaboration.
 3. Send this to the worker model after the reviewer prepares a round:
 
    ```text
-   Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
+   Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
    ```
 
 4. Send this back to the reviewer after the worker finishes:
@@ -30,7 +30,7 @@ them to reduce repeated bookkeeping and path mistakes.
 
 | Tool | Purpose |
 |---|---|
-| `tools/tsl-new-round.ps1` | Create the next `round_NNN/worker_prompt.md`. |
+| `tools/tsl-new-round.ps1` | Create the next round prompt and refresh `LATEST_WORKER_PROMPT.md`. |
 | `tools/tsl-latest.ps1` | Print latest round and prompt/report paths. |
 | `tools/tsl-review.ps1` | Print a compact latest-round review summary. |
 | `tools/tsl-redflags.ps1` | Check common scope, evidence, and generated-file problems. |

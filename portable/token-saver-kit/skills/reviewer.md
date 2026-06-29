@@ -45,7 +45,7 @@ Expand only when the task or evidence requires it.
 ## Tools
 
 - You may use `token-saver-kit/tools/` for workflow bookkeeping:
-  - `tsl-new-round.ps1`: create the next worker prompt.
+  - `tsl-new-round.ps1`: create the next worker prompt and refresh `LATEST_WORKER_PROMPT.md`.
   - `tsl-latest.ps1`: find the latest round and prompt/report paths.
   - `tsl-review.ps1`: summarize latest worker evidence.
   - `tsl-redflags.ps1`: check common scope/evidence/generated-file issues.

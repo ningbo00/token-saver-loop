@@ -12,7 +12,7 @@ Current structure:
 - `README.zh-CN.md`, `README.ja.md`, `README.ko.md`: localized README files linked from the English README.
 - `LICENSE`: MIT license for GitHub license detection.
 - `examples/minimal-task.md`: inspect-only starter example for first-time users.
-- `pyproject.toml`: Python package metadata (`1.0.0` preview-only) and console script entry point.
+- `pyproject.toml`: Python package metadata (`1.0.1` preview-only) and console script entry point.
 - `src/token_saver_loop/`: Python source package.
   - `__init__.py`: package init and package version.
   - `templates.py`: built-in format templates (legacy, retained for compatibility).
@@ -23,6 +23,7 @@ Current structure:
   - `test_cli.py`: tests for CLI behavior including workflow-kit, token usage, and metrics aggregation flags.
 - `portable/token-saver-kit/`: no-install drop-in kit; state lives under the kit-local `.ai/active_task/`.
   - `START_HERE.md`: minimal entry point and role boundary rules.
+  - `LATEST_WORKER_PROMPT.md`: stable copy of the newest worker prompt.
   - `WORKER_NEXT_TASK.md`: current bounded worker task.
   - `REVIEWER_CONTINUE.md`: reviewer continuation protocol.
   - `TOKEN_SAVER_LOOP.md`: workflow notes.

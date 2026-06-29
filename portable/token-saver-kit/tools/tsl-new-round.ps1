@@ -39,6 +39,7 @@ New-Item -ItemType Directory -Force $Active, $Rounds | Out-Null
 $statePath = Join-Path $Active 'state.md'
 $taskPath = Join-Path $Active 'task.md'
 $visibleTaskPath = Join-Path $KitDir 'WORKER_NEXT_TASK.md'
+$latestPromptPath = Join-Path $KitDir 'LATEST_WORKER_PROMPT.md'
 $contextPath = Join-Path $Active 'context_pack.md'
 $planPath = Join-Path $Active 'reviewer_plan.md'
 $progressPath = Join-Path $Active 'progress.md'
@@ -59,7 +60,7 @@ $Task
 
 ## Source of truth
 
-Use the latest `token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md` as the binding worker prompt.
+Use `token-saver-kit/LATEST_WORKER_PROMPT.md` as the stable worker prompt path.
 "@
 }
 if (-not (Test-Path $taskPath)) {
@@ -170,6 +171,7 @@ worker_report.json must include status, tier, summary, files_read, files_changed
 Write-Utf8File (Join-Path $roundDir 'tier.md') "# Tier`n`n$Tier`n"
 Write-Utf8File (Join-Path $roundDir 'worker_prompt.md') $prompt
 Copy-Item -Path (Join-Path $roundDir 'worker_prompt.md') -Destination (Join-Path $Active 'worker_prompt.md') -Force
+Copy-Item -Path (Join-Path $roundDir 'worker_prompt.md') -Destination $latestPromptPath -Force
 
 $phase = if ($Tier -eq 'T0') { 'worker_inspection' } else { 'worker_execution' }
 Write-Utf8File $statePath @"
@@ -182,9 +184,10 @@ Latest round: $roundRel
 
 Latest artifacts:
 - $roundRel/worker_prompt.md
+- token-saver-kit/LATEST_WORKER_PROMPT.md
 
 Next action:
-- Give the worker the latest worker_prompt.md.
+- Give the worker token-saver-kit/LATEST_WORKER_PROMPT.md.
 "@
 
 if (-not (Test-Path $progressPath)) {
