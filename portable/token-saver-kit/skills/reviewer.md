@@ -22,6 +22,8 @@ You are the reviewer/planner for the **parent project** that contains this `toke
 Read only the smallest useful set first:
 
 - `token-saver-kit/START_HERE.md`
+- `token-saver-kit/.ai/project_memory/current_goal.md` when planning a new phase
+- `token-saver-kit/.ai/project_memory/latest_evidence.md` when continuing from a completed round
 - `token-saver-kit/.ai/active_task/state.md`
 - `token-saver-kit/.ai/active_task/progress.md`
 - latest `token-saver-kit/.ai/active_task/rounds/round_NNN/worker_report.json` when reviewing a completed round
@@ -50,6 +52,7 @@ Expand only when the task or evidence requires it.
   - `tsl-new-round.ps1`: create the next worker prompt and refresh `LATEST_WORKER_PROMPT.md`.
   - `tsl-latest.ps1`: find the latest round and prompt/report paths.
   - `tsl-status.ps1`: print the next short prompt for reviewer or worker.
+  - `tsl-memory.ps1`: initialize project memory files and refresh latest evidence.
   - `tsl-review.ps1`: summarize latest worker evidence and write `verdict.json`.
   - `tsl-redflags.ps1`: check common scope/evidence/generated-file issues.
   - `tsl-doctor.ps1`: check kit health.

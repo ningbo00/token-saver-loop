@@ -26,6 +26,7 @@ Detailed role rules live in:
 
 - **Parent project**: the folder that contains `token-saver-kit/`. That is the project the reviewer and worker models will work on.
 - **Kit-local state**: workflow history lives inside `token-saver-kit/.ai/active_task/`. It does not pollute your parent project.
+- **Project memory**: compact long-term notes live inside `token-saver-kit/.ai/project_memory/`; read only what the task needs.
 - **Worker model**: any compatible CLI/model can be used if it follows the same prompt and writes the same reports.
 - **Reviewer model**: any strong reviewer model can plan and review the round evidence.
 - **Scripts**: optional AI/advanced automation helpers. They reduce repeated bookkeeping, but ordinary users do not need to run them manually.
@@ -65,9 +66,11 @@ Tools:
 | `REVIEWER_CONTINUE.md` | Bootstrap for fresh reviewer threads. |
 | `WORKER_NEXT_TASK.md` | Current task for the worker to execute. |
 | `LATEST_WORKER_PROMPT.md` | Stable copy of the latest worker prompt. |
+| `.ai/project_memory/` | Compact current goal, architecture, completed work, risks, and latest evidence. |
 | `tools/tsl-new-round.ps1` | Create the next worker prompt. |
 | `tools/tsl-latest.ps1` | Print the latest round and prompt paths. |
 | `tools/tsl-status.ps1` | Print the next short prompt to copy. |
+| `tools/tsl-memory.ps1` | Initialize project memory and refresh latest evidence. |
 | `tools/tsl-review.ps1` | Print a compact latest-round review pack and write `verdict.json`. |
 | `tools/tsl-redflags.ps1` | Check for common scope/evidence/generated-file problems. |
 | `tools/tsl-doctor.ps1` | Check kit health. |

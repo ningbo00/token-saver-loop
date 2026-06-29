@@ -49,6 +49,7 @@ $allowedTools = @(
   'tsl-latest.ps1',
   'tsl-review.ps1',
   'tsl-status.ps1',
+  'tsl-memory.ps1',
   'tsl-redflags.ps1',
   'tsl-doctor.ps1',
   'tsl-archive.ps1'

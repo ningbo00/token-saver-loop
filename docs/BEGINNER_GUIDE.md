@@ -142,6 +142,12 @@ Create a compact evidence verdict for the reviewer:
 powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-review.ps1
 ```
 
+Initialize or refresh compact project memory:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-memory.ps1
+```
+
 ## What Files Matter?
 
 | File | Why it matters |
@@ -149,6 +155,7 @@ powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-review.ps1
 | `token-saver-kit/START_HERE.md` | First explanation for both models. |
 | `token-saver-kit/LATEST_WORKER_PROMPT.md` | Stable short path for the current worker prompt. |
 | `token-saver-kit/WORKER_NEXT_TASK.md` | The task the worker should do now. |
+| `token-saver-kit/.ai/project_memory/` | Compact current goal, architecture, accepted work, risks, and latest evidence. |
 | `token-saver-kit/.ai/active_task/progress.md` | Human-readable progress board. |
 | `token-saver-kit/.ai/active_task/rounds/` | Evidence from each worker round. |
 | `token-saver-kit/REVIEWER_CONTINUE.md` | How a fresh reviewer thread can resume. |

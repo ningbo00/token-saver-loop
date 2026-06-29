@@ -172,6 +172,8 @@ $verdictRecord = [ordered]@{
   meaning = 'Evidence verdict only. Reviewer still owns final quality and business acceptance.'
 }
 $verdictRecord | ConvertTo-Json -Depth 6 | Set-Content -Path $verdictPath -Encoding utf8
+$memoryJson = & (Join-Path $PSScriptRoot 'tsl-memory.ps1') -Json
+$memory = $memoryJson | ConvertFrom-Json
 
 $result = [ordered]@{
   latest_round = $latest.FullName.Replace('\','/')
@@ -180,6 +182,7 @@ $result = [ordered]@{
   confidence = $confidence
   reviewer_final = $false
   verdict_file = $verdictPath.Replace('\','/')
+  latest_evidence_file = $memory.files.latest_evidence
   reasons = @($reasons.ToArray())
   next_tier = $nextTier
   summary = if ($report) { $report.summary } else { '' }
@@ -217,6 +220,7 @@ if ($Json) {
   if ($reasons.Count) { $reasons | ForEach-Object { Write-Host "- $_" } } else { Write-Host "- none" }
   Write-Host "Next tier: $($result.next_tier)"
   Write-Host "Verdict file: $($result.verdict_file)"
+  Write-Host "Latest evidence: $($result.latest_evidence_file)"
   Write-Host "Tests file: $($result.tests_file)"
   Write-Host "Diffstat: $($result.diffstat_file)"
   Write-Host "Suggested action: $($result.suggested_reviewer_action)"

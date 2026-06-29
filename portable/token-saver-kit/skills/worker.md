@@ -37,6 +37,9 @@ If no tier is specified, assume T2 for ordinary implementation and T0 for explor
 - latest `token-saver-kit/.ai/active_task/rounds/round_*/reviewer_review.md`
 - latest `token-saver-kit/.ai/active_task/rounds/round_*/verdict.json`
 
+Read `token-saver-kit/.ai/project_memory/` files only when the worker prompt
+references project memory. Do not load all memory files by habit.
+
 Do not broad-scan generated or binary areas unless directly required.
 
 ## Kit-Local Paths

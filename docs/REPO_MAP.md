@@ -12,7 +12,7 @@ Current structure:
 - `README.zh-CN.md`, `README.ja.md`, `README.ko.md`: localized README files linked from the English README.
 - `LICENSE`: MIT license for GitHub license detection.
 - `examples/minimal-task.md`: inspect-only starter example for first-time users.
-- `pyproject.toml`: Python package metadata (`1.0.3` preview-only) and console script entry point.
+- `pyproject.toml`: Python package metadata (`1.0.4` preview-only) and console script entry point.
 - `src/token_saver_loop/`: Python source package.
   - `__init__.py`: package init and package version.
   - `templates.py`: built-in format templates (legacy, retained for compatibility).
@@ -24,12 +24,13 @@ Current structure:
 - `portable/token-saver-kit/`: no-install drop-in kit; state lives under the kit-local `.ai/active_task/`.
   - `START_HERE.md`: minimal entry point and role boundary rules.
   - `LATEST_WORKER_PROMPT.md`: stable copy of the newest worker prompt.
+  - `.ai/project_memory/`: compact goal, architecture, completed work, risks, and latest evidence memory files.
   - `WORKER_NEXT_TASK.md`: current bounded worker task.
   - `REVIEWER_CONTINUE.md`: reviewer continuation protocol.
   - `TOKEN_SAVER_LOOP.md`: workflow notes.
   - `skills/reviewer.md`: reviewer skill reference.
   - `skills/worker.md`: worker skill reference.
-  - `tools/`: optional AI/advanced automation helpers for workflow bookkeeping, status prompts, evidence verdicts, compact review packs, and key-risk checks.
+  - `tools/`: optional AI/advanced automation helpers for workflow bookkeeping, status prompts, project memory, evidence verdicts, compact review packs, and key-risk checks.
 
 Generated during tasks:
 - `.ai/active_task/`: active worker/reviewer task state and logs; local-only, not intended for GitHub publishing.
