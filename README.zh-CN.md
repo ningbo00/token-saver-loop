@@ -110,7 +110,7 @@ Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README
 ```powershell
 # 初始化仓库梳理任务
 powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-init.ps1 -Task "Inspect this project and summarize the structure" -Tier T0
-# 使用任意兼容的 worker CLI 运行，或替换为 deepseek/glm/qwen/kimi 等命令
+# 使用任意兼容的 worker CLI 运行，或替换为 deepseek/glm/qwen 等命令
 powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -WorkerCommand deepseek
 # 只预览提示词，不创建真实轮次
 powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -NoRun

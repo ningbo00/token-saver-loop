@@ -110,7 +110,7 @@ GPT, Claude 등 주류 고가 범용 대형 모델을 사용하여 코드 반복
 ```powershell
 # 리포지토리 정리 태스크 초기화
 powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-init.ps1 -Task "Inspect this project and summarize the structure" -Tier T0
-# 호환되는 임의의 worker CLI로 실행. deepseek/glm/qwen/kimi 등으로 교체 가능
+# 호환되는 임의의 worker CLI로 실행. deepseek/glm/qwen 등으로 교체 가능
 powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -WorkerCommand deepseek
 # 실제 라운드를 만들지 않고 프롬프트만 미리보기
 powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -NoRun

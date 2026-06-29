@@ -8,7 +8,6 @@ Current structure:
   - `REPO_MAP.md`: compact repo map.
   - `PRODUCT_BRIEF.md`: product direction (portable Token Saver Loop).
   - `IMPLEMENTATION_OPTIONS.md`: technical options and trade-offs.
-  - `KIMI_TOKEN_USAGE_RESEARCH.md`: token usage availability research.
   - `RELEASE_1_0_CHECKLIST.md`: 1.0 release gates for the portable-only kit.
 - `TOKEN_SAVER_LOOP.md`: human-readable workflow notes.
 - `REVIEWER_CONTINUE.md`: stable fresh-thread bootstrap prompt and low-token continuation protocol.
