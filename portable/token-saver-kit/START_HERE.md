@@ -49,7 +49,7 @@ Worker model:
 
 Tools:
 
-- May be used for workflow bookkeeping such as task initialization, round prompt creation, review-pack printing, and verdict recording.
+- May be used for workflow bookkeeping such as round prompt creation, latest-round lookup, review summaries, red-flag checks, doctor checks, archive, and cleanup.
 - Must not be treated as an installer.
 - Must not be used to bypass the reviewer/worker role split.
 
@@ -62,10 +62,13 @@ Tools:
 | `TOKEN_SAVER_LOOP.md` | How the Token Saver Loop workflow works. |
 | `REVIEWER_CONTINUE.md` | Bootstrap for fresh reviewer threads. |
 | `WORKER_NEXT_TASK.md` | Current task for the worker to execute. |
-| `tools/tsl-init.ps1` | Initialize a new task. |
-| `tools/tsl-run.ps1` | Run a worker round. |
-| `tools/tsl-review-pack.ps1` | Print the latest round summary. |
-| `tools/tsl-verdict.ps1` | Record a reviewer verdict. |
+| `tools/tsl-new-round.ps1` | Create the next worker prompt. |
+| `tools/tsl-latest.ps1` | Print the latest round and prompt paths. |
+| `tools/tsl-review.ps1` | Print a compact latest-round review summary. |
+| `tools/tsl-redflags.ps1` | Check for common scope/evidence/generated-file problems. |
+| `tools/tsl-doctor.ps1` | Check kit health. |
+| `tools/tsl-archive.ps1` | Archive the active task. |
+| `tools/tsl-clean.ps1` | Clean preview/temp/cache artifacts. |
 | `skills/reviewer.md` | reviewer skill reference. |
 | `skills/worker.md` | worker skill reference. |
 

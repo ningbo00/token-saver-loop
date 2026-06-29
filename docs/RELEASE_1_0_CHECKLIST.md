@@ -19,7 +19,7 @@ The 1.0 release is portable-only:
 | 4 | Token usage parsing (`--parse-worker-usage-jsonl`) works and respects privacy boundary | OK | `TestCLITokenUsage` |
 | 5 | Metrics append/write works | OK | `TestCLIMetricsAppend` |
 | 6 | Metrics aggregation works | OK | `TestCLIMetricsAggregation` |
-| 7 | Worker command can be swapped with `-WorkerCommand` | OK | portable script preview check |
+| 7 | Worker handoff prompt can be generated without binding to a specific model CLI | OK | portable script preview check |
 
 ## Safety Gates
 

@@ -132,7 +132,7 @@ class TestCLIWorkflowKit(unittest.TestCase):
             kit = Path(tmpdir) / "token-saver-kit"
             (kit / "tools").mkdir(parents=True)
             (kit / "START_HERE.md").write_text("# start\n", encoding="utf-8")
-            (kit / "tools" / "tsl-run.ps1").write_text("param()\n", encoding="utf-8")
+            (kit / "tools" / "tsl-new-round.ps1").write_text("param()\n", encoding="utf-8")
             original_cwd = os.getcwd()
             os.chdir(tmpdir)
             try:

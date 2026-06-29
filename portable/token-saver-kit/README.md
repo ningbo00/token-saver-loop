@@ -1,50 +1,44 @@
 # Token Saver Loop Portable Kit
 
-A no-install, drop-in workflow kit for AI-assisted development.
+A no-install, drop-in workflow kit for reviewer/worker AI collaboration.
 
-## 60-Second Quickstart
+## Quickstart
 
-Follow this 60-second quickstart to get started:
+1. Copy `token-saver-kit/` into your project root.
+2. Send this to the reviewer model:
 
-1. **Copy** `token-saver-kit/` into your project root.
-2. **Initialize** a task:
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-init.ps1 -Task "Refactor auth module" -Tier T2
-   ```
-3. **Run** a worker round:
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1
-   ```
-4. **Review** the output, then ask the reviewer to review the round.
-5. **Record** a verdict:
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-verdict.ps1 -Verdict pass
+   ```text
+   Read token-saver-kit/START_HERE.md and act as reviewer only.
    ```
 
-That's it. No Python, no dependencies, no installation.
+3. Send this to the worker model after the reviewer prepares a round:
 
-Tip: `tsl-run.ps1 -NoRun` creates a `_validate` preview prompt only. Use it to check the prompt text, not as the real worker round. A real round uses a `round_NNN` directory.
+   ```text
+   Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
+   ```
 
-Choose any compatible worker CLI with
-`-WorkerCommand deepseek`, `-WorkerCommand glm`, `-WorkerCommand qwen`, or another
-compatible CLI when you want a different execution model.
+4. Send this back to the reviewer after the worker finishes:
 
-## What you get
+   ```text
+   Review the latest token-saver-kit/.ai/active_task/rounds/round_NNN evidence.
+   ```
 
-- **Tiered execution**: T3 free / T2 bounded / T1 precise / T0 inspect-only.
-- **Round tracking**: every round produces logs, reports, and diffs inside `token-saver-kit/.ai/`.
-- **Reviewer review**: structured verdicts with pass / same-tier-fix / downgrade / stop.
-- **Parent project focus**: the reviewer and worker work on the project that contains this kit, not the kit itself.
+## Optional AI Automation Tools
 
-## Requirements
+Ordinary users do not need to run these manually. Reviewer/worker agents may use
+them to reduce repeated bookkeeping and path mistakes.
 
-- PowerShell (Windows) or pwsh (macOS/Linux).
-- A compatible worker CLI is needed only if you want automatic worker execution. You can also copy the generated prompt and run it manually.
+| Tool | Purpose |
+|---|---|
+| `tools/tsl-new-round.ps1` | Create the next `round_NNN/worker_prompt.md`. |
+| `tools/tsl-latest.ps1` | Print latest round and prompt/report paths. |
+| `tools/tsl-review.ps1` | Print a compact latest-round review summary. |
+| `tools/tsl-redflags.ps1` | Check common scope, evidence, and generated-file problems. |
+| `tools/tsl-doctor.ps1` | Check kit health. |
+| `tools/tsl-archive.ps1` | Archive the active task. |
+| `tools/tsl-clean.ps1` | Clean `_validate`, temp clone, and cache artifacts. |
 
-## Learn more
+## Removal
 
-- `START_HERE.md` — overview and concepts.
-- `TOKEN_SAVER_LOOP.md` — full workflow documentation.
-- `REVIEWER_CONTINUE.md` — how to bootstrap a fresh reviewer thread.
-
-
+When you no longer need the workflow, delete the `token-saver-kit/` folder from
+your project root.

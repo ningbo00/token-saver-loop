@@ -204,7 +204,7 @@ class TestBuildDoctorReport(unittest.TestCase):
             (kit / "START_HERE.md").write_text("# start\n", encoding="utf-8")
             tools = kit / "tools"
             tools.mkdir()
-            (tools / "tsl-run.ps1").write_text("param()\n", encoding="utf-8")
+            (tools / "tsl-new-round.ps1").write_text("param()\n", encoding="utf-8")
 
             report = build_doctor_report(tmpdir)
             self.assertEqual(report["mode"], "portable")
@@ -219,7 +219,7 @@ class TestBuildDoctorReport(unittest.TestCase):
             (kit / "START_HERE.md").write_text("# start\n", encoding="utf-8")
             tools = kit / "tools"
             tools.mkdir()
-            (tools / "tsl-run.ps1").write_text("param()\n", encoding="utf-8")
+            (tools / "tsl-new-round.ps1").write_text("param()\n", encoding="utf-8")
             (kit / ".ai" / "active_task" / "state.md").write_text("# state\n", encoding="utf-8")
             (kit / ".ai" / "active_task" / "task.md").write_text("# task\n", encoding="utf-8")
             (preview / "worker_prompt.md").write_text("preview\n", encoding="utf-8")
@@ -239,7 +239,7 @@ class TestBuildDoctorReport(unittest.TestCase):
             (kit / "START_HERE.md").write_text("# start\n", encoding="utf-8")
             tools = kit / "tools"
             tools.mkdir()
-            (tools / "tsl-run.ps1").write_text("param()\n", encoding="utf-8")
+            (tools / "tsl-new-round.ps1").write_text("param()\n", encoding="utf-8")
             (kit / ".ai" / "active_task" / "state.md").write_text("# state\n", encoding="utf-8")
             (kit / ".ai" / "active_task" / "task.md").write_text("# task\n", encoding="utf-8")
 

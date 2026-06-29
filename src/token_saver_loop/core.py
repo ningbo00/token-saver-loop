@@ -134,7 +134,7 @@ def build_doctor_report(project_root: str | Path = ".") -> dict:
         mode = "portable"
         base = portable_kit
         active = base / ".ai" / "active_task"
-        run_script = base / "tools" / "tsl-run.ps1"
+        run_script = base / "tools" / "tsl-new-round.ps1"
     else:
         mode = "missing"
         base = None
@@ -168,7 +168,7 @@ def build_doctor_report(project_root: str | Path = ".") -> dict:
     add_check(
         "run_script",
         bool(run_script and run_script.exists()),
-        rel(run_script) or "Expected tsl-run.ps1.",
+        rel(run_script) or "Expected tsl-new-round.ps1.",
     )
     add_check(
         "active_task",
@@ -212,7 +212,7 @@ def build_doctor_report(project_root: str | Path = ".") -> dict:
     add_check(
         "latest_round_prompt",
         bool(latest_prompt and latest_prompt.exists()),
-        rel(latest_prompt) if latest_prompt else "Run tsl-run.ps1 without -NoRun to create one.",
+        rel(latest_prompt) if latest_prompt else "Run tsl-new-round.ps1 to create one.",
     )
     add_check(
         "latest_worker_report",
@@ -244,7 +244,7 @@ def build_doctor_report(project_root: str | Path = ".") -> dict:
         "checks": checks,
         "next_action": next_action,
         "notes": [
-            "Use -WorkerCommand on tsl-run.ps1 to run any compatible worker CLI.",
+            "Use tsl-new-round.ps1 to prepare a worker prompt, then give it to any compatible worker model.",
             "_validate is a preview prompt only; round_NNN is the real worker round.",
         ],
     }

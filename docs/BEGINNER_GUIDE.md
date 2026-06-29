@@ -83,24 +83,10 @@ token-saver-kit/WORKER_NEXT_TASK.md
 
 ## Step 3: Ask the worker model To Execute
 
-Recommended path: from the target project root, generate a real round prompt:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1
-```
-
-Then give the worker model the generated prompt from the latest `round_NNN/worker_prompt.md`.
-To use another worker CLI, pass it explicitly:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -WorkerCommand deepseek
-```
-
-Manual path: open the worker model in the same target project and say:
+Open the worker model in the same target project and say:
 
 ```text
-Read token-saver-kit/WORKER_NEXT_TASK.md and execute it against this project.
-Follow the limits exactly and write the required round report.
+Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
 ```
 
 For the first run, the worker should inspect and report. It should not edit source
@@ -111,8 +97,7 @@ code if the reviewer created a T0 task.
 When the worker finishes, go back to the reviewer and say:
 
 ```text
-The worker is done. Review the latest round evidence under
-token-saver-kit/.ai/active_task/rounds/.
+Review the latest token-saver-kit/.ai/active_task/rounds/round_NNN evidence.
 ```
 
 The reviewer should check the report, any diff, and any test output before deciding:
@@ -126,22 +111,24 @@ The reviewer should check the report, any diff, and any test output before decid
 
 ## Optional: Use The PowerShell Helpers
 
-If you are on Windows and comfortable with PowerShell, you can initialize a task
-from the target project root:
+If you are on Windows and comfortable with PowerShell, these optional helpers can
+reduce bookkeeping:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-init.ps1 -Task "Inspect this project and summarize the structure" -Tier T0
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-new-round.ps1 -Task "Inspect this project and summarize the structure" -Tier T0
 ```
 
-Generate a worker prompt without running the worker:
+Find the latest round path:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -NoRun
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-latest.ps1
 ```
 
-This creates a `_validate` preview prompt only. Use it to inspect the prompt text.
-For a real worker round, run the same script without `-NoRun` so it creates a
-`round_NNN` directory.
+Check common evidence and generated-file issues:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-redflags.ps1
+```
 
 ## What Files Matter?
 

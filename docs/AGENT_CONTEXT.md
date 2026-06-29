@@ -8,8 +8,8 @@ Status:
 - Package version is `1.0.0`; JSON schemas remain `version: 1`.
 - CLI supports project config preview, worker skill preview, setup doctor reports, worker token usage parsing, manual reviewer usage snapshots, metrics summarization, and metrics append/write.
 - There is no installer mode; the product path is copying `portable/token-saver-kit/`.
-- First-run portable workflow has been hardened: T0 init uses `worker_inspection`, workflow reports/progress are separated from parent-project file limits, and `-NoRun` is documented as `_validate` preview-only.
-- Reviewer plans/reviews; any compatible worker CLI/model executes bounded rounds via `-WorkerCommand`.
+- First-run portable workflow has been hardened: reviewer/worker prompts are short, detailed role rules live in kit skills, and tools are optional bookkeeping helpers.
+- Reviewer plans/reviews; any compatible worker model executes bounded rounds from `round_NNN/worker_prompt.md`.
 - GitHub packaging pass added root MIT LICENSE, a minimal example, and portable kit-local `.gitignore`; root `.ai/` and `.token-saver/` should stay local-only.
 
 Current Goal:

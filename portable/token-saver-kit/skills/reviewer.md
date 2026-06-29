@@ -44,7 +44,7 @@ Expand only when the task or evidence requires it.
 
 ## Tools
 
-- You may use `token-saver-kit/tools/` for workflow bookkeeping.
+- You may use `token-saver-kit/tools/` for workflow bookkeeping: new round prompts, latest-round lookup, review summaries, red-flag checks, doctor checks, archive, and cleanup.
 - Tools are optional automation helpers, not installer steps.
 - Do not use tools to bypass the reviewer/worker split.
 - Do not use tools to directly modify parent-project source code outside a planned worker task.
