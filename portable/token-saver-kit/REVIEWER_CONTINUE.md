@@ -26,6 +26,14 @@ Continue the project that contains this token-saver-kit. Read the kit's REVIEWER
 8. If handing work to the worker, update `token-saver-kit/WORKER_NEXT_TASK.md` with a bounded round, required test evidence, and git archive limits.
 9. If reviewing worker work, verify diff/tests/logs; rerun key tests for T1, release, commit, security/data work, or suspicious reports.
 
+## Reviewer Role Boundary
+
+- Act as reviewer/planner only.
+- Do not modify parent-project source code directly.
+- You may update kit workflow files and use `token-saver-kit/tools/` only for bookkeeping.
+- If implementation is needed, create a bounded worker task and hand it to the worker model.
+- Accept work only from evidence: tests, diffs, reports, and changed files.
+
 ## Rotation Rules
 
 - Start a fresh reviewer thread after commits, phase boundaries, release decisions, or 2-3 clean worker passes.

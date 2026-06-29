@@ -23,23 +23,19 @@ Token Saver Loop is portable-only. You do not run an installer.
 2. Send this fixed prompt to the reviewer model:
 
 ```text
-Read token-saver-kit/START_HERE.md and act only as the reviewer/planner.
-Do not modify parent-project source code.
-Create the next safe worker task and prepare the worker handoff files.
+Read token-saver-kit/START_HERE.md and act as reviewer only.
 ```
 
 3. Send this fixed prompt to the worker model:
 
 ```text
-Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute the task against this project.
-Do not commit. Stay inside the stated scope and write the required worker reports.
+Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
 ```
 
 4. After the worker finishes, send this fixed prompt back to the reviewer model:
 
 ```text
-The worker is done. Review the latest round evidence.
-Do not modify parent-project source code. Decide pass, fix, downgrade, or stop.
+Review the latest token-saver-kit/.ai/active_task/rounds/round_NNN evidence.
 ```
 
 ---
@@ -148,23 +144,19 @@ The framework is **completely model-agnostic, unbound, and has no deployment dep
 Reviewer start:
 
 ```text
-Read token-saver-kit/START_HERE.md and act only as the reviewer/planner.
-Do not modify parent-project source code.
-Create the next safe worker task and prepare the worker handoff files.
+Read token-saver-kit/START_HERE.md and act as reviewer only.
 ```
 
 Worker execution:
 
 ```text
-Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute the task against this project.
-Do not commit. Stay inside the stated scope and write the required worker reports.
+Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
 ```
 
 Reviewer review:
 
 ```text
-The worker is done. Review the latest round evidence.
-Do not modify parent-project source code. Decide pass, fix, downgrade, or stop.
+Review the latest token-saver-kit/.ai/active_task/rounds/round_NNN evidence.
 ```
 
 ---

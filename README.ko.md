@@ -23,23 +23,19 @@ Token Saver Loop는 portable-only 도구입니다. 설치 프로그램을 실행
 2. reviewer 모델에 이 고정 프롬프트를 보냅니다：
 
 ```text
-Read token-saver-kit/START_HERE.md and act only as the reviewer/planner.
-Do not modify parent-project source code.
-Create the next safe worker task and prepare the worker handoff files.
+Read token-saver-kit/START_HERE.md and act as reviewer only.
 ```
 
 3. worker 모델에 이 고정 프롬프트를 보냅니다：
 
 ```text
-Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute the task against this project.
-Do not commit. Stay inside the stated scope and write the required worker reports.
+Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
 ```
 
 4. worker 가 끝나면 이 고정 프롬프트를 reviewer 모델에 다시 보냅니다：
 
 ```text
-The worker is done. Review the latest round evidence.
-Do not modify parent-project source code. Decide pass, fix, downgrade, or stop.
+Review the latest token-saver-kit/.ai/active_task/rounds/round_NNN evidence.
 ```
 
 ---
@@ -148,23 +144,19 @@ GPT, Claude 등 주류 고가 범용 대형 모델을 사용하여 코드 반복
 reviewer 시작：
 
 ```text
-Read token-saver-kit/START_HERE.md and act only as the reviewer/planner.
-Do not modify parent-project source code.
-Create the next safe worker task and prepare the worker handoff files.
+Read token-saver-kit/START_HERE.md and act as reviewer only.
 ```
 
 worker 실행：
 
 ```text
-Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute the task against this project.
-Do not commit. Stay inside the stated scope and write the required worker reports.
+Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
 ```
 
 reviewer 검토：
 
 ```text
-The worker is done. Review the latest round evidence.
-Do not modify parent-project source code. Decide pass, fix, downgrade, or stop.
+Review the latest token-saver-kit/.ai/active_task/rounds/round_NNN evidence.
 ```
 
 ---

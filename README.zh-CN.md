@@ -23,23 +23,19 @@ Token Saver Loop 是 portable-only 工具，不需要运行安装器。
 2. 把这段固定话术发给 reviewer 模型：
 
 ```text
-Read token-saver-kit/START_HERE.md and act only as the reviewer/planner.
-Do not modify parent-project source code.
-Create the next safe worker task and prepare the worker handoff files.
+Read token-saver-kit/START_HERE.md and act as reviewer only.
 ```
 
 3. 把这段固定话术发给 worker 模型：
 
 ```text
-Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute the task against this project.
-Do not commit. Stay inside the stated scope and write the required worker reports.
+Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
 ```
 
 4. worker 完成后，把这段固定话术发回 reviewer 模型：
 
 ```text
-The worker is done. Review the latest round evidence.
-Do not modify parent-project source code. Decide pass, fix, downgrade, or stop.
+Review the latest token-saver-kit/.ai/active_task/rounds/round_NNN evidence.
 ```
 
 ---
@@ -148,23 +144,19 @@ Do not modify parent-project source code. Decide pass, fix, downgrade, or stop.
 reviewer 启动：
 
 ```text
-Read token-saver-kit/START_HERE.md and act only as the reviewer/planner.
-Do not modify parent-project source code.
-Create the next safe worker task and prepare the worker handoff files.
+Read token-saver-kit/START_HERE.md and act as reviewer only.
 ```
 
 worker 执行：
 
 ```text
-Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute the task against this project.
-Do not commit. Stay inside the stated scope and write the required worker reports.
+Read the latest token-saver-kit/.ai/active_task/rounds/round_NNN/worker_prompt.md and execute it.
 ```
 
 reviewer 审查：
 
 ```text
-The worker is done. Review the latest round evidence.
-Do not modify parent-project source code. Decide pass, fix, downgrade, or stop.
+Review the latest token-saver-kit/.ai/active_task/rounds/round_NNN evidence.
 ```
 
 ---

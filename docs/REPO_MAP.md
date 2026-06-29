@@ -1,7 +1,6 @@
 # REPO_MAP
 
 Current structure:
-- `tools/`: PowerShell scripts for the Token Saver Loop semi-automatic workflow.
 - `docs/`: Planning and context documents.
   - `AGENT_CONTEXT.md`: compact project handoff context.
   - `BEGINNER_GUIDE.md`: step-by-step beginner guide for the portable workflow.
@@ -9,8 +8,6 @@ Current structure:
   - `PRODUCT_BRIEF.md`: product direction (portable Token Saver Loop).
   - `IMPLEMENTATION_OPTIONS.md`: technical options and trade-offs.
   - `RELEASE_1_0_CHECKLIST.md`: 1.0 release gates for the portable-only kit.
-- `TOKEN_SAVER_LOOP.md`: human-readable workflow notes.
-- `REVIEWER_CONTINUE.md`: stable fresh-thread bootstrap prompt and low-token continuation protocol.
 - `README.md`: GitHub-first, portable-first landing page for the Token Saver Loop.
 - `README.zh-CN.md`, `README.ja.md`, `README.ko.md`: localized README files linked from the English README.
 - `LICENSE`: MIT license for GitHub license detection.
@@ -24,11 +21,18 @@ Current structure:
 - `tests/`: unit tests (stdlib unittest).
   - `test_core.py`: tests for templates, core functions, workflow-kit helpers, token usage helpers, and metrics aggregation helpers.
   - `test_cli.py`: tests for CLI behavior including workflow-kit, token usage, and metrics aggregation flags.
+- `portable/token-saver-kit/`: no-install drop-in kit; state lives under the kit-local `.ai/active_task/`.
+  - `START_HERE.md`: minimal entry point and role boundary rules.
+  - `WORKER_NEXT_TASK.md`: current bounded worker task.
+  - `REVIEWER_CONTINUE.md`: reviewer continuation protocol.
+  - `TOKEN_SAVER_LOOP.md`: workflow notes.
+  - `skills/reviewer.md`: reviewer skill reference.
+  - `skills/worker.md`: worker skill reference.
+  - `tools/`: optional AI/advanced automation helpers for workflow bookkeeping.
 
 Generated during tasks:
 - `.ai/active_task/`: active worker/reviewer task state and logs; local-only, not intended for GitHub publishing.
   - `progress.md`: user-facing rough progress board updated after each worker round; navigation only, not a verification source.
-- `portable/token-saver-kit/`: no-install drop-in kit; state lives under the kit-local `.ai/active_task/`.
 
 
 
