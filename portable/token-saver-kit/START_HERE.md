@@ -49,7 +49,7 @@ Worker model:
 
 Tools:
 
-- May be used for workflow bookkeeping such as round prompt creation, latest-round lookup, review summaries, red-flag checks, doctor checks, archive, and cleanup.
+- May be used for workflow bookkeeping such as round prompt creation, latest-round lookup, review summaries, red-flag checks, doctor checks, and archive.
 - Must not be treated as an installer.
 - Must not be used to bypass the reviewer/worker role split.
 
@@ -68,7 +68,6 @@ Tools:
 | `tools/tsl-redflags.ps1` | Check for common scope/evidence/generated-file problems. |
 | `tools/tsl-doctor.ps1` | Check kit health. |
 | `tools/tsl-archive.ps1` | Archive the active task. |
-| `tools/tsl-clean.ps1` | Clean preview/temp/cache artifacts. |
 | `skills/reviewer.md` | reviewer skill reference. |
 | `skills/worker.md` | worker skill reference. |
 

@@ -24,7 +24,6 @@ not installers and are not required for manual use.
 | `tsl-redflags.ps1` | Detect common evidence/scope/generated-file issues. |
 | `tsl-doctor.ps1` | Check kit health. |
 | `tsl-archive.ps1` | Archive the active task when a phase is done. |
-| `tsl-clean.ps1` | Remove preview/temp/cache artifacts. |
 
 ## Review Loop
 

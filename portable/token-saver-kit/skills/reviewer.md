@@ -51,7 +51,6 @@ Expand only when the task or evidence requires it.
   - `tsl-redflags.ps1`: check common scope/evidence/generated-file issues.
   - `tsl-doctor.ps1`: check kit health.
   - `tsl-archive.ps1`: archive the active task after a phase is done.
-  - `tsl-clean.ps1`: clean preview/temp/cache artifacts.
 - Tools are optional automation helpers, not installer steps.
 - Do not use tools to bypass the reviewer/worker split.
 - Do not use tools to directly modify parent-project source code outside a planned worker task.

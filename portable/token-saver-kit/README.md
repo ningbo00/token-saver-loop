@@ -36,7 +36,6 @@ them to reduce repeated bookkeeping and path mistakes.
 | `tools/tsl-redflags.ps1` | Check common scope, evidence, and generated-file problems. |
 | `tools/tsl-doctor.ps1` | Check kit health. |
 | `tools/tsl-archive.ps1` | Archive the active task. |
-| `tools/tsl-clean.ps1` | Clean `_validate`, temp clone, and cache artifacts. |
 
 ## Removal
 

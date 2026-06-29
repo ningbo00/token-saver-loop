@@ -23,7 +23,6 @@ Add-Check 'review_tool' (Join-Path $PSScriptRoot 'tsl-review.ps1')
 Add-Check 'redflags_tool' (Join-Path $PSScriptRoot 'tsl-redflags.ps1')
 Add-Check 'doctor_tool' (Join-Path $PSScriptRoot 'tsl-doctor.ps1')
 Add-Check 'archive_tool' (Join-Path $PSScriptRoot 'tsl-archive.ps1')
-Add-Check 'clean_tool' (Join-Path $PSScriptRoot 'tsl-clean.ps1')
 
 $redflagsJson = & (Join-Path $PSScriptRoot 'tsl-redflags.ps1') -Json
 $redflags = $redflagsJson | ConvertFrom-Json

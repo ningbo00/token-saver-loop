@@ -24,8 +24,7 @@ $allowedTools = @(
   'tsl-review.ps1',
   'tsl-redflags.ps1',
   'tsl-doctor.ps1',
-  'tsl-archive.ps1',
-  'tsl-clean.ps1'
+  'tsl-archive.ps1'
 )
 Get-ChildItem -Path $PSScriptRoot -File -Filter '*.ps1' | ForEach-Object {
   if ($allowedTools -notcontains $_.Name) {
