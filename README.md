@@ -18,6 +18,8 @@ Token Saver Loop is portable-only. You do not run an installer.
    git clone --depth 1 https://github.com/ningbo00/token-saver-loop.git .token-saver-loop && xcopy ".token-saver-loop\portable\token-saver-kit" "token-saver-kit" /E /I
    ```
 
+   Removal later: when the project is done, or when you no longer need the workflow, delete the `token-saver-kit` folder from your project root.
+
 2. Send this fixed prompt to the reviewer model:
 
 ```text

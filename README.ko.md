@@ -18,6 +18,8 @@ Token Saver Loop는 portable-only 도구입니다. 설치 프로그램을 실행
    git clone --depth 1 https://github.com/ningbo00/token-saver-loop.git .token-saver-loop && xcopy ".token-saver-loop\portable\token-saver-kit" "token-saver-kit" /E /I
    ```
 
+   나중에 제거하는 방법：프로젝트가 끝났거나 이 workflow 가 더 이상 필요 없으면, 프로젝트 루트의 `token-saver-kit` 폴더만 삭제하면 됩니다.
+
 2. reviewer 모델에 이 고정 프롬프트를 보냅니다：
 
 ```text

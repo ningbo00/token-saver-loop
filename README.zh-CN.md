@@ -18,6 +18,8 @@ Token Saver Loop 是 portable-only 工具，不需要运行安装器。
    git clone --depth 1 https://github.com/ningbo00/token-saver-loop.git .token-saver-loop && xcopy ".token-saver-loop\portable\token-saver-kit" "token-saver-kit" /E /I
    ```
 
+   后续移除方式：项目做完后，或者你不再需要这个工作流时，直接删除项目根目录里的 `token-saver-kit` 文件夹即可。
+
 2. 把这段固定话术发给 reviewer 模型：
 
 ```text
