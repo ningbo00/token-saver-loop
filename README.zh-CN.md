@@ -97,11 +97,11 @@ Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README
 
 ### 极简4步上手（人话+复制指令二合一，无需来回切换）
 
-1. **步骤1（本地准备）**：将仓库内 `portable/kimi-codex-kit` 文件夹，复制粘贴到你自己的项目根目录
+1. **步骤1（本地准备）**：将仓库内 `portable/token-saver-kit` 文件夹，复制粘贴到你自己的项目根目录
 
-2. **步骤2（审查模型下发任务）**：打开高阶推理大模型，直接复制发送：`Read kimi-codex-kit/START_HERE.md and create a safe first worker task.`
+2. **步骤2（审查模型下发任务）**：打开高阶推理大模型，直接复制发送：`Read token-saver-kit/START_HERE.md and create a safe first worker task.`
 
-3. **步骤3（执行模型干活）**：打开低成本大模型，直接复制发送：`Read kimi-codex-kit/KIMI_NEXT_TASK.md and execute it against this project.`
+3. **步骤3（执行模型干活）**：优先运行 `powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1` 生成真实 `round_NNN` 提示词。手动使用时，打开低成本大模型，直接复制发送：`Read token-saver-kit/WORKER_NEXT_TASK.md and execute it against this project.`
 
 4. **步骤4（审查模型验收）**：切回高阶推理大模型，直接复制发送：`The worker is done. Review the latest round evidence.`
 
@@ -109,9 +109,19 @@ Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README
 
 ```powershell
 # 初始化仓库梳理任务
-powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-init.ps1 -Task "Inspect this project and summarize the structure" -Tier T0
-# 生成执行指令不直接运行
-powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-run.ps1 -NoRun
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-init.ps1 -Task "Inspect this project and summarize the structure" -Tier T0
+# 使用任意兼容的 worker CLI 运行，或替换为 deepseek/glm/qwen/kimi 等命令
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -WorkerCommand deepseek
+# 只预览提示词，不创建真实轮次
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -NoRun
+```
+
+`-NoRun` 只写入 `_validate` 预览提示词。正式执行时去掉 `-NoRun`，生成真实 `round_NNN` 轮次。
+
+在任意项目根目录进行健康检查：
+
+```bash
+token-saver-loop --doctor
 ```
 
 ---
@@ -123,8 +133,8 @@ powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-run.ps1 -N
 |文件路径|核心用途|
 |---|---|
 |`START_HERE.md`|双模型统一入口，定义基础使用约束|
-|`KIMI_NEXT_TASK.md`|当前轮次下发给执行模型的具体任务|
-|`CODEX_CONTINUE.md`|新建审查会话时的上下文引导文件|
+|`WORKER_NEXT_TASK.md`|当前轮次下发给执行模型的具体任务|
+|`REVIEWER_CONTINUE.md`|新建审查会话时的上下文引导文件|
 |`.ai/active_task/`|本地存储轮次日志、改动diff、裁决结果|
 |`tools/`|任务初始化、批量审查辅助脚本|
 
@@ -190,7 +200,7 @@ flowchart TD
 
 3. **结果导向核验**：只校验代码diff、测试日志，不采信模型口头汇报，规避话术造假
 
-4. **安装防覆盖**：CLI安装需人工确认，自带文件冲突检测，保护原有业务代码
+4. **便携删除**：运行状态保存在 `token-saver-kit/` 内部，移除循环只需要删除这个文件夹。
 
 ---
 
@@ -200,20 +210,20 @@ flowchart TD
 
 查看 `examples/minimal-task.md`，提供零代码改动的T0仓库巡检任务，适合首次测试验证流程
 
-### 10.2 Python CLI安装（批量运维场景）
+### 10.2 Python CLI辅助工具
 
 ```bash
-pip install -e .
-token-saver-loop --install --yes --project-name MyApp --test-command "pytest"
+token-saver-loop --doctor
+token-saver-loop --project-name MyApp --show-config
 ```
 
-适用场景：多仓库批量初始化套件，个人日常使用优先便携文件夹
+Python CLI 是可选辅助工具，不会把文件安装进你的项目。主要用于诊断、指标和配置预览。
 
 ---
 
 ## 十一、新手高频FAQ
 
-- **Q：必须用Kimi+特定模型吗？** A：完全不需要。套件只是默认举例，任意「低价执行模型+高价审查模型」都能替换，不用改动套件内部文件
+- **Q：必须用某个特定 worker + reviewer 模型组合吗？** A：完全不需要。套件只是默认举例，任意「低价执行模型+高价审查模型」都能替换，不用改动套件内部文件
 
 - **Q：会不会污染原有项目文件？** A：所有运行数据存在套件内部\.ai目录，默认仅读取源码，不主动写入项目业务文件
 

@@ -97,11 +97,11 @@ GPT, Claude 등 주류 고가 범용 대형 모델을 사용하여 코드 반복
 
 ### 최소 4단계 시작（인간어＋복사 지시문 이합일, 왕복 전환 불필요）
 
-1. **단계1（로컬 준비）**：리포지토리 내 `portable/kimi-codex-kit` 폴더를 자신의 프로젝트 루트 디렉터리에 복사하여 붙여넣기
+1. **단계1（로컬 준비）**：리포지토리 내 `portable/token-saver-kit` 폴더를 자신의 프로젝트 루트 디렉터리에 복사하여 붙여넣기
 
-2. **단계2（심사 모델이 태스크 배포）**：고급 추론 대형 모델을 열고, 직접 복사하여 전송：`Read kimi-codex-kit/START_HERE.md and create a safe first worker task.`
+2. **단계2（심사 모델이 태스크 배포）**：고급 추론 모델을 열고, 직접 복사하여 전송：`Read token-saver-kit/START_HERE.md and create a safe first worker task.`
 
-3. **단계3（실행 모델이 작업）**：저비용 대형 모델을 열고, 직접 복사하여 전송：`Read kimi-codex-kit/KIMI_NEXT_TASK.md and execute it against this project.`
+3. **단계3（실행 모델이 작업）**：먼저 `powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1` 를 실행해 실제 `round_NNN` 프롬프트를 생성합니다. 수동으로 사용할 때는 저비용 모델을 열고 직접 복사하여 전송：`Read token-saver-kit/WORKER_NEXT_TASK.md and execute it against this project.`
 
 4. **단계4（심사 모델이 검수）**：고급 추론 대형 모델로 돌아와, 직접 복사하여 전송：`The worker is done. Review the latest round evidence.`
 
@@ -109,9 +109,19 @@ GPT, Claude 등 주류 고가 범용 대형 모델을 사용하여 코드 반복
 
 ```powershell
 # 리포지토리 정리 태스크 초기화
-powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-init.ps1 -Task "Inspect this project and summarize the structure" -Tier T0
-# 실행 지시문 생성 후 직접 실행하지 않음
-powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-run.ps1 -NoRun
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-init.ps1 -Task "Inspect this project and summarize the structure" -Tier T0
+# 호환되는 임의의 worker CLI로 실행. deepseek/glm/qwen/kimi 등으로 교체 가능
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -WorkerCommand deepseek
+# 실제 라운드를 만들지 않고 프롬프트만 미리보기
+powershell -ExecutionPolicy Bypass -File token-saver-kit/tools/tsl-run.ps1 -NoRun
+```
+
+`-NoRun` 은 `_validate` 미리보기 프롬프트만 작성합니다. 실제 worker 라운드에서는 `-NoRun` 을 제거하세요.
+
+임의의 프로젝트 루트에서 상태 확인:
+
+```bash
+token-saver-loop --doctor
 ```
 
 ---
@@ -123,8 +133,8 @@ powershell -ExecutionPolicy Bypass -File kimi-codex-kit/tools/ai-kimi-run.ps1 -N
 | 파일 경로 | 핵심 용도 |
 |---|---|
 | `START_HERE.md` | 이중 모델 통일 진입점, 기본 사용 제약 정의 |
-| `KIMI_NEXT_TASK.md` | 현재 라운드에서 실행 모델에 배포하는 구체적 태스크 |
-| `CODEX_CONTINUE.md` | 신규 심사 세션 시의 컨텍스트 가이드 파일 |
+| `WORKER_NEXT_TASK.md` | 현재 라운드에서 실행 모델에 배포하는 구체적 태스크 |
+| `REVIEWER_CONTINUE.md` | 신규 심사 세션 시의 컨텍스트 가이드 파일 |
 | `.ai/active_task/` | 로컬 저장 라운드 로그, 변경 diff, 판결 결과 |
 | `tools/` | 태스크 초기화, 일괄 심사 보조 스크립트 |
 
@@ -190,7 +200,7 @@ flowchart TD
 
 3. **결과 지향 검증**：코드 diff와 테스트 로그만을 검증하고, 모델의 구두 보고는 채택하지 않아, 말빨 조작을 회피합니다.
 
-4. **설치 시 덮어쓰기 방지**：CLI 설치에는 인간의 확인이 필요하며, 자체 파일 충돌 감지를 탑재하여 기존 업무 코드를 보호합니다.
+4. **휴대용 삭제**：실행 상태는 `token-saver-kit/` 내부에 저장되므로, 루프를 제거하려면 이 폴더만 삭제하면 됩니다.
 
 ---
 
@@ -200,20 +210,20 @@ flowchart TD
 
 `examples/minimal-task.md`를 참조. 코드 변경 제로의 T0 리포지토리 순찰 태스크를 제공하며, 첫 번째 프로세스 검증에 적합함.
 
-### 10.2 Python CLI 설치（일괄 운용 시나리오）
+### 10.2 Python CLI 보조 도구
 
 ```bash
-pip install -e .
-token-saver-loop --install --yes --project-name MyApp --test-command "pytest"
+token-saver-loop --doctor
+token-saver-loop --project-name MyApp --show-config
 ```
 
-적용 시나리오：다수 리포지토리에서 킷을 일괄 초기화. 개인 일상 사용에서는 휴대용 폴더를 우선시함.
+Python CLI는 선택적 보조 도구입니다. 프로젝트에 파일을 설치하지 않으며, 진단, 메트릭, 설정 미리보기에 사용합니다.
 
 ---
 
 ## 十一、신규 사용자 고빈도 FAQ
 
-- **Q：Kimi＋특정 모델을 반드시 사용해야 하나요？** A：전혀 필요하지 않습니다. 킷은 단지 기본 예시일 뿐입니다. 임의의 「저가 실행 모델＋고가 심사 모델」 조합으로 교체 가능하며, 킷 내부 파일을 변경할 필요가 없습니다.
+- **Q：특정 worker + reviewer 모델 조합을 반드시 사용해야 하나요？** A：전혀 필요하지 않습니다. 킷은 단지 예시일 뿐입니다. 임의의 「저가 실행 모델＋고가 심사 모델」 조합으로 교체 가능하며, 킷 내부 파일을 변경할 필요가 없습니다.
 
 - **Q：기존 프로젝트 파일이 오염되나요？** A：모든 실행 데이터는 킷 내부의\.ai 디렉터리에 저장되며, 기본적으로 소스코드만 읽고, 프로젝트 업무 파일에는 능동적으로 쓰지 않습니다.
 
