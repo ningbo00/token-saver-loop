@@ -1,96 +1,96 @@
 # Token Saver Loop
 
-**Portable workflow kit for coding agents: let strong reviewer models judge, while lower-cost worker models execute bounded tasks and collect evidence.**
+**面向 AI 编程 Agent 的便携式工作流套件：让强 reviewer 模型负责判断，让低成本 worker 模型执行有边界的任务并提交证据。**
 
-Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
+Languages: [中文](README.md) | [English](README.en.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)
 ![Version](https://img.shields.io/badge/version-1.0.8-blue.svg)
 ![Workflow](https://img.shields.io/badge/workflow-portable%20kit-purple.svg)
 
-Token Saver Loop helps you reduce premium model context waste without trusting a cheap model to approve its own work.
+Token Saver Loop 用来减少高价模型的上下文浪费，但不把最终验收权交给低成本模型。
 
-![Token Saver Loop animated demo](docs/assets/token-saver-loop-demo.gif)
+![Token Saver Loop 动图演示](docs/assets/token-saver-loop-demo.gif)
 
-- **Use it when** you already use Codex, Claude, Kimi, Cursor-style agents, or other coding assistants and want cleaner handoffs.
-- **Core idea**: reviewer plans and accepts; worker edits, tests, and writes compact evidence.
-- **No install path**: copy `portable/token-saver-kit/` into any repo, then paste fixed prompts into your reviewer and worker models.
-- **Best fit**: repo exploration, repeated debug loops, bulk edits, docs/i18n drafts, and tasks where the reviewer can inspect concise evidence instead of full execution chatter.
+- **适合你，如果** 你正在使用 Codex、Claude Code、Cursor 类 Agent、DeepSeek、Kimi、GLM、Qwen 或其他能读文件并遵守 handoff 的模型/CLI。
+- **核心思路**：reviewer 规划和验收；worker 修改、测试、提交紧凑证据。
+- **无需安装**：把 `portable/token-saver-kit/` 复制进任意项目，然后把固定 prompt 分别发给 reviewer 和 worker。
+- **最适合场景**：仓库探索、循环 debug、批量修改、文档/i18n 草稿、以及 reviewer 只需要检查证据包而不需要阅读完整执行过程的任务。
 
 ---
 
-## Try It In 5 Minutes
+## 5 分钟试用
 
 ```text
-Reviewer plans -> Worker executes -> Worker writes evidence -> Reviewer decides pass/fix/stop
+Reviewer 规划 -> Worker 执行 -> Worker 写证据 -> Reviewer 决定 pass/fix/stop -> 下一轮 worker
 ```
 
-1. Copy `portable/token-saver-kit/` into a target project.
-2. Tell the reviewer model:
+1. 把 `portable/token-saver-kit/` 复制进目标项目。
+2. 对 reviewer 模型说：
 
 ```text
 Read token-saver-kit/START_HERE.md and act as reviewer only.
 ```
 
-3. Tell the worker model:
+3. 对 worker 模型说：
 
 ```text
 Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 ```
 
-4. Send the result back to the reviewer:
+4. worker 完成后，把结果交回 reviewer：
 
 ```text
 Review the latest worker evidence in token-saver-kit and decide the next step.
 ```
 
-For a safe first run, use [examples/minimal-task.md](examples/minimal-task.md). For a step-by-step walkthrough, read [docs/BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md).
+第一次安全试跑可以看 [examples/minimal-task.md](examples/minimal-task.md)。完整新手路径看 [docs/BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md)。
 
-More examples:
+更多案例：
 
-- [Codex worker round](examples/codex-worker-round.md): bounded code edit with command evidence.
-- [Bugfix loop](examples/bugfix-loop.md): one focused fix attempt with reviewer escalation.
-- [Docs and i18n loop](examples/docs-i18n-loop.md): repetitive drafting with compact review.
+- [Codex worker round](examples/codex-worker-round.md)：有边界的代码修改和命令证据。
+- [Bugfix loop](examples/bugfix-loop.md)：一次聚焦修复尝试和 reviewer 升级决策。
+- [Docs and i18n loop](examples/docs-i18n-loop.md)：重复文档/本地化草稿，reviewer 只检查一致性和风险。
 
 ---
 
-## Quick Start (Portable, No Install)
+## 快速开始（Portable，无需安装）
 
-Token Saver Loop is portable-only. You do not run an installer.
+Token Saver Loop 是 portable-only 工具，不需要运行安装器。
 
-1. Copy `portable/token-saver-kit` from this repo into your own project root.
+1. 把本仓库的 `portable/token-saver-kit` 复制到你的项目根目录。
 
-   Or run this from your own project root in CMD.
+   或者在你的项目根目录打开 CMD，直接复制运行。
 
-   Latest `master` version:
+   最新 `master` 版本：
 
    ```cmd
    rmdir /S /Q "%TEMP%\token-saver-loop-kit" 2>NUL & git clone --depth 1 https://github.com/ningbo00/token-saver-loop.git "%TEMP%\token-saver-loop-kit" && xcopy "%TEMP%\token-saver-loop-kit\portable\token-saver-kit" "token-saver-kit" /E /I /Y && rmdir /S /Q "%TEMP%\token-saver-loop-kit"
    ```
 
-   Fixed `v1.08` version:
+   固定 `v1.08` 版本：
 
    ```cmd
    rmdir /S /Q "%TEMP%\token-saver-loop-kit" 2>NUL & git clone --depth 1 --branch v1.08 https://github.com/ningbo00/token-saver-loop.git "%TEMP%\token-saver-loop-kit" && xcopy "%TEMP%\token-saver-loop-kit\portable\token-saver-kit" "token-saver-kit" /E /I /Y && rmdir /S /Q "%TEMP%\token-saver-loop-kit"
    ```
 
-   Use latest for testing new improvements. Use a tagged version for repeatable project setup.
+   想体验最新改进，用最新版命令；想保证项目可复现，使用固定版本命令。
 
-   Removal later: when the project is done, or when you no longer need the workflow, delete the `token-saver-kit` folder from your project root.
+   后续移除方式：项目做完后，或者你不再需要这个工作流时，直接删除项目根目录里的 `token-saver-kit` 文件夹即可。
 
-2. Send this fixed prompt to the reviewer model:
+2. 把这段固定话术发给 reviewer 模型：
 
 ```text
 Read token-saver-kit/START_HERE.md and act as reviewer only.
 ```
 
-3. Send this fixed prompt to the worker model:
+3. 把这段固定话术发给 worker 模型：
 
 ```text
 Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 ```
 
-4. After the worker finishes, send this fixed prompt back to the reviewer model:
+4. worker 完成后，把这段固定话术发回 reviewer 模型：
 
 ```text
 Review the latest worker evidence in token-saver-kit and decide the next step.
@@ -98,136 +98,136 @@ Review the latest worker evidence in token-saver-kit and decide the next step.
 
 ---
 
-## Feature Overview
+## 功能简介
 
-Token Saver Loop is a portable AI workflow kit for splitting expensive reviewer work from lower-cost execution work.
+Token Saver Loop 是一个 portable-only 的 AI 协作工作流套件，用来把高价 reviewer 工作和低成本执行工作分开。
 
-Current capabilities:
+当前能力：
 
-- **Copy and remove cleanly**: copy `token-saver-kit/` into a project root, delete it when done.
-- **Reviewer / worker split**: reviewer plans and accepts; worker edits, tests, and reports evidence.
-- **Stable short prompts**: worker reads `LATEST_WORKER_PROMPT.md`; users do not need to find round paths.
-- **Evidence verdicts**: tools output `PASS`, `FIX_SAME_TIER`, `DOWNGRADE`, or `STOP` without replacing reviewer acceptance.
-- **Structured project memory**: `.ai/project_memory/` stores current goal, architecture notes, accepted work, risks, and latest evidence.
-- **Low-friction checks**: detects missing reports, failed validation, scope overrun, generated-file pollution, and dangerous git commands.
-- **Model-agnostic**: works with any reviewer/worker model or CLI that can read files and follow the handoff.
-
----
-
-## I. Core User Pain Points
-
-When using mainstream premium general-purpose models for code iteration, repo exploration, and documentation drafting, you almost always run into three seemingly unsolvable problems:
-
-1. **Runaway Bills**: Over 70% of premium token spend goes to low-value manual work like file retrieval, repeated debugging, and progress reporting, while decision-making accounts for only a tiny fraction of the cost.
-
-2. **Task Drift**: A single model working alone tends to deviate from the original requirements as the conversation context grows longer, leading to excessive code changes.
-
-3. **Knowledge Loss**: Session memory is temporary and fragile. Project review standards and lessons learned cannot be reused across sessions, so you have to re-explain everything every time.
+- **复制即用、删除即走**：把 `token-saver-kit/` 放进项目根目录，用完直接删除。
+- **reviewer / worker 分工**：reviewer 负责规划和验收，worker 负责修改、测试和报告证据。
+- **固定短话术**：worker 读取 `LATEST_WORKER_PROMPT.md`，用户不需要手动找 round 路径。
+- **证据裁决**：工具输出 `PASS`、`FIX_SAME_TIER`、`DOWNGRADE`、`STOP`，但不替代 reviewer 最终验收。
+- **结构化项目记忆**：`.ai/project_memory/` 保存当前目标、架构笔记、已验收事项、风险和最新证据。
+- **低摩擦检查**：检查缺失报告、验证失败、超范围、生成文件污染、危险 git 命令等关键问题。
+- **模型无关**：任何能读文件并遵守 handoff 的 reviewer/worker 模型或 CLI 都可以使用。
 
 ---
 
-## II. Core Benefit (Single Primary Benefit: Reduce Premium Model Token Consumption)
+## 一、用户核心痛点
 
-The core underlying logic: **We are not reducing AI workload; we are preventing the most expensive model from doing manual labor, forcibly driving down the premium token bill.**
+使用主流高价通用大模型做代码迭代、仓库梳理、文档编撰时，几乎都会遇到三类无解问题：
 
-All other capabilities are incidental gains and do not define the project's core positioning.
+1. **账单失控**：70%以上高价Token消耗在文件检索、反复调试、进度汇报等低价值体力环节，决策只占极少开销
 
-| Core Benefit | Practical Effect |
+2. **任务发散**：单模型自给自足，对话上下文越长，越容易偏离原始需求、过度修改代码
+
+3. **经验流失**：会话记忆临时且脆弱，项目审查标准、踩坑记录无法跨会话复用，每次使用都要重复交底
+
+---
+
+## 二、核心收益（唯一主收益：降低高价模型Token消耗）
+
+核心底层逻辑：**不是减少AI工作量，而是不让最贵的模型做体力活，硬性压低高价Token账单**
+
+所有其他能力均为附带增益，不属于项目核心定位
+
+|核心收益|落地效果|
 |---|---|
-| **Dramatic Premium Token Cost Reduction** | Shift 90% of the expensive model's wasted token consumption to a low-cost model, directly lowering the **premium bill by 75%** for routine AI development tasks. |
+|**高价Token大幅降本**|把高价模型90%的无效Token消耗转移给低价模型，常规AI开发任务直接降低**75%高价账单**|
 
 ---
 
-## III. Real Cost-Saving Data Estimates
+## 三、真实降本数据测算
 
-### 3.1 Same-Task Cost Comparison
+### 3.1 同任务开销对比
 
-Taking a routine code optimization task as an example: originally, a single premium model consumed 8,000 tokens for the full workflow. After adopting the loop, the cost comparison is as follows:
+以常规代码优化任务为例，原单高价模型全流程消耗8000Token，改造后开销对比如下：
 
-| Work Item | Traditional Single Model (Premium Tokens) | Token Saver Loop (Premium Tokens) |
+|工作内容|传统单模型（高价Token）|Token Saver Loop（高价Token）|
 |---|---|---|
-| Task planning, risk assessment, final acceptance | 2,000 | 2,000 |
-| Repo retrieval, batch source-code reading | 2,400 | 0 (handled by low-cost execution model) |
-| Code edits, bug retries, passing tests | 2,800 | 0 (handled by low-cost execution model) |
-| Process logs, progress reports | 800 | 0 (handled by local file system) |
-| **Total Premium Tokens** | **8,000** | **2,000 (75% reduction)** |
+|任务规划、风险判定、最终验收|2000|2000|
+|仓库检索、批量读取源码|2400|0（低成本执行模型承接）|
+|代码修改、bug重试、测试跑通|2800|0（低成本执行模型承接）|
+|过程日志、进度汇报|800|0（本地文件系统承接）|
+|**高价Token总计**|**8000**|**2000（降幅75%）**|
 
-Benefit Boundary: The larger the execution workload and the more the reviewer inspects only core results, the more obvious the savings. One-off extremely short tasks yield almost no benefit.
+收益边界：执行工作量越大、审查只抽查核心结果，降本越明显；一次性极简短任务几乎无收益
 
-### 3.2 High-Fit Task List (Priority Use)
+### 3.2 高适配任务清单（优先使用）
 
-| Task Scenario | Cost-Saving Principle |
+|任务场景|降本原理|
 |---|---|
-| Large repo source exploration, dependency mapping | Low-cost model traverses hundreds of files; premium model only reviews the final summary. |
-| Global batch renaming, comment standardization | Low-cost model applies fixed patterns in bulk; premium model spot-checks diff risks. |
-| API integration, iterative debug loops | Low-cost model absorbs repeated retries; premium model only reviews the final error. |
-| Multilingual document drafts, long-document authoring | Low-cost model fills in content; premium model verifies structure and terminology. |
+|大型仓库源码探索、依赖梳理|低价模型遍历百级文件，高价模型仅查看最终梳理结论|
+|全局批量命名、注释统一|低价模型批量执行固定模式，高价模型抽查diff风险|
+|接口联调、循环debug|低价模型承接反复重试，高价模型只复盘最终报错|
+|多语言文档初稿、长文档编撰|低价模型填充内容，高价模型校验结构、专业术语|
 
 ---
 
-## IV. Fit / Not-Fit Scenarios (Quick Self-Check)
+## 四、适配/不适配场景（快速自我判断）
 
-### ✅ Good Fit
+### ✅ 适合使用
 
-- You need to separate execution and review into two models to prevent AI from breaking code.
+- 需要分离执行、审查双模型，规避AI改错代码
 
-- You maintain multiple code repositories and want a unified AI development standard.
+- 同时维护多个代码仓库，想要统一AI开发规范
 
-- You are tired of endlessly long chat contexts and want task records preserved permanently in local files.
+- 厌倦超长聊天上下文，希望用本地文件永久留存任务记录
 
-- You need to strictly limit the number of files AI can modify and prevent unauthorized changes to core configurations.
+- 需要严格限制AI修改文件数量、禁止越权改动核心配置
 
-### ❌ Not Needed
+### ❌ 无需使用
 
-- One-off short Q&A or single-file tiny changes that can be completed in one conversation turn.
+- 一次性简短问答、单文件微小修改，一轮对话即可完成
 
-- You have no need for cost reduction, risk control, or knowledge reuse.
-
----
-
-## V. Minimal Three-Party Role Division
-
-The framework is **completely model-agnostic, unbound, and has no deployment dependencies**. In plain terms, we only need two categories of large models, without tying to specific products:
-1. Low-cost general-purpose model or CLI (execution side).
-2. High-tier reasoning model (review side).
-
-- **Execution Model (Worker)**: Pure manual labor. File retrieval, code editing, test execution, error retry, log/diff output. Has no final decision-making authority.
-
-- **Review Model (Reviewer)**: Pure decision-making and control. Breaks tasks into fine-grained pieces, defines operation boundaries, checks modification results, and delivers the final verdict.
-
-- **Local File System**: Durable memory carrier. Stores task work orders, modification diffs, review logs, and project rules, replacing fragile chat context.
+- 无降本、风险管控、经验复用需求
 
 ---
 
-## VI. 60-Second Zero-Barrier Onboarding (Plain Explanation: How Ordinary People Use It)
+## 五、三方角色极简分工
 
-**One-sentence usage principle**: No software installation, no coding, no key configuration. Just copy one folder from the project, open two AI web pages, paste one fixed phrase into each, and the whole loop is ready. Everything flows through local files; existing code is not touched.
+框架**完全模型无关、无绑定、无部署依赖**。通俗角色划分：我们只需要两类大模型，无需绑定特定产品：
+1\. 低成本通用模型或 CLI（执行端）
+2\. 高阶推理模型（审查端）
 
-### Minimal 4-Step Onboarding (Plain language + copy-paste commands combined, no need to switch back and forth)
+- **执行模型（Worker）**：纯体力执行。文件检索、代码编辑、测试运行、报错重试、产出日志diff，无最终决策权
 
-1. **Step 1 (Local Prep)**: Copy the `portable/token-saver-kit` folder from this repo and paste it into your own project's root directory.
+- **审查模型（Reviewer）**：纯决策管控。拆分细粒度任务、划定操作边界、核查改动结果、给出最终裁决
 
-2. **Step 2 (Reviewer assigns task)**: Open a high-tier reasoning model and paste the reviewer start prompt below. It must plan only and must not edit project source files.
+- **本地文件系统**：永久记忆载体。存储任务工单、改动diff、审查日志、项目规则，替代易丢失聊天上下文
 
-3. **Step 3 (Worker executes)**: Open the worker model and paste the worker handoff prompt prepared by the reviewer.
+---
 
-4. **Step 4 (Reviewer accepts)**: Switch back to the high-tier reasoning model and paste the reviewer review prompt below.
+## 六、60秒零门槛上手（直白说明：普通人怎么用）
 
-### Fixed Prompts To Reuse
+**一句话使用原理**：不用安装软件、不用写代码、不用配置密钥。仅复制项目内一个文件夹，打开两个AI网页，分别粘贴一句固定话术，即可完成整套循环。全程本地文件流转，不改动原有代码。
 
-Reviewer start:
+### 极简4步上手（人话+复制指令二合一，无需来回切换）
+
+1. **步骤1（本地准备）**：将仓库内 `portable/token-saver-kit` 文件夹，复制粘贴到你自己的项目根目录
+
+2. **步骤2（审查模型下发任务）**：打开高阶推理大模型，粘贴下面的 reviewer 启动话术。它只允许规划，不允许修改项目源码。
+
+3. **步骤3（执行模型干活）**：打开 worker 模型，粘贴 reviewer 准备好的 worker handoff prompt。
+
+4. **步骤4（审查模型验收）**：切回高阶推理大模型，粘贴下面的 reviewer 审查话术。
+
+### 可重复使用的固定话术
+
+reviewer 启动：
 
 ```text
 Read token-saver-kit/START_HERE.md and act as reviewer only.
 ```
 
-Worker execution:
+worker 执行：
 
 ```text
 Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 ```
 
-Reviewer review:
+reviewer 审查：
 
 ```text
 Review the latest worker evidence in token-saver-kit and decide the next step.
@@ -235,37 +235,37 @@ Review the latest worker evidence in token-saver-kit and decide the next step.
 
 ---
 
-## VII. Core Kit File Descriptions
+## 七、套件核心文件说明
 
-Kit state is stored independently; **by default, it will not actively modify existing project code.**
+套件状态独立存储，**默认不会主动修改项目原有代码**
 
-| File Path | Core Purpose |
+|文件路径|核心用途|
 |---|---|
-| `START_HERE.md` | Unified entry point for both models; defines basic usage constraints. |
-| `WORKER_NEXT_TASK.md` | The specific task issued to the execution model for the current round. |
-| `REVIEWER_CONTINUE.md` | Context bootstrap file when starting a new review session. |
-| `.ai/active_task/` | Local storage for round logs, modification diffs, and verdict results. |
-| `tools/` | Task initialization and batch review helper scripts. |
+|`START_HERE.md`|双模型统一入口，定义基础使用约束|
+|`WORKER_NEXT_TASK.md`|当前轮次下发给执行模型的具体任务|
+|`REVIEWER_CONTINUE.md`|新建审查会话时的上下文引导文件|
+|`.ai/active_task/`|本地存储轮次日志、改动diff、裁决结果|
+|`tools/`|任务初始化、批量审查辅助脚本|
 
 ---
 
-## VIII. Complete Closed-Loop Workflow (Understand it; no manual operation needed)
+## 八、完整闭环工作流（看懂即可，无需手动操作）
 
-Workflow summary: Reviewer breaks down task → File handoff → Execution → Result package produced → Reviewer four-way verdict → Loop iteration.
+流程简述：审查拆分任务→文件交接→执行落地→产出结果包→审查四向裁决→循环迭代
 
 ```mermaid
 %%{init: {"theme": "base", "themeVariables": {"background": "transparent", "primaryColor": "#1f6feb", "primaryTextColor": "#ffffff", "primaryBorderColor": "#58a6ff", "lineColor": "#8b949e", "secondaryColor": "#238636", "tertiaryColor": "#30363d"}}}%%
 flowchart TD
-    A[Reviewer model plans one small task]
-    B[Task handoff file]
-    C[Worker model executes one bounded round]
-    D[Result package report + diff + logs + tests]
-    E[Reviewer model checks the outcome]
-    F{Verdict}
-    G[Pass start next task]
-    H[Fix retry with same limits]
-    I[Downgrade retry with stricter limits]
-    J[Stop human decides]
+    A[审查模型规划一个小任务]
+    B[任务交接文件]
+    C[执行模型执行一轮受限工作]
+    D[结果包报告 + 差异 + 日志 + 测试]
+    E[审查模型检查结果]
+    F{裁决}
+    G[通过开始下一个任务]
+    H[修复用相同限制重试]
+    I[降级用更严格限制重试]
+    J[停止人类决定]
 
     A --> B --> C --> D --> E --> F
     F --> G --> A
@@ -285,72 +285,70 @@ flowchart TD
     class G,H,I,J outcome
 ```
 
-Verdict branch explanation: Pass / same-tier fix / tighten-permissions downgrade / human stop. Four closed-loop branches with no omissions.
+裁决分支说明：通过/同级修复/收紧权限降级/人工终止，四类闭环无遗漏
 
 ---
 
-## IX. Quality, Risk, and Long-Term Concern Answers
+## 九、质量、风险与长期顾虑解答
 
-Beyond cost reduction, users care most about four hidden concerns: Will cheaper execution sacrifice code quality? Will tasks drift off course? Can knowledge be reused? Can it be used across multiple projects? The following full set of guarantees comes at no extra cost and adds no token consumption:
+用户在降本之外最关心4个隐性顾虑：降本会不会牺牲代码质量？会不会任务跑偏？经验能不能复用？能不能多项目通用。以下为全套附带保障，无需额外付费、不增加Token消耗：
 
-1. **Prevent Task Drift**: Each round limits file modification scope and operation permissions, blocking the model's unbounded free improvisation and solving long-conversation requirement drift.
+1. **避免任务失控（防跑偏）**：每轮任务限定文件修改范围、操作权限，阻断模型无边界自由发挥，解决长对话需求偏离问题
 
-2. **Eliminate Self-Review Blind Spots**: Execution and review models are physically separated, avoiding the common problems of a single model self-editing and self-reviewing, missing bugs, and self-whitewashing.
+2. **消除自审盲区（保质量）**：执行、审查模型物理分离，规避单模型自改自审、忽略漏洞、自我美化的通病
 
-3. **Long-Term Compounding Efficiency (incidental cost-reduction gain)**: With continued use, the project accumulates AI calling rules and pitfall standards, so there is no need to re-brief the model each time, further implicitly reducing wasted token consumption.
+3. **长期复利提效（附带降本增益）**：随着使用，项目会沉淀AI调用规则、踩坑标准，后续无需重复向模型交底，进一步隐性减少无效Token消耗
 
-4. **Zero-Cost Cross-Project Reuse**: No framework dependency; copy the portable kit to plug into any repo and unify the AI development standard across all repositories.
+4. **零成本跨项目复用**：无框架依赖，复制便携套件即可接入任意仓库，统一全仓库AI开发标准
 
-The original standalone safety and risk-control items have been streamlined and merged with quality concerns to avoid content fragmentation:
+原有独立安全风控条目精简合并，和质量顾虑打通，避免内容割裂：
 
-1. **Permission Separation and Anti-Mistake Changes**: The execution model has no final decision-making authority; all changes must be reviewed and verified. Automatic Git commits are disabled by default.
+1. **权限分离与防误改**：执行模型无最终决策权，所有改动必须审查核验，默认禁止自动Git提交
 
-2. **Four-Level Permission Safety Net**: Starting from read-only T0, modification permissions are released step by step, preventing unauthorized changes to core configurations.
+2. **四级权限兜底**：从只读T0起步，逐级放开修改权限，杜绝越权改动核心配置
 
-3. **Result-Oriented Verification**: Only code diffs and test logs are verified; the model's verbal reports are not trusted, avoiding narrative deception.
+3. **结果导向核验**：只校验代码diff、测试日志，不采信模型口头汇报，规避话术造假
 
-4. **Portable Removal**: Runtime state stays inside `token-saver-kit/`, so removing the loop is just deleting that folder.
-
----
-
-## X. Advanced Usage (99% of beginners can skip this)
-
-### 10.1 Minimal Safe Example
-
-See `examples/minimal-task.md` for a zero-code-change T0 repo inspection task, suitable for first-time process verification.
-
-### 10.2 Developer Helpers
-
-The Python package contains optional diagnostics and metrics helpers for contributors. Ordinary users do not need them for the portable workflow.
+4. **便携删除**：运行状态保存在 `token-saver-kit/` 内部，移除循环只需要删除这个文件夹。
 
 ---
 
-## XI. Beginner FAQ
+## 十、进阶用法（新手99%用不到，直接跳过）
 
-- **Q: Must I use a specific worker + reviewer model pair?** A: Absolutely not. The kit only uses them as default examples. Any "low-cost execution model + premium review model" pair can be substituted without changing any internal kit files.
+### 10.1 最小安全示例
 
-- **Q: Will it pollute existing project files?** A: All runtime data lives inside the kit's internal `.ai` directory. By default, the kit only reads source code and does not actively write to project business files.
+查看 `examples/minimal-task.md`，提供零代码改动的T0仓库巡检任务，适合首次测试验证流程
 
-- **Q: Where can I learn if I don't understand the workflow?** A: Pure beginners should read **docs/BEGINNER_GUIDE.md** for a step-by-step illustrated tutorial.
+### 10.2 开发者辅助工具
+
+Python 包里保留了可选的诊断和指标辅助能力，主要给贡献者使用。普通用户使用 portable workflow 时不需要这些命令。
 
 ---
 
-## XII. Project Status and Open-Source License
+## 十一、新手高频FAQ
 
-### 12.1 Feature Progress
+- **Q：必须用某个特定 worker + reviewer 模型组合吗？** A：完全不需要。套件只是默认举例，任意「低价执行模型+高价审查模型」都能替换，不用改动套件内部文件
 
-| Feature | Status |
+- **Q：会不会污染原有项目文件？** A：所有运行数据存在套件内部\.ai目录，默认仅读取源码，不主动写入项目业务文件
+
+- **Q：看不懂流程去哪里学习？** A：纯新手直接阅读 **docs/BEGINNER\_GUIDE\.md**，图文分步教学
+
+---
+
+## 十二、项目状态与开源许可
+
+### 12.1 功能进度
+
+|功能|状态|
 |---|---|
-| No-install portable kit | Completed (portable directory) |
-| Beginner illustrated guide and minimal example | Completed |
-| Python CLI doctor and token metrics | Completed |
-| Cross-model generic templates and task diagnostics | Planned |
+|免安装便携套件|已完成（portable目录）|
+|新手图文指南、最小示例|已完成|
+|Python CLI doctor、Token指标统计|已完成|
+|跨模型通用模板、任务诊断命令|规划中|
 
-### 12.2 License
+### 12.2 许可
 
-MIT License, allowing free commercial use and redistribution with modifications.
+MIT License，允许自由商用、二次修改分发
 
-> (Note: Some parts of this document may be AI-generated.)
-
-
+> （注：文档部分内容可能由 AI 生成）
 

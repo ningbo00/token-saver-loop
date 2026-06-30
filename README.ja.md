@@ -2,7 +2,7 @@
 
 **Slogan：AIモデルの役割を分割し、高価格モデルのToken請求を最大75%削減**
 
-Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
+Languages: [中文](README.md) | [English](README.en.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
 ---
 

@@ -1,12 +1,60 @@
 # Token Saver Loop
 
-**Slogan：拆分AI模型分工，最高降低75%高价模型Token账单**
+**面向 AI 编程 Agent 的便携式工作流套件：让强 reviewer 模型负责判断，让低成本 worker 模型执行有边界的任务并提交证据。**
 
-Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
+Languages: [中文](README.md) | [English](README.en.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
+
+![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)
+![Version](https://img.shields.io/badge/version-1.0.8-blue.svg)
+![Workflow](https://img.shields.io/badge/workflow-portable%20kit-purple.svg)
+
+Token Saver Loop 用来减少高价模型的上下文浪费，但不把最终验收权交给低成本模型。
+
+![Token Saver Loop 动图演示](docs/assets/token-saver-loop-demo.gif)
+
+- **适合你，如果** 你正在使用 Codex、Claude Code、Cursor 类 Agent、DeepSeek、Kimi、GLM、Qwen 或其他能读文件并遵守 handoff 的模型/CLI。
+- **核心思路**：reviewer 规划和验收；worker 修改、测试、提交紧凑证据。
+- **无需安装**：把 `portable/token-saver-kit/` 复制进任意项目，然后把固定 prompt 分别发给 reviewer 和 worker。
+- **最适合场景**：仓库探索、循环 debug、批量修改、文档/i18n 草稿、以及 reviewer 只需要检查证据包而不需要阅读完整执行过程的任务。
 
 ---
 
-## 快速开始（无需安装）
+## 5 分钟试用
+
+```text
+Reviewer 规划 -> Worker 执行 -> Worker 写证据 -> Reviewer 决定 pass/fix/stop -> 下一轮 worker
+```
+
+1. 把 `portable/token-saver-kit/` 复制进目标项目。
+2. 对 reviewer 模型说：
+
+```text
+Read token-saver-kit/START_HERE.md and act as reviewer only.
+```
+
+3. 对 worker 模型说：
+
+```text
+Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
+```
+
+4. worker 完成后，把结果交回 reviewer：
+
+```text
+Review the latest worker evidence in token-saver-kit and decide the next step.
+```
+
+第一次安全试跑可以看 [examples/minimal-task.md](examples/minimal-task.md)。完整新手路径看 [docs/BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md)。
+
+更多案例：
+
+- [Codex worker round](examples/codex-worker-round.md)：有边界的代码修改和命令证据。
+- [Bugfix loop](examples/bugfix-loop.md)：一次聚焦修复尝试和 reviewer 升级决策。
+- [Docs and i18n loop](examples/docs-i18n-loop.md)：重复文档/本地化草稿，reviewer 只检查一致性和风险。
+
+---
+
+## 快速开始（Portable，无需安装）
 
 Token Saver Loop 是 portable-only 工具，不需要运行安装器。
 
@@ -20,10 +68,10 @@ Token Saver Loop 是 portable-only 工具，不需要运行安装器。
    rmdir /S /Q "%TEMP%\token-saver-loop-kit" 2>NUL & git clone --depth 1 https://github.com/ningbo00/token-saver-loop.git "%TEMP%\token-saver-loop-kit" && xcopy "%TEMP%\token-saver-loop-kit\portable\token-saver-kit" "token-saver-kit" /E /I /Y && rmdir /S /Q "%TEMP%\token-saver-loop-kit"
    ```
 
-   固定 `v1.06` 版本：
+   固定 `v1.08` 版本：
 
    ```cmd
-   rmdir /S /Q "%TEMP%\token-saver-loop-kit" 2>NUL & git clone --depth 1 --branch v1.06 https://github.com/ningbo00/token-saver-loop.git "%TEMP%\token-saver-loop-kit" && xcopy "%TEMP%\token-saver-loop-kit\portable\token-saver-kit" "token-saver-kit" /E /I /Y && rmdir /S /Q "%TEMP%\token-saver-loop-kit"
+   rmdir /S /Q "%TEMP%\token-saver-loop-kit" 2>NUL & git clone --depth 1 --branch v1.08 https://github.com/ningbo00/token-saver-loop.git "%TEMP%\token-saver-loop-kit" && xcopy "%TEMP%\token-saver-loop-kit\portable\token-saver-kit" "token-saver-kit" /E /I /Y && rmdir /S /Q "%TEMP%\token-saver-loop-kit"
    ```
 
    想体验最新改进，用最新版命令；想保证项目可复现，使用固定版本命令。

@@ -13,8 +13,9 @@ Current structure:
   - `IMPLEMENTATION_OPTIONS.md`: technical options and trade-offs.
   - `RELEASE_1_0_CHECKLIST.md`: 1.0 release gates for the portable-only kit.
   - `releases/v1.08.md`: GitHub release notes draft for the current public tag.
-- `README.md`: GitHub-first, portable-first landing page for the Token Saver Loop.
-- `README.zh-CN.md`, `README.ja.md`, `README.ko.md`: localized README files linked from the English README.
+- `README.md`: Chinese-first GitHub landing page for the Token Saver Loop.
+- `README.en.md`: English GitHub landing page.
+- `README.zh-CN.md`, `README.ja.md`, `README.ko.md`: localized README files linked from the language switcher.
 - `LICENSE`: MIT license for GitHub license detection.
 - `CODE_OF_CONDUCT.md`: community behavior expectations.
 - `CONTRIBUTING.md`: contribution workflow and project direction.

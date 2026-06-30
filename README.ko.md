@@ -2,7 +2,7 @@
 
 **Slogan：AI 모델 역할을 분할하여 고가 모델 Token 청구서를 최대 75% 절감**
 
-Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
+Languages: [中文](README.md) | [English](README.en.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
 ---
 

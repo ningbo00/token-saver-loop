@@ -18,15 +18,25 @@ Portable reviewer/worker workflow kit for AI coding agents. Reduce premium model
 
 ```text
 codex
+ai-coding
 ai-agents
 coding-agent
+coding-agents
 agent-workflow
+ai-workflow
+llm-workflow
+context-management
 token-optimization
 developer-tools
+claude-code
+cursor
+deepseek
+kimi
+glm
+qwen
 llm
 llmops
 prompt-engineering
-productivity
 ```
 
 ## Launch Post
