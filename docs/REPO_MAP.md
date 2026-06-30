@@ -16,6 +16,9 @@ Current structure:
 - `README.md`: GitHub-first, portable-first landing page for the Token Saver Loop.
 - `README.zh-CN.md`, `README.ja.md`, `README.ko.md`: localized README files linked from the English README.
 - `LICENSE`: MIT license for GitHub license detection.
+- `CODE_OF_CONDUCT.md`: community behavior expectations.
+- `CONTRIBUTING.md`: contribution workflow and project direction.
+- `SECURITY.md`: security reporting and boundaries.
 - `examples/`: starter and promotion-facing workflow examples.
   - `minimal-task.md`: inspect-only starter example for first-time users.
   - `codex-worker-round.md`: bounded code-edit worker round example.
@@ -24,6 +27,7 @@ Current structure:
 - `pyproject.toml`: Python package metadata (`1.0.8` preview-only) and console script entry point.
 - `scripts/render_demo_gif.py`: renders the README animated workflow GIF from Pillow drawing commands.
 - `.github/ISSUE_TEMPLATE/`: GitHub issue forms for bug reports and feature requests.
+- `.github/PULL_REQUEST_TEMPLATE.md`: pull request checklist and validation prompt.
 - `src/token_saver_loop/`: Python source package.
   - `__init__.py`: package init and package version.
   - `templates.py`: built-in format templates (legacy, retained for compatibility).

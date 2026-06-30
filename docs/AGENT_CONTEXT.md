@@ -16,6 +16,7 @@ Status:
 - GitHub packaging pass added root MIT LICENSE, a minimal example, and portable kit-local `.gitignore`; root `.ai/` and `.token-saver/` should stay local-only.
 - GitHub promotion pass added README first-screen positioning, project URLs, issue templates, release notes draft, and `docs/GITHUB_PROMOTION_KIT.md`.
 - GitHub starability pass added README animated workflow GIF, HTML animation source, static SVG fallback, and concrete examples for Codex worker rounds, bugfix loops, and docs/i18n loops.
+- Community standards pass added code of conduct, contributing guide, security policy, and pull request template.
 
 Current Goal:
 - Finalize portable kit and GitHub-first README for a commit-ready 1.0 workflow kit.
