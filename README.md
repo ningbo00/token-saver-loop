@@ -10,6 +10,8 @@ Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README
 
 Token Saver Loop helps you reduce premium model context waste without trusting a cheap model to approve its own work.
 
+![Token Saver Loop demo](docs/assets/demo-loop.svg)
+
 - **Use it when** you already use Codex, Claude, Kimi, Cursor-style agents, or other coding assistants and want cleaner handoffs.
 - **Core idea**: reviewer plans and accepts; worker edits, tests, and writes compact evidence.
 - **No install path**: copy `portable/token-saver-kit/` into any repo, then paste fixed prompts into your reviewer and worker models.
@@ -43,6 +45,12 @@ Review the latest worker evidence in token-saver-kit and decide the next step.
 ```
 
 For a safe first run, use [examples/minimal-task.md](examples/minimal-task.md). For a step-by-step walkthrough, read [docs/BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md).
+
+More examples:
+
+- [Codex worker round](examples/codex-worker-round.md): bounded code edit with command evidence.
+- [Bugfix loop](examples/bugfix-loop.md): one focused fix attempt with reviewer escalation.
+- [Docs and i18n loop](examples/docs-i18n-loop.md): repetitive drafting with compact review.
 
 ---
 

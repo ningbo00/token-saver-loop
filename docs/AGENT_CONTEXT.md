@@ -15,11 +15,11 @@ Status:
 - Reviewer plans/reviews; any compatible worker model executes bounded rounds from `token-saver-kit/LATEST_WORKER_PROMPT.md`.
 - GitHub packaging pass added root MIT LICENSE, a minimal example, and portable kit-local `.gitignore`; root `.ai/` and `.token-saver/` should stay local-only.
 - GitHub promotion pass added README first-screen positioning, project URLs, issue templates, release notes draft, and `docs/GITHUB_PROMOTION_KIT.md`.
+- GitHub starability pass added README demo SVG and concrete examples for Codex worker rounds, bugfix loops, and docs/i18n loops.
 
 Current Goal:
 - Finalize portable kit and GitHub-first README for a commit-ready 1.0 workflow kit.
 - Keep portable/no-install usage as the only workflow setup path.
-- Next optimization candidates: add a small first-run fixture test around portable `round_NNN` generation, then prepare release packaging.
 - Next optimization candidate: add a small first-run fixture test around portable `round_NNN` generation.
 
 Rules:

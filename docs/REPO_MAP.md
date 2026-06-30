@@ -6,6 +6,7 @@ Current structure:
   - `BEGINNER_GUIDE.md`: step-by-step beginner guide for the portable workflow.
   - `GITHUB_PROMOTION_KIT.md`: copy-ready GitHub/social launch text, suggested topics, and release draft.
   - `REPO_MAP.md`: compact repo map.
+  - `assets/demo-loop.svg`: README first-screen workflow visual.
   - `PRODUCT_BRIEF.md`: product direction (portable Token Saver Loop).
   - `IMPLEMENTATION_OPTIONS.md`: technical options and trade-offs.
   - `RELEASE_1_0_CHECKLIST.md`: 1.0 release gates for the portable-only kit.
@@ -13,7 +14,11 @@ Current structure:
 - `README.md`: GitHub-first, portable-first landing page for the Token Saver Loop.
 - `README.zh-CN.md`, `README.ja.md`, `README.ko.md`: localized README files linked from the English README.
 - `LICENSE`: MIT license for GitHub license detection.
-- `examples/minimal-task.md`: inspect-only starter example for first-time users.
+- `examples/`: starter and promotion-facing workflow examples.
+  - `minimal-task.md`: inspect-only starter example for first-time users.
+  - `codex-worker-round.md`: bounded code-edit worker round example.
+  - `bugfix-loop.md`: focused debug/fix loop example.
+  - `docs-i18n-loop.md`: documentation and localization batch example.
 - `pyproject.toml`: Python package metadata (`1.0.8` preview-only) and console script entry point.
 - `.github/ISSUE_TEMPLATE/`: GitHub issue forms for bug reports and feature requests.
 - `src/token_saver_loop/`: Python source package.
