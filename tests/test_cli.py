@@ -26,7 +26,7 @@ class TestCLILegacy(unittest.TestCase):
         with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:
             code = main(["--version"])
             self.assertEqual(code, 0)
-            self.assertEqual(mock_stdout.getvalue().strip(), "token-saver-loop 1.0.7")
+            self.assertEqual(mock_stdout.getvalue().strip(), "token-saver-loop 1.0.8")
 
     def test_list_formats(self) -> None:
         with patch.object(sys, "stdout", new_callable=io.StringIO) as mock_stdout:

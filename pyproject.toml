@@ -4,13 +4,19 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "token-saver-loop"
-version = "1.0.7"
+version = "1.0.8"
 description = "Token-saving model handoff loop for AI-assisted development"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
 keywords = ["token-saver", "model-handoff", "workflow", "automation", "cli"]
 license = "MIT"
+
+[project.urls]
+Homepage = "https://github.com/ningbo00/token-saver-loop"
+Repository = "https://github.com/ningbo00/token-saver-loop"
+Issues = "https://github.com/ningbo00/token-saver-loop/issues"
+Documentation = "https://github.com/ningbo00/token-saver-loop#readme"
 
 [project.scripts]
 token-saver-loop = "token_saver_loop.cli:main"

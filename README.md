@@ -1,12 +1,52 @@
 # Token Saver Loop
 
-**Slogan: Split AI model roles, reduce premium model token bills by up to 75%**
+**Portable workflow kit for coding agents: let strong reviewer models judge, while lower-cost worker models execute bounded tasks and collect evidence.**
 
 Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
+![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)
+![Version](https://img.shields.io/badge/version-1.0.8-blue.svg)
+![Workflow](https://img.shields.io/badge/workflow-portable%20kit-purple.svg)
+
+Token Saver Loop helps you reduce premium model context waste without trusting a cheap model to approve its own work.
+
+- **Use it when** you already use Codex, Claude, Kimi, Cursor-style agents, or other coding assistants and want cleaner handoffs.
+- **Core idea**: reviewer plans and accepts; worker edits, tests, and writes compact evidence.
+- **No install path**: copy `portable/token-saver-kit/` into any repo, then paste fixed prompts into your reviewer and worker models.
+- **Best fit**: repo exploration, repeated debug loops, bulk edits, docs/i18n drafts, and tasks where the reviewer can inspect concise evidence instead of full execution chatter.
+
 ---
 
-## Quick Start (No Install)
+## Try It In 5 Minutes
+
+```text
+Reviewer plans -> Worker executes -> Worker writes evidence -> Reviewer decides pass/fix/stop
+```
+
+1. Copy `portable/token-saver-kit/` into a target project.
+2. Tell the reviewer model:
+
+```text
+Read token-saver-kit/START_HERE.md and act as reviewer only.
+```
+
+3. Tell the worker model:
+
+```text
+Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
+```
+
+4. Send the result back to the reviewer:
+
+```text
+Review the latest worker evidence in token-saver-kit and decide the next step.
+```
+
+For a safe first run, use [examples/minimal-task.md](examples/minimal-task.md). For a step-by-step walkthrough, read [docs/BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md).
+
+---
+
+## Quick Start (Portable, No Install)
 
 Token Saver Loop is portable-only. You do not run an installer.
 
@@ -20,10 +60,10 @@ Token Saver Loop is portable-only. You do not run an installer.
    rmdir /S /Q "%TEMP%\token-saver-loop-kit" 2>NUL & git clone --depth 1 https://github.com/ningbo00/token-saver-loop.git "%TEMP%\token-saver-loop-kit" && xcopy "%TEMP%\token-saver-loop-kit\portable\token-saver-kit" "token-saver-kit" /E /I /Y && rmdir /S /Q "%TEMP%\token-saver-loop-kit"
    ```
 
-   Fixed `v1.06` version:
+   Fixed `v1.08` version:
 
    ```cmd
-   rmdir /S /Q "%TEMP%\token-saver-loop-kit" 2>NUL & git clone --depth 1 --branch v1.06 https://github.com/ningbo00/token-saver-loop.git "%TEMP%\token-saver-loop-kit" && xcopy "%TEMP%\token-saver-loop-kit\portable\token-saver-kit" "token-saver-kit" /E /I /Y && rmdir /S /Q "%TEMP%\token-saver-loop-kit"
+   rmdir /S /Q "%TEMP%\token-saver-loop-kit" 2>NUL & git clone --depth 1 --branch v1.08 https://github.com/ningbo00/token-saver-loop.git "%TEMP%\token-saver-loop-kit" && xcopy "%TEMP%\token-saver-loop-kit\portable\token-saver-kit" "token-saver-kit" /E /I /Y && rmdir /S /Q "%TEMP%\token-saver-loop-kit"
    ```
 
    Use latest for testing new improvements. Use a tagged version for repeatable project setup.

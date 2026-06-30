@@ -1,0 +1,36 @@
+name: Feature request
+description: Suggest an improvement for the workflow, docs, or helper tools.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What workflow friction or token waste does this address?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Describe the smallest useful change.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Portable kit
+        - Reviewer workflow
+        - Worker workflow
+        - Helper tools
+        - Documentation
+        - Token metrics
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Links, examples, or constraints.
+

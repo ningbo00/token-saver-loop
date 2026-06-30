@@ -1,0 +1,35 @@
+name: Bug report
+description: Report a problem with the portable kit, helper tools, or docs.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve Token Saver Loop. Please include compact evidence when possible.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior and what you expected instead.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: "v1.07 or commit hash"
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Copy token-saver-kit
+        2. Run ...
+        3. See ...
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Paste concise output from worker_report.json, tests.txt, tsl-doctor, or tsl-redflags if relevant.
+
