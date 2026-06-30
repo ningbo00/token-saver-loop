@@ -49,6 +49,7 @@ All round artifacts and state live inside the kit:
 - State: `token-saver-kit/.ai/active_task/state.md`
 - Progress: `token-saver-kit/.ai/active_task/progress.md`
 - Rounds: `token-saver-kit/.ai/active_task/rounds/round_XXX/`
+- Round lifecycle: `token-saver-kit/.ai/active_task/rounds/round_XXX/round_status.json`
 - Reports: `token-saver-kit/.ai/active_task/rounds/round_XXX/worker_log.md`
 - JSON reports: `token-saver-kit/.ai/active_task/rounds/round_XXX/worker_report.json`
 
@@ -79,6 +80,7 @@ The worker is responsible for routine test execution and evidence collection; th
 - Do not weaken, delete, skip, or bypass tests to get green output.
 - If tests fail, make at most one focused fix attempt unless the task explicitly allows more; then report the failure clearly.
 - For release, security, data, permission, or T1 work, expect the reviewer to rerun key tests before acceptance.
+- If a Python validation command would create `__pycache__/`, prefer `python -B` or `PYTHONDONTWRITEBYTECODE=1` when that still validates the task.
 
 ## Git Responsibility
 
@@ -86,6 +88,7 @@ Git should not become a workflow blocker. The worker may use git when it reduces
 review cost or when the task explicitly asks for a commit.
 
 - Read-only git commands, diffstats, patches, and draft commit messages are allowed when useful.
+- Run `git rev-parse --is-inside-work-tree` before git status/diff. If it fails, stop retrying git and record concise file-based evidence instead.
 - `git commit`, `git tag`, and `git push` are allowed only when the current prompt or user explicitly asks for that exact action.
 - If the worker commits, it must report commit hash, changed files, and validation result.
 - Destructive operations remain forbidden by default: `git reset --hard`, `git clean -fdx`, forced push, and checkout/restore actions that discard user work.
@@ -115,23 +118,45 @@ Batch size is dynamic, but execution must stay small-step:
 Stop and report instead of guessing if:
 
 - requirements conflict with the code
-- required files are missing
+- required context/config/input files are missing
 - the task requires architecture, security, permission, database, migration, or product decisions not explicitly specified
 - tests fail for reasons you cannot explain after one focused attempt
 - you need to expand beyond allowed scope
 - you are in T0 and would need to implement business code
 
+If a target implementation file is absent and the task allows creating it, continue and record the missing starting state. If optional docs are absent, record a deviation but do not stop by default.
+
 ## Required Round Artifacts
 
 For every round, create/update kit-local files:
 
+- `token-saver-kit/.ai/active_task/rounds/round_XXX/round_status.json`
 - `token-saver-kit/.ai/active_task/rounds/round_XXX/worker_log.md`
 - `token-saver-kit/.ai/active_task/rounds/round_XXX/worker_report.json`
 - `token-saver-kit/.ai/active_task/progress.md`
 
+At the start of execution, set `round_status.json` to `in_progress`.
+At the very end, after report files are complete, set it to `done`.
+Write final JSON reports through a temporary file when possible, then rename/copy into place.
+
 `worker_report.json` must include status, tier, summary, files_read,
 files_changed, commands_run, acceptance, risks, deviations, open_questions, and
 next_action. Empty arrays are fine when nothing changed or no risks are known.
+
+Keep `acceptance` compact and evidence-shaped. For important items, prefer:
+
+```json
+{
+  "item_name": {
+    "implemented": true,
+    "validated": false,
+    "evidence": "static",
+    "note": "manual validation not run"
+  }
+}
+```
+
+Use `validated: true` only for command, test, or manual evidence that actually ran.
 
 ## Final Reply To User
 

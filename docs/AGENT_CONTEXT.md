@@ -9,6 +9,7 @@ Status:
 - CLI supports project config preview, worker skill preview, setup doctor reports, worker token usage parsing, manual reviewer usage snapshots, metrics summarization, and metrics append/write.
 - There is no installer mode; the product path is copying `portable/token-saver-kit/`.
 - First-run portable workflow has been hardened: reviewer/worker prompts are short, detailed role rules live in kit skills, and tools are optional low-friction bookkeeping helpers.
+- Worker round lifecycle/reporting has been tightened: new rounds create `round_status.json`, worker prompts request `in_progress` then `done`, acceptance should separate implemented vs validated evidence, and git/Python validation noise has fallback guidance.
 - Evidence verdicts are conservative tool outputs (`PASS`, `FIX_SAME_TIER`, `DOWNGRADE`, `STOP`) and never replace reviewer acceptance.
 - Project memory lives in kit-local `.ai/project_memory/`; keep it compact and read only the needed files.
 - Reviewer plans/reviews; any compatible worker model executes bounded rounds from `token-saver-kit/LATEST_WORKER_PROMPT.md`.

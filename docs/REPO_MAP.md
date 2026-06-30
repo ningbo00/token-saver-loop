@@ -31,10 +31,13 @@ Current structure:
   - `skills/reviewer.md`: reviewer skill reference.
   - `skills/worker.md`: worker skill reference.
   - `tools/`: optional AI/advanced automation helpers for workflow bookkeeping, status prompts, project memory, evidence verdicts, compact review packs, and key-risk checks.
+    - `tsl-new-round.ps1`: creates round prompts plus `round_status.json` lifecycle marker.
+    - `tsl-review.ps1` / `tsl-redflags.ps1`: summarize evidence, respect `round_status.json`, and keep verdicts non-final.
 
 Generated during tasks:
 - `.ai/active_task/`: active worker/reviewer task state and logs; local-only, not intended for GitHub publishing.
   - `progress.md`: user-facing rough progress board updated after each worker round; navigation only, not a verification source.
+  - `rounds/round_XXX/round_status.json`: lifecycle marker (`prompt_ready`, worker `in_progress`, final `done`) used to avoid reviewing half-written reports.
 
 
 

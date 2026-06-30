@@ -26,6 +26,7 @@ Read only the smallest useful set first:
 - `token-saver-kit/.ai/project_memory/latest_evidence.md` when continuing from a completed round
 - `token-saver-kit/.ai/active_task/state.md`
 - `token-saver-kit/.ai/active_task/progress.md`
+- latest `token-saver-kit/.ai/active_task/rounds/round_NNN/round_status.json` before reading a worker report
 - latest `token-saver-kit/.ai/active_task/rounds/round_NNN/worker_report.json` when reviewing a completed round
 
 Expand only when the task or evidence requires it.
@@ -42,9 +43,11 @@ Expand only when the task or evidence requires it.
 ## Reviewing A Worker Round
 
 - Trust files, tests, diffs, and reports over chat claims.
+- If `round_status.json` exists and is not `done`, treat the round as still in progress and avoid reviewing half-written final reports.
 - Prefer compact tool summaries first; expand to full diffs/logs only when red flags, risk, or unclear evidence require it.
 - Treat `PASS`, `FIX_SAME_TIER`, `DOWNGRADE`, and `STOP` from tools as evidence verdicts only, not final quality acceptance.
 - Check the worker stayed inside scope and file limits.
+- Treat `acceptance.*.validated: false` as an explicit evidence gap, not a failure by itself; decide whether the gap matters for this task.
 - Rerun key validation for T1 work, risky changes, release decisions, or suspicious evidence.
 - Record the verdict clearly: pass, fix, downgrade, or stop.
 

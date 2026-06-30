@@ -34,10 +34,16 @@ $reportPath = Join-Path $latest.FullName 'worker_report.json'
 $testsPath = Join-Path $latest.FullName 'tests.txt'
 $diffstatPath = Join-Path $latest.FullName 'diffstat.txt'
 $verdictPath = Join-Path $latest.FullName 'verdict.json'
+$roundStatusPath = Join-Path $latest.FullName 'round_status.json'
 
 $report = $null
 if (Test-Path $reportPath) {
   try { $report = Get-Content $reportPath -Raw | ConvertFrom-Json } catch { $report = $null }
+}
+
+$roundStatus = $null
+if (Test-Path $roundStatusPath) {
+  try { $roundStatus = Get-Content $roundStatusPath -Raw | ConvertFrom-Json } catch { $roundStatus = $null }
 }
 
 $changed = @()
@@ -96,7 +102,12 @@ function Add-Reason($Text) {
 if (-not $report) { Add-Reason 'worker_report.json is missing or invalid.' }
 foreach ($flag in $errorFlags) { Add-Reason "error red flag: $($flag.area) - $($flag.message)" }
 foreach ($flag in $warnFlags) { Add-Reason "warning red flag: $($flag.area) - $($flag.message)" }
-if ($report -and $report.status -ne 'done') { Add-Reason "worker status is '$($report.status)', not 'done'." }
+$reportDone = $false
+if ($report) { $reportDone = @('done','completed') -contains ([string]$report.status) }
+$roundDone = $true
+if ($roundStatus) { $roundDone = ([string]$roundStatus.status) -eq 'done' }
+if ($roundStatus -and -not $roundDone) { Add-Reason "round_status.json is '$($roundStatus.status)', not 'done'." }
+if ($report -and -not $reportDone) { Add-Reason "worker status is '$($report.status)', not 'done'." }
 if ($report -and $commandCount -eq 0) { Add-Reason 'commands_run is empty.' }
 if ($failedCommandCount -gt 0) { Add-Reason "$failedCommandCount validation command(s) failed." }
 if ($report -and $passedCommandCount -eq 0) { Add-Reason 'no passed validation command is recorded.' }
@@ -140,7 +151,8 @@ if (-not $report -or $hasDangerousGit -or $hasKitBoundary -or $hasInvalidEvidenc
   $confidence = 'medium'
   $nextTier = $tier
   $nextAction = 'Stop automatic continuation until the reviewer checks the error red flags.'
-} elseif ($report.status -eq 'done' -and
+} elseif ($reportDone -and
+          $roundDone -and
           $warnFlags.Count -eq 0 -and
           $evidenceGapCount -eq 0 -and
           $commandCount -gt 0 -and
@@ -178,6 +190,7 @@ $memory = $memoryJson | ConvertFrom-Json
 $result = [ordered]@{
   latest_round = $latest.FullName.Replace('\','/')
   status = if ($report) { $report.status } else { 'missing_report' }
+  round_status = if ($roundStatus) { $roundStatus.status } else { $null }
   verdict = $verdict
   confidence = $confidence
   reviewer_final = $false

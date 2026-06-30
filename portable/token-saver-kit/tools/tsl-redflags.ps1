@@ -79,11 +79,23 @@ if ($latest) {
       Add-Flag 'warn' 'round' "Latest round is missing $file."
     }
   }
+  $roundStatusPath = Join-Path $latest.FullName 'round_status.json'
+  if (Test-Path $roundStatusPath) {
+    try {
+      $roundStatus = Get-Content $roundStatusPath -Raw | ConvertFrom-Json
+      if ($roundStatus.status -and $roundStatus.status -ne 'done') {
+        Add-Flag 'warn' 'round' "Latest round_status.json is '$($roundStatus.status)', not 'done'."
+      }
+    } catch {
+      Add-Flag 'warn' 'round' 'round_status.json is not valid JSON.'
+    }
+  }
   $reportPath = Join-Path $latest.FullName 'worker_report.json'
   if (Test-Path $reportPath) {
     try {
       $report = Get-Content $reportPath -Raw | ConvertFrom-Json
-      if ($report.status -eq 'done' -and -not (Test-Path (Join-Path $latest.FullName 'tests.txt'))) {
+      $reportDone = @('done','completed') -contains ([string]$report.status)
+      if ($reportDone -and -not (Test-Path (Join-Path $latest.FullName 'tests.txt'))) {
         Add-Flag 'warn' 'evidence' 'Worker reports done but tests.txt is missing.'
       }
       $changed = @($report.files_changed)
@@ -109,7 +121,7 @@ if ($latest) {
           Add-Flag 'warn' 'kit_boundary' "Worker report includes kit tool/skill change: $normalized"
         }
       }
-      if ($report.status -eq 'done') {
+      if ($reportDone) {
         $commands = @($report.commands_run)
         $commandCount = ($commands | Measure-Object).Count
         if ($commandCount -eq 0) {

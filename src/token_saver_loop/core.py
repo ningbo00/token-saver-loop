@@ -100,9 +100,16 @@ and write the required reports.
 - T0: No implementation. Inspect and report only.
 
 ## Required Artifacts
+- `.ai/active_task/rounds/round_XXX/round_status.json`
 - `.ai/active_task/rounds/round_XXX/worker_log.md`
 - `.ai/active_task/rounds/round_XXX/worker_report.json`
 - `.ai/active_task/progress.md`
+
+## Round Lifecycle
+- At execution start, write `round_status.json` with status `in_progress`.
+- At the very end, after reports are complete, rewrite it with status `done`.
+- Write final JSON reports through a temporary file when possible, then rename/copy into place.
+- Set `worker_report.json` status to `done` only when evidence is complete; use `blocked` or `failed` for early stops.
 
 ## User Progress Board
 - At the end of every round, update `.ai/active_task/progress.md`.
@@ -118,10 +125,17 @@ and write the required reports.
 ## Testing And Git Evidence
 - Run required test commands and record exact command/results in round artifacts.
 - Do not weaken, delete, skip, or bypass tests to make a round pass.
+- If a Python validation command would create `__pycache__/`, prefer `python -B` or `PYTHONDONTWRITEBYTECODE=1` when that still validates the task.
+- Run `git rev-parse --is-inside-work-tree` before git status/diff. If it fails, stop retrying git and record concise file-based evidence instead.
 - You may collect git evidence with `git status --short`, `git diff --stat HEAD`, targeted `git diff`, and `git diff --check`.
 - Commit, tag, or push only when the current prompt or user explicitly delegates that exact action, then report commit hashes and validation.
 - Do not run destructive git operations such as reset --hard, clean -fdx, forced push, or checkout/restore actions that discard user work.
 - Reviewer/user own final acceptance by default.
+
+## Acceptance Shape
+- Keep `acceptance` compact and evidence-shaped.
+- For important items, prefer `{{"implemented": true|false, "validated": true|false, "evidence": "command|test|static|manual|not_run", "note": "short reason"}}`.
+- Use `validated: true` only for evidence that actually ran.
 
 {test_cmd_line}
 """

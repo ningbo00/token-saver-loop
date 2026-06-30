@@ -160,6 +160,7 @@ class TestRenderProjectWorkerSkill(unittest.TestCase):
         self.assertIn("T1", text)
         self.assertIn("T2", text)
         self.assertIn("T3", text)
+        self.assertIn("round_status.json", text)
         self.assertIn("worker_log.md", text)
         self.assertIn("worker_report.json", text)
 
@@ -177,9 +178,17 @@ class TestRenderProjectWorkerSkill(unittest.TestCase):
     def test_generated_worker_skill_includes_testing_and_git_limits(self) -> None:
         text = render_project_worker_skill("MyApp")
         self.assertIn("Run required test commands", text)
+        self.assertIn("PYTHONDONTWRITEBYTECODE", text)
+        self.assertIn("git rev-parse --is-inside-work-tree", text)
         self.assertIn("git diff --check", text)
         self.assertIn("Commit, tag, or push only when", text)
         self.assertIn("destructive git operations", text)
+
+    def test_generated_worker_skill_includes_evidence_shaped_acceptance(self) -> None:
+        text = render_project_worker_skill("MyApp")
+        self.assertIn("Acceptance Shape", text)
+        self.assertIn('"validated": true|false', text)
+        self.assertIn("Use `validated: true` only for evidence that actually ran", text)
 
     def test_includes_test_command_when_provided(self) -> None:
         text = render_project_worker_skill("MyApp", test_command="pytest")

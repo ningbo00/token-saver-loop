@@ -113,6 +113,7 @@ if ($Preview -and (Test-Path $roundDir)) {
   Get-ChildItem -Path $roundDir -File -ErrorAction SilentlyContinue | Remove-Item -Force
 }
 New-Item -ItemType Directory -Force $roundDir | Out-Null
+$roundStatusPath = Join-Path $roundDir 'round_status.json'
 
 $roundRel = $roundDir.Replace('\','/')
 $progressRel = $progressPath.Replace('\','/')
@@ -145,6 +146,8 @@ $(Get-Content $planPath -Raw)
 ## Role Boundaries
 
 - Execute only this worker prompt.
+- At the start of execution, write `${roundRel}/round_status.json` with status `in_progress`; at the very end, rewrite it with status `done`.
+- Write final reports to temporary files first when possible, then rename/copy them into place so the reviewer does not read half-written JSON.
 - Change parent-project files only inside the stated task scope.
 - Run git commit/tag/push only when this prompt or the user explicitly asks for that exact action; report commit hashes if used.
 - Do not run destructive git operations such as reset --hard, clean -fdx, forced push, or checkout/restore that discards user work.
@@ -154,22 +157,39 @@ $(Get-Content $planPath -Raw)
 
 ## Stop Conditions
 
-Stop and report instead of guessing if requirements conflict, required files are missing, validation fails after one focused attempt, or you need to expand beyond scope.
+Stop and report instead of guessing if requirements conflict, validation fails after one focused attempt, or you need to expand beyond scope.
+
+Missing-file rule: if a target implementation file is absent and the task allows creating it, continue and record that fact. If required context/config/input files are absent, stop. If optional docs are absent, record a deviation but do not stop by default.
+
+Git evidence rule: run `git rev-parse --is-inside-work-tree` before git status/diff. If it fails, do not keep retrying git; record changed files, file sizes, and concise manual diff notes instead.
 
 ## Required Validation
 
 $TestCommands
 
+If a Python validation command would create `__pycache__/`, prefer `python -B` or set `PYTHONDONTWRITEBYTECODE=1` when that still validates the task.
+
 ## Required Reports
 
 Write:
+- $roundRel/round_status.json
 - $roundRel/worker_log.md
 - $roundRel/worker_report.json
 - $progressRel
 
 worker_report.json must include status, tier, summary, files_read, files_changed, commands_run, acceptance, risks, deviations, open_questions, and next_action.
+
+Keep `acceptance` compact and evidence-shaped. For each important acceptance item, prefer:
+`{"implemented": true|false, "validated": true|false, "evidence": "command|test|static|manual|not_run", "note": "short reason when useful"}`
+
+Set report status to `done` only after reports and validation evidence are complete. Use `blocked` or `failed` when stopping early.
 "@
 
+@{
+  status = 'prompt_ready'
+  round = $roundRel
+  updated_by = 'tsl-new-round.ps1'
+} | ConvertTo-Json -Depth 3 | Set-Content -Path $roundStatusPath -Encoding utf8
 Write-Utf8File (Join-Path $roundDir 'tier.md') "# Tier`n`n$Tier`n"
 Write-Utf8File (Join-Path $roundDir 'worker_prompt.md') $prompt
 Copy-Item -Path (Join-Path $roundDir 'worker_prompt.md') -Destination (Join-Path $Active 'worker_prompt.md') -Force
