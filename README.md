@@ -10,7 +10,7 @@ Languages: [English](README.md) | [中文](README.zh-CN.md) | [日本語](README
 
 Token Saver Loop helps you reduce premium model context waste without trusting a cheap model to approve its own work.
 
-![Token Saver Loop demo](docs/assets/demo-loop.svg)
+![Token Saver Loop animated demo](docs/assets/token-saver-loop-demo.gif)
 
 - **Use it when** you already use Codex, Claude, Kimi, Cursor-style agents, or other coding assistants and want cleaner handoffs.
 - **Core idea**: reviewer plans and accepts; worker edits, tests, and writes compact evidence.

@@ -6,7 +6,9 @@ Current structure:
   - `BEGINNER_GUIDE.md`: step-by-step beginner guide for the portable workflow.
   - `GITHUB_PROMOTION_KIT.md`: copy-ready GitHub/social launch text, suggested topics, and release draft.
   - `REPO_MAP.md`: compact repo map.
-  - `assets/demo-loop.svg`: README first-screen workflow visual.
+  - `assets/token-saver-loop-demo.gif`: README first-screen animated workflow demo.
+  - `assets/demo-loop-animation.html`: web animation source for the README demo.
+  - `assets/demo-loop.svg`: static workflow visual fallback.
   - `PRODUCT_BRIEF.md`: product direction (portable Token Saver Loop).
   - `IMPLEMENTATION_OPTIONS.md`: technical options and trade-offs.
   - `RELEASE_1_0_CHECKLIST.md`: 1.0 release gates for the portable-only kit.
@@ -20,6 +22,7 @@ Current structure:
   - `bugfix-loop.md`: focused debug/fix loop example.
   - `docs-i18n-loop.md`: documentation and localization batch example.
 - `pyproject.toml`: Python package metadata (`1.0.8` preview-only) and console script entry point.
+- `scripts/render_demo_gif.py`: renders the README animated workflow GIF from Pillow drawing commands.
 - `.github/ISSUE_TEMPLATE/`: GitHub issue forms for bug reports and feature requests.
 - `src/token_saver_loop/`: Python source package.
   - `__init__.py`: package init and package version.

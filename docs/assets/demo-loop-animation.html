@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Token Saver Loop demo animation</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1220;
+      --panel: #0f172a;
+      --line: #334155;
+      --text: #ffffff;
+      --muted: #dbeafe;
+      --loop: #fbbf24;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #020617;
+    }
+
+    .stage {
+      position: relative;
+      width: 980px;
+      height: 440px;
+      border-radius: 18px;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--bg), #111827);
+      color: var(--text);
+    }
+
+    .panel {
+      position: absolute;
+      inset: 26px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel);
+    }
+
+    h1 {
+      position: absolute;
+      left: 56px;
+      top: 36px;
+      margin: 0;
+      font-size: 30px;
+    }
+
+    .subtitle {
+      position: absolute;
+      left: 56px;
+      top: 85px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .card {
+      position: absolute;
+      top: 142px;
+      width: 250px;
+      height: 142px;
+      box-sizing: border-box;
+      border: 2px solid;
+      border-radius: 12px;
+      padding: 24px 22px;
+      box-shadow: 0 14px 24px rgb(0 0 0 / 35%);
+      transform: translateY(0);
+      animation: pulse 4.8s infinite;
+    }
+
+    .card h2 {
+      margin: 0 0 20px;
+      font-size: 21px;
+    }
+
+    .card p {
+      margin: 0 0 11px;
+      font-size: 15px;
+      color: #f8fafc;
+    }
+
+    .reviewer { left: 56px; background: #1e3a8a; border-color: #93c5fd; animation-delay: 0s; }
+    .worker { left: 365px; background: #166534; border-color: #86efac; animation-delay: .8s; }
+    .verdict { left: 674px; background: #581c87; border-color: #d8b4fe; animation-delay: 1.6s; }
+
+    .arrow {
+      position: absolute;
+      top: 207px;
+      width: 46px;
+      height: 12px;
+    }
+
+    .arrow::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 4px;
+      width: 34px;
+      height: 4px;
+      background: #e5e7eb;
+    }
+
+    .arrow::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 0;
+      border-left: 12px solid #e5e7eb;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+    }
+
+    .a1 { left: 318px; }
+    .a2 { left: 627px; }
+
+    .loop-line {
+      position: absolute;
+      left: 181px;
+      top: 297px;
+      width: 619px;
+      height: 36px;
+      border-bottom: 5px solid var(--loop);
+      border-left: 5px solid var(--loop);
+      border-right: 5px solid var(--loop);
+      border-radius: 0 0 20px 20px;
+      animation: glow 4.8s infinite;
+    }
+
+    .loop-line::after {
+      content: "";
+      position: absolute;
+      left: -11px;
+      top: -4px;
+      border-bottom: 12px solid var(--loop);
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+    }
+
+    .loop-label {
+      position: absolute;
+      left: 416px;
+      top: 313px;
+      width: 148px;
+      height: 40px;
+      border: 1px solid var(--loop);
+      border-radius: 20px;
+      background: #451a03;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .caption {
+      position: absolute;
+      left: 56px;
+      right: 56px;
+      bottom: 44px;
+      height: 30px;
+      border: 1px solid #475569;
+      border-radius: 8px;
+      background: #020617;
+      display: flex;
+      align-items: center;
+      padding: 0 22px;
+      color: #e5e7eb;
+      font-size: 14px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { filter: brightness(1); transform: translateY(0); }
+      16% { filter: brightness(1.22); transform: translateY(-4px); }
+      33% { filter: brightness(1); transform: translateY(0); }
+    }
+
+    @keyframes glow {
+      0%, 60%, 100% { filter: drop-shadow(0 0 0 rgb(251 191 36 / 0)); }
+      75% { filter: drop-shadow(0 0 10px rgb(251 191 36 / 80%)); }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage" aria-label="Token Saver Loop animation">
+    <div class="panel"></div>
+    <h1>Token Saver Loop</h1>
+    <p class="subtitle">Keep premium models focused on judgment. Move execution noise into bounded worker rounds.</p>
+    <section class="card reviewer">
+      <h2>Reviewer model</h2>
+      <p>Plans one small round</p>
+      <p>Sets scope and tests</p>
+      <p>Owns final acceptance</p>
+    </section>
+    <div class="arrow a1"></div>
+    <section class="card worker">
+      <h2>Worker model</h2>
+      <p>Executes bounded task</p>
+      <p>Runs commands and tests</p>
+      <p>Writes compact evidence</p>
+    </section>
+    <div class="arrow a2"></div>
+    <section class="card verdict">
+      <h2>Reviewer verdict</h2>
+      <p>PASS: accept and continue</p>
+      <p>FIX: retry same tier</p>
+      <p>STOP: human decision</p>
+    </section>
+    <div class="loop-line"></div>
+    <div class="loop-label">next round</div>
+    <div class="caption">The expensive model reviews compact evidence each loop, not the whole execution transcript.</div>
+  </main>
+</body>
+</html>
