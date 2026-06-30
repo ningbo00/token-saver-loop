@@ -18,6 +18,7 @@ Status:
 - GitHub starability pass added README animated workflow GIF, HTML animation source, static SVG fallback, and concrete examples for Codex worker rounds, bugfix loops, and docs/i18n loops.
 - Community standards pass added code of conduct, contributing guide, security policy, and pull request template.
 - Root README is now Chinese-first; English moved to `README.en.md`, and GitHub topics include stable AI coding/model ecosystem tags.
+- README first screen now targets heavy AI coding users directly: premium-token burn, dirty context, and weak self-review, with trust boundaries and a 30-second pitch.
 
 Current Goal:
 - Finalize portable kit and GitHub-first README for a commit-ready 1.0 workflow kit.

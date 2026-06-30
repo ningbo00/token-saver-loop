@@ -1,6 +1,6 @@
 # Token Saver Loop
 
-**Portable workflow kit for coding agents: let strong reviewer models judge, while lower-cost worker models execute bounded tasks and collect evidence.**
+**Token-saving workflow for heavy AI coding users: stop spending your most expensive model on file reading, command retries, debug loops, and progress narration.**
 
 Languages: [中文](README.md) | [English](README.en.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
@@ -8,14 +8,34 @@ Languages: [中文](README.md) | [English](README.en.md) | [日本語](README.ja
 ![Version](https://img.shields.io/badge/version-1.0.8-blue.svg)
 ![Workflow](https://img.shields.io/badge/workflow-portable%20kit-purple.svg)
 
-Token Saver Loop helps you reduce premium model context waste without trusting a cheap model to approve its own work.
+If you use Codex, Claude Code, Cursor, DeepSeek, Kimi, GLM, Qwen, or similar AI coding tools every day, the biggest waste is often not code generation. It is making the premium model do low-value execution work.
 
 ![Token Saver Loop animated demo](docs/assets/token-saver-loop-demo.gif)
 
-- **Use it when** you already use Codex, Claude Code, Cursor-style agents, DeepSeek, Kimi, GLM, Qwen, or any other model/CLI that can read files and follow handoff prompts.
-- **Core idea**: reviewer plans and accepts; worker edits, tests, and writes compact evidence.
-- **No install path**: copy `portable/token-saver-kit/` into any repo, then paste fixed prompts into your reviewer and worker models.
-- **Best fit**: repo exploration, repeated debug loops, bulk edits, docs/i18n drafts, and tasks where the reviewer can inspect concise evidence instead of full execution chatter.
+## Understand It In 30 Seconds
+
+You may already have this problem:
+
+- **Premium tokens burn fast**: the expensive model reads files, scans logs, retries commands, and narrates progress.
+- **Context gets dirty**: one long chat mixes requirements, failed attempts, unrelated files, and stale assumptions.
+- **Self-review is weak**: the same model writes the change and then declares it correct.
+
+Token Saver Loop splits the work:
+
+```text
+Strong reviewer model: plans, sets boundaries, accepts evidence
+Lower-cost worker model: reads files, edits code, runs tests, writes reports
+```
+
+The point: **the premium model reviews compact evidence instead of the whole execution transcript, while the worker never owns final acceptance.**
+
+Trust boundaries:
+
+- **Local-file workflow**: no server, account, or API key required.
+- **Portable setup**: copy `portable/token-saver-kit/` into any repo.
+- **Evidence first**: worker reports changed files, commands, risks, and validation status.
+- **Final acceptance stays with reviewer/user**.
+- **Tested**: 95 Python tests pass; MIT licensed.
 
 ---
 

@@ -1,6 +1,6 @@
 # Token Saver Loop
 
-**面向 AI 编程 Agent 的便携式工作流套件：让强 reviewer 模型负责判断，让低成本 worker 模型执行有边界的任务并提交证据。**
+**重度 AI 编程用户的 Token 省钱工作流：别再让最贵的模型反复读文件、跑命令、试错和写进度。**
 
 Languages: [中文](README.md) | [English](README.en.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
@@ -8,14 +8,34 @@ Languages: [中文](README.md) | [English](README.en.md) | [日本語](README.ja
 ![Version](https://img.shields.io/badge/version-1.0.8-blue.svg)
 ![Workflow](https://img.shields.io/badge/workflow-portable%20kit-purple.svg)
 
-Token Saver Loop 用来减少高价模型的上下文浪费，但不把最终验收权交给低成本模型。
+如果你每天用 Codex、Claude Code、Cursor、DeepSeek、Kimi、GLM、Qwen 等 AI 工具写代码，最大的浪费通常不是“模型不会写”，而是：**最贵的模型一直在做低价值体力活**。
 
 ![Token Saver Loop 动图演示](docs/assets/token-saver-loop-demo.gif)
 
-- **适合你，如果** 你正在使用 Codex、Claude Code、Cursor 类 Agent、DeepSeek、Kimi、GLM、Qwen 或其他能读文件并遵守 handoff 的模型/CLI。
-- **核心思路**：reviewer 规划和验收；worker 修改、测试、提交紧凑证据。
-- **无需安装**：把 `portable/token-saver-kit/` 复制进任意项目，然后把固定 prompt 分别发给 reviewer 和 worker。
-- **最适合场景**：仓库探索、循环 debug、批量修改、文档/i18n 草稿、以及 reviewer 只需要检查证据包而不需要阅读完整执行过程的任务。
+## 30 秒看懂
+
+你可能已经遇到过这些问题：
+
+- **账单/额度烧得快**：高价模型把大量 token 花在读仓库、看日志、反复 debug 上。
+- **上下文越来越脏**：同一个聊天越做越长，需求、错误尝试、无关文件混在一起。
+- **模型自改自审不可靠**：一个模型既写代码又宣布自己成功，review 成本反而变高。
+
+Token Saver Loop 的做法很直接：
+
+```text
+强 reviewer 模型：只负责规划、设边界、验收证据
+低成本 worker 模型：负责读文件、改代码、跑测试、写报告
+```
+
+结果是：**贵模型少读长上下文，便宜模型承担执行噪音，最终仍由 reviewer 决定 pass/fix/stop。**
+
+可信边界：
+
+- **本地文件工作流**：没有服务器、没有账号、没有 API key 要配置。
+- **复制即用**：把 `portable/token-saver-kit/` 放进项目根目录即可。
+- **证据优先**：worker 必须输出改动文件、命令结果、风险和验证状态。
+- **验收不外包**：低成本 worker 不拥有最终通过权。
+- **已测试**：当前 Python 测试 `95` 个通过，项目 MIT 开源。
 
 ---
 
