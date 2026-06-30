@@ -97,7 +97,7 @@ code if the reviewer created a T0 task.
 When the worker finishes, go back to the reviewer and say:
 
 ```text
-Review the latest token-saver-kit/.ai/active_task/rounds/round_NNN evidence.
+Review the latest worker evidence in token-saver-kit and decide the next step.
 ```
 
 The reviewer should check the report, any diff, and any test output before deciding:

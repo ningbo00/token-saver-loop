@@ -35,8 +35,24 @@ Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 4. After the worker finishes, send this fixed prompt back to the reviewer model:
 
 ```text
-Review the latest token-saver-kit/.ai/active_task/rounds/round_NNN evidence.
+Review the latest worker evidence in token-saver-kit and decide the next step.
 ```
+
+---
+
+## Feature Overview
+
+Token Saver Loop is a portable AI workflow kit for splitting expensive reviewer work from lower-cost execution work.
+
+Current capabilities:
+
+- **Copy and remove cleanly**: copy `token-saver-kit/` into a project root, delete it when done.
+- **Reviewer / worker split**: reviewer plans and accepts; worker edits, tests, and reports evidence.
+- **Stable short prompts**: worker reads `LATEST_WORKER_PROMPT.md`; users do not need to find round paths.
+- **Evidence verdicts**: tools output `PASS`, `FIX_SAME_TIER`, `DOWNGRADE`, or `STOP` without replacing reviewer acceptance.
+- **Structured project memory**: `.ai/project_memory/` stores current goal, architecture notes, accepted work, risks, and latest evidence.
+- **Low-friction checks**: detects missing reports, failed validation, scope overrun, generated-file pollution, and dangerous git commands.
+- **Model-agnostic**: works with any reviewer/worker model or CLI that can read files and follow the handoff.
 
 ---
 
@@ -156,7 +172,7 @@ Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 Reviewer review:
 
 ```text
-Review the latest token-saver-kit/.ai/active_task/rounds/round_NNN evidence.
+Review the latest worker evidence in token-saver-kit and decide the next step.
 ```
 
 ---

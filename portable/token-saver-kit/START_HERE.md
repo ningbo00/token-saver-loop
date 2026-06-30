@@ -13,7 +13,7 @@ This is a **no-install, drop-in Token Saver Loop workflow kit**.
 1. **Copy** the `token-saver-kit/` folder into your project root.
 2. **Tell the reviewer model**: "Read `token-saver-kit/START_HERE.md` and act as reviewer only."
 3. **Tell the worker model**: "Read `token-saver-kit/LATEST_WORKER_PROMPT.md` and execute it."
-4. **Return to the reviewer model**: "Review the latest `token-saver-kit/.ai/active_task/rounds/round_NNN` evidence."
+4. **Return to the reviewer model**: "Review the latest worker evidence in token-saver-kit and decide the next step."
 
 The reviewer may prepare worker handoff files directly or use the optional scripts in `token-saver-kit/tools/` for workflow bookkeeping.
 

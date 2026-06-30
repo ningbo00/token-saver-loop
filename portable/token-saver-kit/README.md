@@ -20,7 +20,7 @@ A no-install, drop-in workflow kit for reviewer/worker AI collaboration.
 4. Send this back to the reviewer after the worker finishes:
 
    ```text
-   Review the latest token-saver-kit/.ai/active_task/rounds/round_NNN evidence.
+   Review the latest worker evidence in token-saver-kit and decide the next step.
    ```
 
 ## Optional AI Automation Tools

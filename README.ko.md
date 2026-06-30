@@ -35,8 +35,24 @@ Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 4. worker 가 끝나면 이 고정 프롬프트를 reviewer 모델에 다시 보냅니다：
 
 ```text
-Review the latest token-saver-kit/.ai/active_task/rounds/round_NNN evidence.
+Review the latest worker evidence in token-saver-kit and decide the next step.
 ```
+
+---
+
+## 기능 개요
+
+Token Saver Loop는 고가 reviewer 작업과 저비용 실행 작업을 분리하는 portable-only AI 협업 workflow kit 입니다.
+
+현재 기능:
+
+- **복사해서 바로 사용**：`token-saver-kit/` 을 프로젝트 루트에 넣고, 필요 없으면 삭제하면 됩니다.
+- **reviewer / worker 분업**：reviewer 는 계획과 검수를 맡고, worker 는 수정, 테스트, 증거 보고를 맡습니다.
+- **고정 짧은 프롬프트**：worker 는 `LATEST_WORKER_PROMPT.md` 를 읽습니다. 사용자가 round 경로를 찾을 필요가 없습니다.
+- **증거 verdict**：도구는 `PASS`, `FIX_SAME_TIER`, `DOWNGRADE`, `STOP` 을 출력하지만 reviewer 의 최종 검수를 대체하지 않습니다.
+- **구조화된 project memory**：`.ai/project_memory/` 에 현재 목표, 구조 메모, 검수 완료 작업, 리스크, 최신 증거를 저장합니다.
+- **낮은 마찰의 검사**：누락된 보고서, 검증 실패, 범위 초과, 생성 파일 오염, 위험한 git 명령을 감지합니다.
+- **모델 독립적**：파일을 읽고 handoff 를 따를 수 있는 reviewer/worker 모델이나 CLI 라면 사용할 수 있습니다.
 
 ---
 
@@ -156,7 +172,7 @@ Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 reviewer 검토：
 
 ```text
-Review the latest token-saver-kit/.ai/active_task/rounds/round_NNN evidence.
+Review the latest worker evidence in token-saver-kit and decide the next step.
 ```
 
 ---

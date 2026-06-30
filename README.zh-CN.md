@@ -35,8 +35,24 @@ Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 4. worker 完成后，把这段固定话术发回 reviewer 模型：
 
 ```text
-Review the latest token-saver-kit/.ai/active_task/rounds/round_NNN evidence.
+Review the latest worker evidence in token-saver-kit and decide the next step.
 ```
+
+---
+
+## 功能简介
+
+Token Saver Loop 是一个 portable-only 的 AI 协作工作流套件，用来把高价 reviewer 工作和低成本执行工作分开。
+
+当前能力：
+
+- **复制即用、删除即走**：把 `token-saver-kit/` 放进项目根目录，用完直接删除。
+- **reviewer / worker 分工**：reviewer 负责规划和验收，worker 负责修改、测试和报告证据。
+- **固定短话术**：worker 读取 `LATEST_WORKER_PROMPT.md`，用户不需要手动找 round 路径。
+- **证据裁决**：工具输出 `PASS`、`FIX_SAME_TIER`、`DOWNGRADE`、`STOP`，但不替代 reviewer 最终验收。
+- **结构化项目记忆**：`.ai/project_memory/` 保存当前目标、架构笔记、已验收事项、风险和最新证据。
+- **低摩擦检查**：检查缺失报告、验证失败、超范围、生成文件污染、危险 git 命令等关键问题。
+- **模型无关**：任何能读文件并遵守 handoff 的 reviewer/worker 模型或 CLI 都可以使用。
 
 ---
 
@@ -156,7 +172,7 @@ Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.
 reviewer 审查：
 
 ```text
-Review the latest token-saver-kit/.ai/active_task/rounds/round_NNN evidence.
+Review the latest worker evidence in token-saver-kit and decide the next step.
 ```
 
 ---
