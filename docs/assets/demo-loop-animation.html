@@ -120,9 +120,9 @@
 
     .loop-line {
       position: absolute;
-      left: 181px;
+      left: 490px;
       top: 297px;
-      width: 619px;
+      width: 310px;
       height: 36px;
       border-bottom: 5px solid var(--loop);
       border-left: 5px solid var(--loop);
@@ -143,9 +143,9 @@
 
     .loop-label {
       position: absolute;
-      left: 416px;
+      left: 561px;
       top: 313px;
-      width: 148px;
+      width: 176px;
       height: 40px;
       border: 1px solid var(--loop);
       border-radius: 20px;
@@ -204,14 +204,14 @@
     </section>
     <div class="arrow a2"></div>
     <section class="card verdict">
-      <h2>Reviewer verdict</h2>
-      <p>PASS: accept and continue</p>
-      <p>FIX: retry same tier</p>
-      <p>STOP: human decision</p>
+      <h2>Reviewer checks</h2>
+      <p>Reads compact evidence</p>
+      <p>PASS / FIX / STOP</p>
+      <p>Writes next task</p>
     </section>
     <div class="loop-line"></div>
-    <div class="loop-label">next round</div>
-    <div class="caption">The expensive model reviews compact evidence each loop, not the whole execution transcript.</div>
+    <div class="loop-label">next worker round</div>
+    <div class="caption">Loop: reviewer decides the next bounded task, then worker executes again.</div>
   </main>
 </body>
 </html>

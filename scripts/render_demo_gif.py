@@ -121,8 +121,8 @@ def frame_image(i: int) -> Image.Image:
         draw,
         674,
         142,
-        "Reviewer verdict",
-        ["PASS: accept and continue", "FIX: retry same tier", "STOP: human decision"],
+        "Reviewer checks",
+        ["Reads compact evidence", "PASS / FIX / STOP", "Writes next task"],
         "#581c87",
         "#d8b4fe",
         active_for(i, 21),
@@ -130,15 +130,15 @@ def frame_image(i: int) -> Image.Image:
 
     loop_active = active_for(i, 30, 8)
     loop_color = mix("#b45309", "#fbbf24", loop_active)
-    draw.line((800, 297, 800, 333, 181, 333, 181, 302), fill=loop_color, width=5, joint="curve")
-    draw.polygon([(181, 294), (172, 306), (190, 306)], fill=loop_color)
-    rounded(draw, (416, 313, 564, 353), 20, "#451a03", loop_color, 2)
-    draw.text((446, 323), "next round", fill="#ffffff", font=LABEL)
+    draw.line((800, 297, 800, 333, 490, 333, 490, 302), fill=loop_color, width=5, joint="curve")
+    draw.polygon([(490, 294), (481, 306), (499, 306)], fill=loop_color)
+    rounded(draw, (561, 313, 737, 353), 20, "#451a03", loop_color, 2)
+    draw.text((589, 323), "next worker round", fill="#ffffff", font=LABEL)
 
     rounded(draw, (56, 366, 924, 396), 8, "#020617", "#475569", 1)
     draw.text(
         (78, 374),
-        "The expensive model reviews compact evidence each loop, not the whole execution transcript.",
+        "Loop: reviewer decides the next bounded task, then worker executes again.",
         fill="#e5e7eb",
         font=BODY_SMALL,
     )

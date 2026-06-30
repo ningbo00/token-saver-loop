@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="980" height="440" viewBox="0 0 980 440" role="img" aria-labelledby="title desc">
   <title id="title">Token Saver Loop reviewer and worker flow</title>
-  <desc id="desc">A reviewer plans one bounded task, a worker executes it and writes evidence, then the reviewer decides pass, fix, downgrade, or stop.</desc>
+  <desc id="desc">A reviewer plans one bounded task, a worker executes it and writes evidence, then the reviewer decides the next worker round.</desc>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#0b1220"/>
@@ -41,21 +41,21 @@
 
   <g filter="url(#shadow)">
     <rect x="674" y="142" width="250" height="142" rx="12" fill="#581c87" stroke="#d8b4fe" stroke-width="2"/>
-    <text x="696" y="176" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="700">Reviewer verdict</text>
-    <text x="696" y="206" fill="#faf5ff" font-family="Segoe UI, Arial, sans-serif" font-size="15">PASS: accept and continue</text>
-    <text x="696" y="232" fill="#faf5ff" font-family="Segoe UI, Arial, sans-serif" font-size="15">FIX: retry same tier</text>
-    <text x="696" y="258" fill="#faf5ff" font-family="Segoe UI, Arial, sans-serif" font-size="15">STOP: human decision</text>
+    <text x="696" y="176" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="21" font-weight="700">Reviewer checks</text>
+    <text x="696" y="206" fill="#faf5ff" font-family="Segoe UI, Arial, sans-serif" font-size="15">Reads compact evidence</text>
+    <text x="696" y="232" fill="#faf5ff" font-family="Segoe UI, Arial, sans-serif" font-size="15">PASS / FIX / STOP</text>
+    <text x="696" y="258" fill="#faf5ff" font-family="Segoe UI, Arial, sans-serif" font-size="15">Writes next task</text>
   </g>
 
   <line x1="318" y1="213" x2="352" y2="213" stroke="#e5e7eb" stroke-width="4" marker-end="url(#arrow)"/>
   <line x1="627" y1="213" x2="661" y2="213" stroke="#e5e7eb" stroke-width="4" marker-end="url(#arrow)"/>
 
-  <path d="M800 297 L800 333 L181 333 L181 297" fill="none" stroke="#fbbf24" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#loopArrow)"/>
-  <rect x="416" y="313" width="148" height="40" rx="20" fill="#451a03" stroke="#fbbf24"/>
-  <text x="446" y="339" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">next round</text>
+  <path d="M800 297 L800 333 L490 333 L490 297" fill="none" stroke="#fbbf24" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#loopArrow)"/>
+  <rect x="561" y="313" width="176" height="40" rx="20" fill="#451a03" stroke="#fbbf24"/>
+  <text x="589" y="339" fill="#ffffff" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">next worker round</text>
 
   <g>
     <rect x="56" y="366" width="868" height="30" rx="8" fill="#020617" stroke="#475569"/>
-    <text x="78" y="386" fill="#e5e7eb" font-family="Segoe UI, Arial, sans-serif" font-size="14">The expensive model reviews compact evidence each loop, not the whole execution transcript.</text>
+    <text x="78" y="386" fill="#e5e7eb" font-family="Segoe UI, Arial, sans-serif" font-size="14">Loop: reviewer decides the next bounded task, then worker executes again.</text>
   </g>
 </svg>
