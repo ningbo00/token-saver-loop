@@ -43,6 +43,7 @@ $latestPromptPath = Join-Path $KitDir 'LATEST_WORKER_PROMPT.md'
 $contextPath = Join-Path $Active 'context_pack.md'
 $planPath = Join-Path $Active 'reviewer_plan.md'
 $progressPath = Join-Path $Active 'progress.md'
+$workerCopyPrompt = 'Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.'
 
 if (-not $Tier) {
   $stateText = if (Test-Path $statePath) { Get-Content $statePath -Raw } else { '' }
@@ -189,11 +190,17 @@ Latest artifacts:
 - token-saver-kit/LATEST_WORKER_PROMPT.md
 
 Next action:
-- Give the worker token-saver-kit/LATEST_WORKER_PROMPT.md.
+- Copy this to the worker:
+  $workerCopyPrompt
 "@
 
 if (-not (Test-Path $progressPath)) {
-  Write-Utf8File $progressPath "# Progress`n`n- Status: worker prompt ready.`n"
+  Write-Utf8File $progressPath "# Progress`n`n- Status: worker prompt ready.`n- Next worker prompt: $workerCopyPrompt`n"
+} else {
+  Add-Content -Path $progressPath -Encoding utf8 -Value "`n- Status: worker prompt ready.`n- Next worker prompt: $workerCopyPrompt"
 }
 
 Write-Host "Prepared worker prompt: $(Join-Path $roundDir 'worker_prompt.md')"
+Write-Host ''
+Write-Host 'Next worker prompt:'
+Write-Host $workerCopyPrompt

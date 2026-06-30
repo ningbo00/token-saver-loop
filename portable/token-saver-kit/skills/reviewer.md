@@ -36,6 +36,8 @@ Expand only when the task or evidence requires it.
 - Set a clear tier, file limit, allowed scope, validation command, and stop conditions.
 - Prefer T0 for inspection, T1 for exact edits, T2 for bounded implementation, and T3 only when exploration is genuinely needed.
 - Make the worker write `worker_log.md`, `worker_report.json`, and progress updates under the current round.
+- End every prepared-round reply with the exact worker prompt:
+  `Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.`
 
 ## Reviewing A Worker Round
 

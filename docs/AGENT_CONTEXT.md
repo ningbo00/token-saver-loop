@@ -5,7 +5,7 @@ Project: Token Saver Loop
 Status:
 - Token Saver Loop is the primary product path; worker/reviewer are generic roles, and specific model names are examples only.
 - README is GitHub-facing; `docs/BEGINNER_GUIDE.md` is the beginner path for users new to the workflow.
-- Package version is `1.0.6`; JSON schemas remain `version: 1`.
+- Package version is `1.0.7`; JSON schemas remain `version: 1`.
 - CLI supports project config preview, worker skill preview, setup doctor reports, worker token usage parsing, manual reviewer usage snapshots, metrics summarization, and metrics append/write.
 - There is no installer mode; the product path is copying `portable/token-saver-kit/`.
 - First-run portable workflow has been hardened: reviewer/worker prompts are short, detailed role rules live in kit skills, and tools are optional low-friction bookkeeping helpers.

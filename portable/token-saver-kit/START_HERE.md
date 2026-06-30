@@ -41,6 +41,8 @@ Reviewer model:
 - Decides pass, fix, downgrade, or stop.
 - Must not directly modify parent-project source code.
 - May use tool-generated evidence verdicts, but owns final acceptance.
+- After preparing a worker round, tell the user the exact worker prompt to copy:
+  `Read token-saver-kit/LATEST_WORKER_PROMPT.md and execute it.`
 
 Worker model:
 
