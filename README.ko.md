@@ -12,11 +12,21 @@ Token Saver Loop는 portable-only 도구입니다. 설치 프로그램을 실행
 
 1. 이 리포지토리의 `portable/token-saver-kit` 을 자신의 프로젝트 루트에 복사합니다.
 
-   또는 자신의 프로젝트 루트에서 CMD를 열고 그대로 실행합니다：
+   또는 자신의 프로젝트 루트에서 CMD를 열고 그대로 실행합니다.
+
+   최신 `master` 버전:
 
    ```cmd
    rmdir /S /Q "%TEMP%\token-saver-loop-kit" 2>NUL & git clone --depth 1 https://github.com/ningbo00/token-saver-loop.git "%TEMP%\token-saver-loop-kit" && xcopy "%TEMP%\token-saver-loop-kit\portable\token-saver-kit" "token-saver-kit" /E /I /Y && rmdir /S /Q "%TEMP%\token-saver-loop-kit"
    ```
+
+   고정 `v1.06` 버전:
+
+   ```cmd
+   rmdir /S /Q "%TEMP%\token-saver-loop-kit" 2>NUL & git clone --depth 1 --branch v1.06 https://github.com/ningbo00/token-saver-loop.git "%TEMP%\token-saver-loop-kit" && xcopy "%TEMP%\token-saver-loop-kit\portable\token-saver-kit" "token-saver-kit" /E /I /Y && rmdir /S /Q "%TEMP%\token-saver-loop-kit"
+   ```
+
+   최신 개선을 시험하려면 최신 버전을 사용합니다. 재현 가능한 프로젝트 setup 에는 tag 고정 버전을 사용합니다.
 
    나중에 제거하는 방법：프로젝트가 끝났거나 이 workflow 가 더 이상 필요 없으면, 프로젝트 루트의 `token-saver-kit` 폴더만 삭제하면 됩니다.
 
@@ -293,3 +303,4 @@ Python 패키지에는 기여자를 위한 선택적 진단 및 메트릭 보조
 MIT License. 자유로운 상업 이용, 2차 수정 및 재배포를 허용합니다.
 
 > （주：문서의 일부 내용은 AI에 의해 생성되었을 수 있습니다）
+

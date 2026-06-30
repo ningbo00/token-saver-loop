@@ -12,11 +12,21 @@ Token Saver Loop is portable-only. You do not run an installer.
 
 1. Copy `portable/token-saver-kit` from this repo into your own project root.
 
-   Or run this from your own project root in CMD:
+   Or run this from your own project root in CMD.
+
+   Latest `master` version:
 
    ```cmd
    rmdir /S /Q "%TEMP%\token-saver-loop-kit" 2>NUL & git clone --depth 1 https://github.com/ningbo00/token-saver-loop.git "%TEMP%\token-saver-loop-kit" && xcopy "%TEMP%\token-saver-loop-kit\portable\token-saver-kit" "token-saver-kit" /E /I /Y && rmdir /S /Q "%TEMP%\token-saver-loop-kit"
    ```
+
+   Fixed `v1.06` version:
+
+   ```cmd
+   rmdir /S /Q "%TEMP%\token-saver-loop-kit" 2>NUL & git clone --depth 1 --branch v1.06 https://github.com/ningbo00/token-saver-loop.git "%TEMP%\token-saver-loop-kit" && xcopy "%TEMP%\token-saver-loop-kit\portable\token-saver-kit" "token-saver-kit" /E /I /Y && rmdir /S /Q "%TEMP%\token-saver-loop-kit"
+   ```
+
+   Use latest for testing new improvements. Use a tagged version for repeatable project setup.
 
    Removal later: when the project is done, or when you no longer need the workflow, delete the `token-saver-kit` folder from your project root.
 
@@ -293,5 +303,6 @@ The Python package contains optional diagnostics and metrics helpers for contrib
 MIT License, allowing free commercial use and redistribution with modifications.
 
 > (Note: Some parts of this document may be AI-generated.)
+
 
 

@@ -2,6 +2,9 @@
 
 A no-install, drop-in workflow kit for reviewer/worker AI collaboration.
 
+For repeatable setup from GitHub, prefer a tagged repo download command such as
+`--branch v1.06`. Use `master` only when you intentionally want the latest kit.
+
 ## Quickstart
 
 1. Copy `token-saver-kit/` into your project root.
@@ -43,3 +46,4 @@ them to reduce repeated bookkeeping and path mistakes.
 
 When you no longer need the workflow, delete the `token-saver-kit/` folder from
 your project root.
+

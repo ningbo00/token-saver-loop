@@ -12,7 +12,7 @@ Current structure:
 - `README.zh-CN.md`, `README.ja.md`, `README.ko.md`: localized README files linked from the English README.
 - `LICENSE`: MIT license for GitHub license detection.
 - `examples/minimal-task.md`: inspect-only starter example for first-time users.
-- `pyproject.toml`: Python package metadata (`1.0.4` preview-only) and console script entry point.
+- `pyproject.toml`: Python package metadata (`1.0.6` preview-only) and console script entry point.
 - `src/token_saver_loop/`: Python source package.
   - `__init__.py`: package init and package version.
   - `templates.py`: built-in format templates (legacy, retained for compatibility).
