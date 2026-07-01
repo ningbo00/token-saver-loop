@@ -19,6 +19,7 @@ Status:
 - Community standards pass added code of conduct, contributing guide, security policy, and pull request template.
 - Root README is now Chinese-first; English moved to `README.en.md`, and GitHub topics include stable AI coding/model ecosystem tags.
 - README first screen now targets heavy AI coding users directly: premium-token burn, dirty context, and weak self-review, with trust boundaries and a 30-second pitch.
+- Product launch event runbook added at `docs/PRODUCT_LAUNCH_EVENT.md` with agenda, talk track, install demo, first-run demo, feature highlights, Q&A framing, and CTA.
 
 Current Goal:
 - Finalize portable kit and GitHub-first README for a commit-ready 1.0 workflow kit.

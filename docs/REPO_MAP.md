@@ -5,6 +5,7 @@ Current structure:
   - `AGENT_CONTEXT.md`: compact project handoff context.
   - `BEGINNER_GUIDE.md`: step-by-step beginner guide for the portable workflow.
   - `GITHUB_PROMOTION_KIT.md`: copy-ready GitHub/social launch text, suggested topics, and release draft.
+  - `PRODUCT_LAUNCH_EVENT.md`: product launch agenda, script, install demo, usage demo, and CTA runbook.
   - `REPO_MAP.md`: compact repo map.
   - `assets/token-saver-loop-demo.gif`: README first-screen animated workflow demo.
   - `assets/demo-loop-animation.html`: web animation source for the README demo.
