@@ -11,6 +11,8 @@ if str(_PROJECT_ROOT / "src") not in sys.path:
 import io
 import json
 import os
+import shutil
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -81,6 +83,56 @@ class TestCLILegacy(unittest.TestCase):
                 output = mock_stdout.getvalue()
                 messages = json.loads(output)
                 self.assertEqual(len(messages), 2)
+
+
+class TestPortableKitScripts(unittest.TestCase):
+    def test_new_round_preserves_markdown_backticks_without_control_chars(self) -> None:
+        powershell = shutil.which("pwsh") or shutil.which("powershell")
+        if not powershell:
+            self.skipTest("PowerShell is required for portable kit script tests")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            kit_source = _PROJECT_ROOT / "portable" / "token-saver-kit"
+            kit = Path(tmpdir) / "token-saver-kit"
+            shutil.copytree(kit_source, kit)
+            script = kit / "tools" / "tsl-new-round.ps1"
+            task = "Use `inline_code` and token-saver-kit path."
+
+            subprocess.run(
+                [
+                    powershell,
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    str(script),
+                    "-Task",
+                    task,
+                    "-Tier",
+                    "T2",
+                    "-TestCommands",
+                    "python -m py_compile screenshot_tool.py",
+                    "-Preview",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            prompt = (kit / "LATEST_WORKER_PROMPT.md").read_text(encoding="utf-8")
+            bad_controls = [
+                ord(ch)
+                for ch in prompt
+                if ord(ch) < 32 and ch not in ("\r", "\n", "\t")
+            ]
+            self.assertEqual(bad_controls, [])
+            self.assertNotIn("${roundRel}", prompt)
+            self.assertIn("`acceptance`", prompt)
+            self.assertIn("`git rev-parse --is-inside-work-tree`", prompt)
+            self.assertIn("`__pycache__/`", prompt)
+            self.assertIn("rounds/_validate/round_status.json`", prompt.replace("\\", "/"))
+
+
 # ---------- Workflow-kit tests ----------
 
 

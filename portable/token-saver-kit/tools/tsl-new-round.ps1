@@ -61,7 +61,7 @@ $Task
 
 ## Source of truth
 
-Use `token-saver-kit/LATEST_WORKER_PROMPT.md` as the stable worker prompt path.
+Use ``token-saver-kit/LATEST_WORKER_PROMPT.md`` as the stable worker prompt path.
 "@
 }
 if (-not (Test-Path $taskPath)) {
@@ -146,12 +146,12 @@ $(Get-Content $planPath -Raw)
 ## Role Boundaries
 
 - Execute only this worker prompt.
-- At the start of execution, write `${roundRel}/round_status.json` with status `in_progress`; at the very end, rewrite it with status `done`.
+- At the start of execution, write ``$roundRel/round_status.json`` with status ``in_progress``; at the very end, rewrite it with status ``done``.
 - Write final reports to temporary files first when possible, then rename/copy them into place so the reviewer does not read half-written JSON.
 - Change parent-project files only inside the stated task scope.
 - Run git commit/tag/push only when this prompt or the user explicitly asks for that exact action; report commit hashes if used.
 - Do not run destructive git operations such as reset --hard, clean -fdx, forced push, or checkout/restore that discards user work.
-- Do not modify lock files, generated files, binary files, archives, executables, dist/, build/, .git/, node_modules/, or __pycache__/ unless explicitly allowed.
+- Do not modify lock files, generated files, binary files, archives, executables, ``dist/``, ``build/``, ``.git/``, ``node_modules/``, or ``__pycache__/`` unless explicitly allowed.
 - Do not claim success without command evidence.
 - $workflowLimit
 
@@ -161,13 +161,13 @@ Stop and report instead of guessing if requirements conflict, validation fails a
 
 Missing-file rule: if a target implementation file is absent and the task allows creating it, continue and record that fact. If required context/config/input files are absent, stop. If optional docs are absent, record a deviation but do not stop by default.
 
-Git evidence rule: run `git rev-parse --is-inside-work-tree` before git status/diff. If it fails, do not keep retrying git; record changed files, file sizes, and concise manual diff notes instead.
+Git evidence rule: run ``git rev-parse --is-inside-work-tree`` before git status/diff. If it fails, do not keep retrying git; record changed files, file sizes, and concise manual diff notes instead.
 
 ## Required Validation
 
 $TestCommands
 
-If a Python validation command would create `__pycache__/`, prefer `python -B` or set `PYTHONDONTWRITEBYTECODE=1` when that still validates the task.
+If a Python validation command would create ``__pycache__/``, prefer ``python -B`` or set ``PYTHONDONTWRITEBYTECODE=1`` when that still validates the task.
 
 ## Required Reports
 
@@ -179,10 +179,10 @@ Write:
 
 worker_report.json must include status, tier, summary, files_read, files_changed, commands_run, acceptance, risks, deviations, open_questions, and next_action.
 
-Keep `acceptance` compact and evidence-shaped. For each important acceptance item, prefer:
-`{"implemented": true|false, "validated": true|false, "evidence": "command|test|static|manual|not_run", "note": "short reason when useful"}`
+Keep ``acceptance`` compact and evidence-shaped. For each important acceptance item, prefer:
+``{"implemented": true|false, "validated": true|false, "evidence": "command|test|static|manual|not_run", "note": "short reason when useful"}``
 
-Set report status to `done` only after reports and validation evidence are complete. Use `blocked` or `failed` when stopping early.
+Set report status to ``done`` only after reports and validation evidence are complete. Use ``blocked`` or ``failed`` when stopping early.
 "@
 
 @{
